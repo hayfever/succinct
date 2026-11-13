@@ -5,7 +5,7 @@ describe("contextMessages", () => {
   test("reads buildSessionContext", () => {
     const manager = {
       buildSessionContext: () => ({
-        messages: [{ role: "custom", customType: "blunt-rules" }],
+        messages: [{ role: "custom", customType: "succinct-rules" }],
       }),
     };
     expect(contextMessages(manager)).toHaveLength(1);
@@ -14,7 +14,7 @@ describe("contextMessages", () => {
   test("falls back to buildContextEntries", () => {
     const manager = {
       buildContextEntries: () => [
-        { type: "custom_message", customType: "blunt-disabled" },
+        { type: "custom_message", customType: "succinct-disabled" },
       ],
     };
     expect(contextMessages(manager)).toHaveLength(1);
@@ -36,22 +36,22 @@ describe("contextMessages", () => {
 describe("latestMarkerIsActive", () => {
   test("rules message activates, disabled notice deactivates", () => {
     const messages = [
-      { role: "custom", customType: "blunt-rules" },
-      { role: "custom", customType: "blunt-disabled" },
-      { role: "custom", customType: "blunt-rules" },
+      { role: "custom", customType: "succinct-rules" },
+      { role: "custom", customType: "succinct-disabled" },
+      { role: "custom", customType: "succinct-rules" },
     ];
-    expect(latestMarkerIsActive(messages, "blunt-rules", "blunt-disabled")).toBe(true);
+    expect(latestMarkerIsActive(messages, "succinct-rules", "succinct-disabled")).toBe(true);
     expect(
-      latestMarkerIsActive(messages.slice(0, 2), "blunt-rules", "blunt-disabled"),
+      latestMarkerIsActive(messages.slice(0, 2), "succinct-rules", "succinct-disabled"),
     ).toBe(false);
-    expect(latestMarkerIsActive([], "blunt-rules", "blunt-disabled")).toBe(false);
+    expect(latestMarkerIsActive([], "succinct-rules", "succinct-disabled")).toBe(false);
   });
 
   test("ignores non-custom entries", () => {
     const messages = [
-      { type: "text", customType: "blunt-rules" },
-      { role: "user", customType: "blunt-disabled" },
+      { type: "text", customType: "succinct-rules" },
+      { role: "user", customType: "succinct-disabled" },
     ];
-    expect(latestMarkerIsActive(messages, "blunt-rules", "blunt-disabled")).toBe(false);
+    expect(latestMarkerIsActive(messages, "succinct-rules", "succinct-disabled")).toBe(false);
   });
 });

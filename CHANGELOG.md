@@ -1,6 +1,22 @@
 # Changelog
 
-All notable changes to blunt are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org).
+All notable changes to succinct are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org).
+
+## [1.2.0] - 2026-11-13
+
+### Changed
+
+- Renamed the project from blunt to succinct. The package name, skill name, skill path, command, launch flag, stop phrase, and state files changed. The ruleset did not.
+- Skill entry point moved from `skills/blunt/SKILL.md` to `skills/succinct/SKILL.md`. The Cursor mirror moved to `.cursor/skills/succinct/SKILL.md`.
+- Extension file is now `extensions/succinct.ts`. The OpenCode plugin is `.opencode/plugins/succinct.mjs` and its command is `.opencode/command/succinct.md`.
+- Command is `/succinct`. Launch flag is `--succinct`. Stop phrase is `stop succinct mode`. `normal mode` still works.
+- Always-on flag file is `.succinct-always`. The persisted toggle file is `succinct.json`.
+
+### Migration
+
+- Delete the old `.blunt-always` flag file and create `.succinct-always` in the same directory to keep always-on.
+- `/blunt`, `--blunt`, and `stop blunt mode` no longer work. There is no alias.
+- The old `blunt.json` toggle file is ignored. Run `/succinct` once to save the preference.
 
 ## [1.1.0] - 2026-09-16
 
@@ -24,5 +40,6 @@ All notable changes to blunt are documented here. The format follows [Keep a Cha
 - Test harness: package consistency validator, cross-runtime unit tests, extension RPC smoke tests with no model calls, paired baseline-vs-candidate evals with a blind judge and release gate, and a deterministic style linter.
 - GitHub Actions: `validate.yml` on every push and pull request, `evals.yml` on manual dispatch.
 
-[1.1.0]: https://github.com/hayfever/blunt/releases/tag/v1.1.0
-[1.0.0]: https://github.com/hayfever/blunt/releases/tag/v1.0.0
+[1.2.0]: https://github.com/hayfever/succinct/releases/tag/v1.2.0
+[1.1.0]: https://github.com/hayfever/succinct/releases/tag/v1.1.0
+[1.0.0]: https://github.com/hayfever/succinct/releases/tag/v1.0.0

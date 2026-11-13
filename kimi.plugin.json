@@ -1,12 +1,12 @@
 {
-  "name": "blunt",
-  "version": "1.1.0",
+  "name": "succinct",
+  "version": "1.2.0",
   "description": "One output style: lead with the next action (ADHD-friendly), strip AI tells from prose, write technical text in plain Simplified Technical English.",
   "license": "MIT",
-  "homepage": "https://github.com/hayfever/blunt",
+  "homepage": "https://github.com/hayfever/succinct",
   "skills": "./skills/",
   "interface": {
-    "displayName": "Blunt",
+    "displayName": "Succinct",
     "shortDescription": "Action-first, human, plain output for Kimi Code CLI"
   }
 }

@@ -1,8 +1,8 @@
 # How to install
 
-The canonical skill is `skills/blunt/SKILL.md`. Every agent that reads agent skills accepts it with no conversion; plugin manifests serve the marketplaces of Claude Code, Codex, Kimi, Antigravity, and OMP.
+The canonical skill is `skills/succinct/SKILL.md`. Every agent that reads agent skills accepts it with no conversion; plugin manifests serve the marketplaces of Claude Code, Codex, Kimi, Antigravity, and OMP.
 
-This repository lives at `https://github.com/hayfever/blunt`. If you forked it, swap `hayfever/blunt` for your own `owner/repo` in every command below. Local copies work everywhere: the "without the CLI" fallback in each section is a folder copy, and several marketplaces accept a local path (Claude Code: the path must point at the repo root).
+This repository lives at `https://github.com/hayfever/succinct`. If you forked it, swap `hayfever/succinct` for your own `owner/repo` in every command below. Local copies work everywhere: the "without the CLI" fallback in each section is a folder copy, and several marketplaces accept a local path (Claude Code: the path must point at the repo root).
 
 ## Always-on snippet
 
@@ -35,7 +35,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 ### Install
 
 ```bash
-agy plugin install https://github.com/hayfever/blunt
+agy plugin install https://github.com/hayfever/succinct
 ```
 
 ### Verify
@@ -47,17 +47,17 @@ agy plugin list
 ### Update
 
 ```bash
-agy plugin uninstall blunt
-agy plugin install https://github.com/hayfever/blunt
+agy plugin uninstall succinct
+agy plugin install https://github.com/hayfever/succinct
 ```
 
 ### Uninstall
 
 ```bash
-agy plugin uninstall blunt
+agy plugin uninstall succinct
 ```
 
-Or keep it installed and turn it off: `agy plugin disable blunt`.
+Or keep it installed and turn it off: `agy plugin disable succinct`.
 
 ### Always-on (optional)
 
@@ -71,11 +71,11 @@ Add the [always-on snippet](#always-on-snippet) to `~/.gemini/GEMINI.md`.
 ### Install
 
 ```bash
-claude plugin marketplace add hayfever/blunt
-claude plugin install blunt@blunt
+claude plugin marketplace add hayfever/succinct
+claude plugin install succinct@succinct
 ```
 
-Type `/blunt`.
+Type `/succinct`.
 
 ### Verify
 
@@ -86,39 +86,39 @@ claude plugin list
 ### Update
 
 ```bash
-claude plugin marketplace update blunt
+claude plugin marketplace update succinct
 ```
 
 ### Uninstall
 
 ```bash
-claude plugin uninstall blunt
-claude plugin marketplace remove blunt
+claude plugin uninstall succinct
+claude plugin marketplace remove succinct
 ```
 
-Or keep it installed and turn it off: `claude plugin disable blunt`.
+Or keep it installed and turn it off: `claude plugin disable succinct`.
 
 ### Always-on (optional)
 
-A `SessionStart` hook loads the full ruleset at the start of every session, no `/blunt` needed:
+A `SessionStart` hook loads the full ruleset at the start of every session, no `/succinct` needed:
 
 ```bash
-touch ~/.claude/.blunt-always
+touch ~/.claude/.succinct-always
 ```
 
 If you use a custom Claude configuration directory, create the flag there instead:
 
 ```bash
-touch "$CLAUDE_CONFIG_DIR/.blunt-always"
+touch "$CLAUDE_CONFIG_DIR/.succinct-always"
 ```
 
 Back to on-demand:
 
 ```bash
-rm ~/.claude/.blunt-always
+rm ~/.claude/.succinct-always
 ```
 
-The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. "stop blunt mode" still turns it off for the current session.
+The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. "stop succinct mode" still turns it off for the current session.
 
 </details>
 
@@ -128,11 +128,11 @@ The hook only fires when the flag file exists, so installing the plugin changes 
 ### Install
 
 ```bash
-codex plugin marketplace add hayfever/blunt --ref main
-codex plugin add blunt@blunt
+codex plugin marketplace add hayfever/succinct --ref main
+codex plugin add succinct@succinct
 ```
 
-Invoke the skill explicitly by typing `$blunt`. Codex will not activate it automatically.
+Invoke the skill explicitly by typing `$succinct`. Codex will not activate it automatically.
 
 ### Verify
 
@@ -143,16 +143,16 @@ codex plugin list
 ### Update
 
 ```bash
-codex plugin marketplace upgrade blunt
-codex plugin remove blunt
-codex plugin add blunt@blunt
+codex plugin marketplace upgrade succinct
+codex plugin remove succinct
+codex plugin add succinct@succinct
 ```
 
 ### Uninstall
 
 ```bash
-codex plugin remove blunt
-codex plugin marketplace remove blunt
+codex plugin remove succinct
+codex plugin marketplace remove succinct
 ```
 
 ### Always-on (optional)
@@ -170,16 +170,16 @@ Gemini CLI has no plugin marketplace, so there are two native routes: a **custom
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/hayfever/blunt/main/skills/blunt/agents/gemini.toml \
-  -o ~/.gemini/commands/blunt.toml
+curl -fsSL https://raw.githubusercontent.com/hayfever/succinct/main/skills/succinct/agents/gemini.toml \
+  -o ~/.gemini/commands/succinct.toml
 ```
 
-Start a new session, type `/blunt`. It stays on for that session.
+Start a new session, type `/succinct`. It stays on for that session.
 
 ### Install (extension, always-on)
 
 ```bash
-gemini extensions install https://github.com/hayfever/blunt
+gemini extensions install https://github.com/hayfever/succinct
 ```
 
 The extension loads `GEMINI.md`, which imports the full skill, so the rules apply from message one. `git` must be installed.
@@ -188,23 +188,23 @@ The extension loads `GEMINI.md`, which imports the full skill, so the rules appl
 
 ```bash
 gemini extensions list          # extension route
-ls ~/.gemini/commands           # command route: blunt.toml present
+ls ~/.gemini/commands           # command route: succinct.toml present
 ```
 
-Or type `/` in a session and confirm `blunt` is listed.
+Or type `/` in a session and confirm `succinct` is listed.
 
 ### Update
 
 ```bash
-gemini extensions update blunt    # extension route
+gemini extensions update succinct    # extension route
 # command route: re-run the curl above
 ```
 
 ### Uninstall
 
 ```bash
-gemini extensions uninstall blunt    # extension route
-rm ~/.gemini/commands/blunt.toml     # command route
+gemini extensions uninstall succinct    # extension route
+rm ~/.gemini/commands/succinct.toml     # command route
 ```
 
 </details>
@@ -217,21 +217,21 @@ Copilot reads Agent Skills natively: the same `SKILL.md`, no conversion. It scan
 ### Install
 
 ```bash
-npx skills add hayfever/blunt -a github-copilot        # this project
-npx skills add hayfever/blunt -a github-copilot -g     # all projects
+npx skills add hayfever/succinct -a github-copilot        # this project
+npx skills add hayfever/succinct -a github-copilot -g     # all projects
 ```
 
 Without the CLI, copy the skill folder into any directory Copilot scans:
 
 ```bash
-git clone https://github.com/hayfever/blunt
+git clone https://github.com/hayfever/succinct
 mkdir -p ~/.copilot/skills
-cp -R blunt/skills/blunt ~/.copilot/skills/
+cp -R succinct/skills/succinct ~/.copilot/skills/
 ```
 
 ### Verify
 
-Type `/` in the chat input and confirm `blunt` appears. Or:
+Type `/` in the chat input and confirm `succinct` appears. Or:
 
 ```bash
 npx skills list
@@ -241,7 +241,7 @@ npx skills ls -g    # if installed globally
 ### Update
 
 ```bash
-npx skills update blunt
+npx skills update succinct
 ```
 
 Or re-copy the folder after `git pull`.
@@ -249,10 +249,10 @@ Or re-copy the folder after `git pull`.
 ### Uninstall
 
 ```bash
-npx skills remove blunt
+npx skills remove succinct
 ```
 
-Or delete the `blunt` folder from the skills directory it landed in.
+Or delete the `succinct` folder from the skills directory it landed in.
 
 ### Activation note
 
@@ -270,17 +270,17 @@ Add the [always-on snippet](#always-on-snippet) to `.github/copilot-instructions
 ### Install
 
 ```bash
-hermes skills install hayfever/blunt/skills/blunt
+hermes skills install hayfever/succinct/skills/succinct
 ```
 
-Type `/blunt`. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
+Type `/succinct`. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
 
 Prefer to browse first? Add this repo as a skill source (a "tap"), then search and install:
 
 ```bash
-hermes skills tap add hayfever/blunt
-hermes skills search blunt
-hermes skills install hayfever/blunt/skills/blunt
+hermes skills tap add hayfever/succinct
+hermes skills search succinct
+hermes skills install hayfever/succinct/skills/succinct
 ```
 
 ### Verify
@@ -292,16 +292,16 @@ hermes skills list
 ### Update
 
 ```bash
-hermes skills update blunt
+hermes skills update succinct
 ```
 
 ### Uninstall
 
 ```bash
-hermes skills uninstall blunt
+hermes skills uninstall succinct
 ```
 
-Or remove the tap too: `hermes skills tap remove hayfever/blunt`.
+Or remove the tap too: `hermes skills tap remove hayfever/succinct`.
 
 ### Always-on (optional)
 
@@ -318,58 +318,58 @@ Start a Kimi Code session, then:
 
 1. Run `/plugins`.
 2. Choose **Custom**.
-3. Paste `https://github.com/hayfever/blunt` and press `Enter`.
+3. Paste `https://github.com/hayfever/succinct` and press `Enter`.
 4. Choose **Trust and install**.
 
-Use slash command `/skill:blunt` to invoke the skill explicitly.
+Use slash command `/skill:succinct` to invoke the skill explicitly.
 
 ### Update
 
-`/plugins` in a Kimi Code session, cursor to **Blunt**, press `R`.
+`/plugins` in a Kimi Code session, cursor to **Succinct**, press `R`.
 
 ### Uninstall
 
-`/plugins` in a Kimi Code session, cursor to **Blunt**, press `D`.
+`/plugins` in a Kimi Code session, cursor to **Succinct**, press `D`.
 
 </details>
 
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-OpenCode loads this repository as a server plugin: `.opencode/plugins/blunt.mjs` registers the `skills/` entry point and the `/blunt` command, and injects the ruleset when always-on is enabled. OpenCode also reads `skills/` natively, so the skill still works even without the plugin; the plugin adds the `/blunt` command and the always-on flag.
+OpenCode loads this repository as a server plugin: `.opencode/plugins/succinct.mjs` registers the `skills/` entry point and the `/succinct` command, and injects the ruleset when always-on is enabled. OpenCode also reads `skills/` natively, so the skill still works even without the plugin; the plugin adds the `/succinct` command and the always-on flag.
 
 ### Install
 
 Clone the repo and point OpenCode at the plugin. An absolute path shares one checkout across every project:
 
 ```bash
-git clone https://github.com/hayfever/blunt ~/.config/opencode/vendor/blunt
+git clone https://github.com/hayfever/succinct ~/.config/opencode/vendor/succinct
 ```
 
 Add to your `opencode.json` (global: `~/.config/opencode/opencode.json`):
 
 ```json
-{ "plugin": ["/absolute/path/to/blunt/.opencode/plugins/blunt.mjs"] }
+{ "plugin": ["/absolute/path/to/succinct/.opencode/plugins/succinct.mjs"] }
 ```
 
 Or run OpenCode from the checkout; it ships a root `opencode.json` with the plugin already wired up.
 
-Start a new session and turn on blunt output for the session:
+Start a new session and turn on succinct output for the session:
 
 ```text
-/blunt
+/succinct
 ```
 
-Rules stay on until `stop blunt mode` or `normal mode`.
+Rules stay on until `stop succinct mode` or `normal mode`.
 
 ### Verify
 
-Start OpenCode, type `/`, and confirm `blunt` appears in the command list.
+Start OpenCode, type `/`, and confirm `succinct` appears in the command list.
 
 ### Update
 
 ```bash
-git -C ~/.config/opencode/vendor/blunt pull
+git -C ~/.config/opencode/vendor/succinct pull
 ```
 
 ### Uninstall
@@ -379,13 +379,13 @@ Remove the `plugin` entry from `opencode.json`.
 ### Always-on (optional)
 
 ```bash
-touch ~/.config/opencode/.blunt-always
+touch ~/.config/opencode/.succinct-always
 ```
 
-While the flag exists, the plugin appends the full ruleset to the system prompt every turn. `stop blunt mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
+While the flag exists, the plugin appends the full ruleset to the system prompt every turn. `stop succinct mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
 
 ```bash
-rm ~/.config/opencode/.blunt-always
+rm ~/.config/opencode/.succinct-always
 ```
 
 </details>
@@ -398,33 +398,33 @@ Pi discovers this repository as a native package: `extensions/` provides the ses
 ### Install
 
 ```bash
-pi install https://github.com/hayfever/blunt
+pi install https://github.com/hayfever/succinct
 ```
 
-Start a new Pi session. Toggle blunt output for the current session:
+Start a new Pi session. Toggle succinct output for the current session:
 
 ```text
-/blunt
+/succinct
 ```
 
-The footer shows `● BLUNT ON` while the mode is active. Run the command again to turn it off, or be explicit:
+The footer shows `● SUCCINCT ON` while the mode is active. Run the command again to turn it off, or be explicit:
 
 ```text
-/blunt on
-/blunt off
-stop blunt mode
+/succinct on
+/succinct off
+stop succinct mode
 ```
 
 The extension adds the ruleset to the conversation once instead of rewriting the system prompt on every request, and adds it again after compaction drops it. The existing Agent Skills command remains available as an alias:
 
 ```text
-/skill:blunt
+/skill:succinct
 ```
 
 Start a new Pi session with the mode enabled by default:
 
 ```bash
-pi --blunt
+pi --succinct
 ```
 
 ### Verify
@@ -433,12 +433,12 @@ pi --blunt
 pi list
 ```
 
-Confirm the GitHub package is listed, then type `/blunt` and check that `● BLUNT ON` appears in the footer.
+Confirm the GitHub package is listed, then type `/succinct` and check that `● SUCCINCT ON` appears in the footer.
 
 ### Update
 
 ```bash
-pi update https://github.com/hayfever/blunt
+pi update https://github.com/hayfever/succinct
 ```
 
 Or update every unpinned Pi package with `pi update --extensions`.
@@ -446,7 +446,7 @@ Or update every unpinned Pi package with `pi update --extensions`.
 ### Uninstall
 
 ```bash
-pi remove https://github.com/hayfever/blunt
+pi remove https://github.com/hayfever/succinct
 ```
 
 ### Always-on (optional)
@@ -454,20 +454,20 @@ pi remove https://github.com/hayfever/blunt
 Create a flag in Pi's agent configuration directory:
 
 ```bash
-touch ~/.pi/agent/.blunt-always
+touch ~/.pi/agent/.succinct-always
 ```
 
-The extension checks the flag at every new, resumed, forked, or reloaded session. A saved choice for the current session wins over this default, so `stop blunt mode` keeps that session disabled.
+The extension checks the flag at every new, resumed, forked, or reloaded session. A saved choice for the current session wins over this default, so `stop succinct mode` keeps that session disabled.
 
 Back to on-demand:
 
 ```bash
-rm ~/.pi/agent/.blunt-always
+rm ~/.pi/agent/.succinct-always
 ```
 
 ### Config file (optional)
 
-Create `~/.pi/agent/blunt.json` in Pi's agent configuration directory:
+Create `~/.pi/agent/succinct.json` in Pi's agent configuration directory:
 
 ```json
 {
@@ -476,10 +476,10 @@ Create `~/.pi/agent/blunt.json` in Pi's agent configuration directory:
 }
 ```
 
-- `alwaysOn`: start every session with the rules active, same as the `.blunt-always` flag file, which still works
-- `hideStatus`: keep the `● BLUNT ON` status-bar entry hidden; the rules and the `/blunt` command still work
+- `alwaysOn`: start every session with the rules active, same as the `.succinct-always` flag file, which still works
+- `hideStatus`: keep the `● SUCCINCT ON` status-bar entry hidden; the rules and the `/succinct` command still work
 
-Read once at extension startup, so restart Pi after changing it. If `PI_CODING_AGENT_DIR` is set, put `.blunt-always` in that directory instead. Run `/reload` or start a new session after changing the flag.
+Read once at extension startup, so restart Pi after changing it. If `PI_CODING_AGENT_DIR` is set, put `.succinct-always` in that directory instead. Run `/reload` or start a new session after changing the flag.
 
 ### Status line placement
 
@@ -491,15 +491,15 @@ Plain Pi renders extension statuses on their own footer line below the stats row
 ### Install
 
 ```bash
-omp plugin marketplace add hayfever/blunt
-omp plugin install --scope user blunt@blunt
+omp plugin marketplace add hayfever/succinct
+omp plugin install --scope user succinct@succinct
 ```
 
-Start a new OMP session and run `/blunt` to toggle the mode. The footer shows `● BLUNT ON` while the mode is active.
+Start a new OMP session and run `/succinct` to toggle the mode. The footer shows `● SUCCINCT ON` while the mode is active.
 
 ### Same-line status (optional)
 
-By default OMP renders extension statuses on their own line below the powerline. To render `● BLUNT ON` inline with the other powerline modules, add the `status` segment to the status line and turn the below-line copy off in `~/.omp/agent/config.yml`:
+By default OMP renders extension statuses on their own line below the powerline. To render `● SUCCINCT ON` inline with the other powerline modules, add the `status` segment to the status line and turn the below-line copy off in `~/.omp/agent/config.yml`:
 
 ```yaml
 statusLine:
@@ -509,20 +509,20 @@ statusLine:
   showHookStatus: false
 ```
 
-Keep `showHookStatus: false` only when `status` is in a segment, or the status shows twice. The status line truncates on overflow rather than wrapping; a single `● BLUNT ON` always fits.
+Keep `showHookStatus: false` only when `status` is in a segment, or the status shows twice. The status line truncates on overflow rather than wrapping; a single `● SUCCINCT ON` always fits.
 
 ### Update
 
 ```bash
-omp plugin marketplace update blunt
-omp plugin upgrade --scope user blunt@blunt
+omp plugin marketplace update succinct
+omp plugin upgrade --scope user succinct@succinct
 ```
 
 ### Uninstall
 
 ```bash
-omp plugin uninstall --scope user blunt@blunt
-omp plugin marketplace remove blunt
+omp plugin uninstall --scope user succinct@succinct
+omp plugin marketplace remove succinct
 ```
 
 ### Always-on (optional)
@@ -530,10 +530,10 @@ omp plugin marketplace remove blunt
 Create a flag in OMP's agent configuration directory:
 
 ```bash
-touch ~/.omp/agent/.blunt-always
+touch ~/.omp/agent/.succinct-always
 ```
 
-Or set `"alwaysOn": true` in `~/.omp/agent/blunt.json`. A saved choice for the current session wins over the default, so `stop blunt mode` keeps that session disabled. Run `/reload` or start a new session after changing the flag.
+Or set `"alwaysOn": true` in `~/.omp/agent/succinct.json`. A saved choice for the current session wins over the default, so `stop succinct mode` keeps that session disabled. Run `/reload` or start a new session after changing the flag.
 
 </details>
 
@@ -543,12 +543,12 @@ Or set `"alwaysOn": true` in `~/.omp/agent/blunt.json`. A saved choice for the c
 ### Install
 
 ```bash
-qwen extensions install hayfever/blunt
+qwen extensions install hayfever/succinct
 ```
 
 Qwen Code supports the GitHub shorthand and installs the repository as a native extension. The extension discovers the skill under `skills/`.
 
-Type `/blunt` to invoke the skill explicitly. Installing the extension does not change output until the skill is invoked.
+Type `/succinct` to invoke the skill explicitly. Installing the extension does not change output until the skill is invoked.
 
 ### Verify
 
@@ -556,18 +556,18 @@ Type `/blunt` to invoke the skill explicitly. Installing the extension does not 
 qwen extensions list
 ```
 
-Then start a new Qwen Code session and run `/skills`. Confirm that `blunt` appears in the list.
+Then start a new Qwen Code session and run `/skills`. Confirm that `succinct` appears in the list.
 
 ### Update
 
 ```bash
-qwen extensions update blunt
+qwen extensions update succinct
 ```
 
 ### Uninstall
 
 ```bash
-qwen extensions uninstall blunt
+qwen extensions uninstall succinct
 ```
 
 </details>
@@ -582,21 +582,21 @@ Zed's Agent reads Agent Skills natively: the same `SKILL.md`, no conversion.
 In the Agent Panel, open the Skills manager and choose **Create skill from URL** (also in the command palette as `agent: create skill from url`), then paste:
 
 ```
-https://github.com/hayfever/blunt/blob/main/skills/blunt/SKILL.md
+https://github.com/hayfever/succinct/blob/main/skills/succinct/SKILL.md
 ```
 
-Save it in **User** scope for every project, or **Project** scope for one. Then type `/blunt` in the Agent Panel.
+Save it in **User** scope for every project, or **Project** scope for one. Then type `/succinct` in the Agent Panel.
 
 Prefer the filesystem? Clone the repo and drop the skill folder into your user skills directory:
 
 ```bash
-git clone https://github.com/hayfever/blunt
-cp -R blunt/skills/blunt ~/.config/zed/skills/
+git clone https://github.com/hayfever/succinct
+cp -R succinct/skills/succinct ~/.config/zed/skills/
 ```
 
 ### Verify
 
-Open the Skills manager in the Agent Panel and confirm `blunt` is listed. Or type `/` and confirm it appears.
+Open the Skills manager in the Agent Panel and confirm `succinct` is listed. Or type `/` and confirm it appears.
 
 ### Update
 
@@ -604,7 +604,7 @@ Re-import from the same URL (overwrites), or re-copy the folder after `git pull`
 
 ### Uninstall
 
-Remove `blunt` from the Skills manager, or delete `~/.config/zed/skills/blunt`.
+Remove `succinct` from the Skills manager, or delete `~/.config/zed/skills/succinct`.
 
 ### Always-on (optional)
 
@@ -620,20 +620,20 @@ Works with any harness that reads agent skills. Swap `-a <agent>` for yours.
 ### Install
 
 ```bash
-npx skills add hayfever/blunt                  # this workspace
-npx skills add hayfever/blunt -g               # all projects
-npx skills add hayfever/blunt -a cursor -y     # one agent only
-npx skills add hayfever/blunt -a opencode -y
+npx skills add hayfever/succinct                  # this workspace
+npx skills add hayfever/succinct -g               # all projects
+npx skills add hayfever/succinct -a cursor -y     # one agent only
+npx skills add hayfever/succinct -a opencode -y
 ```
 
-New agent chat, type `/blunt`.
+New agent chat, type `/succinct`.
 
 Without the CLI, copy the skill folder into whatever path your agent scans:
 
 ```bash
-git clone https://github.com/hayfever/blunt
+git clone https://github.com/hayfever/succinct
 mkdir -p ~/.cursor/skills     # Cursor. Use .agents/skills for OpenCode, or your agent's own path
-cp -R blunt/skills/blunt ~/.cursor/skills/
+cp -R succinct/skills/succinct ~/.cursor/skills/
 ```
 
 ### Verify
@@ -646,15 +646,15 @@ npx skills ls -g    # if installed globally
 ### Update
 
 ```bash
-npx skills update blunt
+npx skills update succinct
 npx skills update -g    # if installed globally
 ```
 
 ### Uninstall
 
 ```bash
-npx skills remove blunt
-npx skills remove blunt -g    # if installed globally
+npx skills remove succinct
+npx skills remove succinct -g    # if installed globally
 ```
 
 ### Always-on (optional)
@@ -665,23 +665,23 @@ Paste the [always-on snippet](#always-on-snippet) into your agent's persistent r
 
 ## How activation works
 
-1. **Installed, not invoked.** In Claude Code, Qwen Code, and Codex, nothing happens until you invoke the skill explicitly. Claude Code and Qwen Code honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `skills/blunt/agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
-2. **You invoke it explicitly.** Type `/blunt` in Claude Code or Qwen Code, or `$blunt` in Codex. Rules stay on for that session. "stop blunt mode" or "normal mode" turns them off.
-3. **You touch `~/.claude/.blunt-always`** (Claude Code, Codex) or `~/.config/opencode/.blunt-always` (OpenCode) or `~/.pi/agent/.blunt-always` (Pi, OMP). A hook or extension loads the full ruleset from message one, every session.
+1. **Installed, not invoked.** In Claude Code, Qwen Code, and Codex, nothing happens until you invoke the skill explicitly. Claude Code and Qwen Code honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `skills/succinct/agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
+2. **You invoke it explicitly.** Type `/succinct` in Claude Code or Qwen Code, or `$succinct` in Codex. Rules stay on for that session. "stop succinct mode" or "normal mode" turns them off.
+3. **You touch `~/.claude/.succinct-always`** (Claude Code, Codex) or `~/.config/opencode/.succinct-always` (OpenCode) or `~/.pi/agent/.succinct-always` (Pi, OMP). A hook or extension loads the full ruleset from message one, every session.
 4. **You add the always-on snippet** (other harnesses). Keeps the core rules in your agent's persistent context.
 
 In Claude Code, Qwen Code, and Codex, no middle ground: if you did not turn it on, it is off.
 
 ## Troubleshooting
 
-**`/blunt` not in autocomplete.** Restart the agent. The plugin index is read at startup.
+**`/succinct` not in autocomplete.** Restart the agent. The plugin index is read at startup.
 
-**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update blunt`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`.
+**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update succinct`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`.
 
 **`claude plugin marketplace add` fails.** Use the `owner/repo` form. A local path must point at the repo root, not `.claude-plugin/`.
 
-**Installed but replies still preamble.** Open a new session. If it still drifts, tighten the wording in `skills/blunt/SKILL.md`.
+**Installed but replies still preamble.** Open a new session. If it still drifts, tighten the wording in `skills/succinct/SKILL.md`.
 
-**Want different rules.** Fork, edit `skills/blunt/SKILL.md`, then swap your copy in (see [README](README.md#tune-it)). Restart, then re-invoke `/blunt`.
+**Want different rules.** Fork, edit `skills/succinct/SKILL.md`, then swap your copy in (see [README](README.md#tune-it)). Restart, then re-invoke `/succinct`.
 
 **Skill missing after `npx skills add`.** Start a new agent chat. Skills are indexed at session start. Confirm the folder landed where your agent scans (`~/.cursor/skills/` for Cursor, `.agents/skills/` for OpenCode) and that the frontmatter `name` matches the folder name.

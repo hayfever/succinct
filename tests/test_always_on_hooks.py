@@ -94,9 +94,9 @@ class AlwaysOnHookTest(unittest.TestCase):
                 self.assertEqual("", result.stderr)
 
     def test_runtimes_strip_frontmatter_with_trailing_whitespace(self):
-        skill_path = self.plugin_root / "skills" / "blunt" / "SKILL.md"
+        skill_path = self.plugin_root / "skills" / "succinct" / "SKILL.md"
         skill_path.write_text("---   \nname: fixture\n--- \t\nFixture body.\n")
-        (self.config_dir / ".blunt-always").touch()
+        (self.config_dir / ".succinct-always").touch()
         outputs = {}
 
         for name, command in self.runtimes():
@@ -115,9 +115,9 @@ class AlwaysOnHookTest(unittest.TestCase):
         # An opening --- with no closing delimiter is not frontmatter. Keeping
         # the whole file beats injecting a banner that promises "the ruleset
         # below" followed by nothing.
-        skill_path = self.plugin_root / "skills" / "blunt" / "SKILL.md"
+        skill_path = self.plugin_root / "skills" / "succinct" / "SKILL.md"
         skill_path.write_text("---\nname: fixture\nFixture body, fence never closed.\n")
-        (self.config_dir / ".blunt-always").touch()
+        (self.config_dir / ".succinct-always").touch()
         outputs = {}
 
         for name, command in self.runtimes():
@@ -132,13 +132,13 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual(1, len(set(outputs.values())))
 
     def test_codex_command_runs_the_hook_instead_of_parsing_session_json(self):
-        (self.config_dir / ".blunt-always").touch()
+        (self.config_dir / ".succinct-always").touch()
 
         result = self.run_codex_hook()
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("", result.stderr)
-        self.assertIn("BLUNT MODE ACTIVE (always-on)", result.stdout)
+        self.assertIn("SUCCINCT MODE ACTIVE (always-on)", result.stdout)
 
     def test_codex_command_is_silent_without_opt_in_flag(self):
         result = self.run_codex_hook()

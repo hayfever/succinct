@@ -1,8 +1,8 @@
-[![Validate](https://github.com/hayfever/blunt/actions/workflows/validate.yml/badge.svg)](https://github.com/hayfever/blunt/actions/workflows/validate.yml)
+[![Validate](https://github.com/hayfever/succinct/actions/workflows/validate.yml/badge.svg)](https://github.com/hayfever/succinct/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Skill version](https://img.shields.io/badge/skill-v1.0.0-2563EB)](CHANGELOG.md)
+[![Skill version](https://img.shields.io/badge/skill-v1.2.0-2563EB)](CHANGELOG.md)
 
-# blunt
+# succinct
 
 Lead with the action. Sound like a person. Write plain English.
 
@@ -43,14 +43,14 @@ The standard itself is free to download from ASD; this skill summarizes its Part
 Copy/paste into your CLI prompt:
 
 ```text
-Install the blunt skill/plugin from https://github.com/hayfever/blunt, refer to the repo's AGENTS.md for instructions.
+Install the succinct skill/plugin from https://github.com/hayfever/succinct, refer to the repo's AGENTS.md for instructions.
 ```
 
-Or read the [installation instructions](INSTALL.md). Every agent that loads agent skills works with no conversion; the same `skills/blunt/SKILL.md` serves Claude Code, Codex, Gemini CLI, GitHub Copilot, Hermes, Kimi, OpenCode, Pi, OMP, Qwen Code, Zed, Cursor, Antigravity, and Amp.
+Or read the [installation instructions](INSTALL.md). Every agent that loads agent skills works with no conversion; the same `skills/succinct/SKILL.md` serves Claude Code, Codex, Gemini CLI, GitHub Copilot, Hermes, Kimi, OpenCode, Pi, OMP, Qwen Code, Zed, Cursor, Antigravity, and Amp.
 
 ## Activate
 
-Type `/blunt` in any harness. Rules stay on until "stop blunt mode" or "normal mode". In Codex, type `$blunt`. In Pi and OMP, the footer shows `● BLUNT ON` while the mode is active; `pi --blunt` starts with the mode on.
+Type `/succinct` in any harness. Rules stay on until "stop succinct mode" or "normal mode". In Codex, type `$succinct`. In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active; `pi --succinct` starts with the mode on.
 
 ## Always-on
 
@@ -58,16 +58,16 @@ Every agent has a persistent-rules route. Paste the always-on snippet from [INST
 
 ## Tune it
 
-Fork, edit `skills/blunt/SKILL.md`, then swap your copy in:
+Fork, edit `skills/succinct/SKILL.md`, then swap your copy in:
 
 ```bash
-claude plugin uninstall blunt            # drop the upstream copy first:
-claude plugin marketplace remove blunt   # fork and upstream share both names
-claude plugin marketplace add <your-username>/blunt
-claude plugin install blunt@blunt
+claude plugin uninstall succinct            # drop the upstream copy first:
+claude plugin marketplace remove succinct   # fork and upstream share both names
+claude plugin marketplace add <your-username>/succinct
+claude plugin install succinct@succinct
 ```
 
-Restart Claude Code, then re-invoke `/blunt`.
+Restart Claude Code, then re-invoke `/succinct`.
 
 ## Credits
 

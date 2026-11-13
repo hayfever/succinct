@@ -1,11 +1,11 @@
-# Gemini CLI custom command for blunt.
-# Install: copy to ~/.gemini/commands/blunt.toml, then type /blunt.
+# Gemini CLI custom command for succinct.
+# Install: copy to ~/.gemini/commands/succinct.toml, then type /succinct.
 # Self-contained so it works as a global command from any directory.
 
-description = "Blunt output: action-first, human voice, plain Simplified Technical English. No preamble, no AI tells."
+description = "Succinct output: action-first, human voice, plain Simplified Technical English. No preamble, no AI tells."
 
 prompt = """
-For the rest of this session, apply the blunt ruleset to every response.
+For the rest of this session, apply the succinct ruleset to every response.
 
 Shape (ADHD-friendly):
 1. Lead with the next action. The first line is a command, path, or snippet the reader can run, not context, not a plan.

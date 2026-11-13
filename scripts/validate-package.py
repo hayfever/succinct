@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check blunt's package files without external dependencies."""
+"""Check succinct's package files without external dependencies."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-SKILL_PATH = ROOT / "skills" / "blunt" / "SKILL.md"
-MIRROR_PATH = ROOT / ".cursor" / "skills" / "blunt" / "SKILL.md"
+SKILL_PATH = ROOT / "skills" / "succinct" / "SKILL.md"
+MIRROR_PATH = ROOT / ".cursor" / "skills" / "succinct" / "SKILL.md"
 
 JSON_MANIFESTS = (
     "package.json",
@@ -51,12 +51,12 @@ SKILL = read(SKILL_PATH)
 
 frontmatter = require_match(
     re.match(r"\A---\n(.*?)\n---\n", SKILL, re.DOTALL),
-    "skills/blunt/SKILL.md must begin with YAML metadata",
+    "skills/succinct/SKILL.md must begin with YAML metadata",
 ).group(1)
 
 require_match(
-    re.search(r"(?m)^name: blunt$", frontmatter),
-    "Frontmatter must declare name: blunt",
+    re.search(r"(?m)^name: succinct$", frontmatter),
+    "Frontmatter must declare name: succinct",
 )
 require_match(
     re.search(r"(?m)^disable-model-invocation: true$", frontmatter),
@@ -72,17 +72,17 @@ skill_version = require_match(
 ).group(1)
 
 if len(SKILL.splitlines()) > 400:
-    raise SystemExit("Keep skills/blunt/SKILL.md at 400 lines or fewer")
+    raise SystemExit("Keep skills/succinct/SKILL.md at 400 lines or fewer")
 
 # Canonical skill and the Cursor mirror must be byte-identical.
 if not MIRROR_PATH.exists():
-    raise SystemExit(".cursor/skills/blunt/SKILL.md is missing; copy the canonical skill there")
+    raise SystemExit(".cursor/skills/succinct/SKILL.md is missing; copy the canonical skill there")
 if SKILL != read(MIRROR_PATH):
-    raise SystemExit(".cursor/skills/blunt/SKILL.md is out of sync with skills/blunt/SKILL.md")
+    raise SystemExit(".cursor/skills/succinct/SKILL.md is out of sync with skills/succinct/SKILL.md")
 
 # Only one skill, and its folder name must match the frontmatter name.
 skill_files = {path.relative_to(ROOT) for path in ROOT.rglob("SKILL.md")}
-if skill_files != {Path("skills/blunt/SKILL.md"), Path(".cursor/skills/blunt/SKILL.md")}:
+if skill_files != {Path("skills/succinct/SKILL.md"), Path(".cursor/skills/succinct/SKILL.md")}:
     raise SystemExit(f"Unexpected SKILL.md locations: {sorted(skill_files)}")
 
 # All manifests parse and agree on name and version.
@@ -97,8 +97,8 @@ for relative in JSON_MANIFESTS:
 for relative in JSON_MANIFESTS_WITH_NAME:
     data = json.loads(read(ROOT / relative))
     name = data.get("name")
-    if name != "blunt":
-        raise SystemExit(f"{relative} must declare name: blunt (found: {name!r})")
+    if name != "succinct":
+        raise SystemExit(f"{relative} must declare name: succinct (found: {name!r})")
     if isinstance(data.get("version"), str):
         package_versions.add(data["version"])
 if len(package_versions) != 1:
@@ -107,9 +107,9 @@ if len(package_versions) != 1:
     )
 
 package = json.loads(read(ROOT / "package.json"))
-extension = ["./extensions/blunt.ts"]
+extension = ["./extensions/succinct.ts"]
 if package.get("omp") != {"extensions": extension}:
-    raise SystemExit("package.json must declare omp extensions ./extensions/blunt.ts")
+    raise SystemExit("package.json must declare omp extensions ./extensions/succinct.ts")
 if package.get("pi") != {"extensions": extension, "skills": ["./skills"]}:
     raise SystemExit('package.json must declare pi extensions and skills ["./skills"]')
 for relative in extension:
@@ -130,25 +130,25 @@ tells = [
 if tells != list(range(1, 26)):
     raise SystemExit(f"Number the tells 1 to 25 without gaps: {tells}")
 
-# Runtime entry points must point at the canonical skill and use blunt phrases.
+# Runtime entry points must point at the canonical skill and use succinct phrases.
 for relative, marker in (
-    ("hooks/always-on.mjs", 'join(scriptDir, "..", "skills", "blunt", "SKILL.md")'),
-    ("hooks/always-on.sh", "skills/blunt/SKILL.md"),
-    ("hooks/always-on.ps1", "../skills/blunt/SKILL.md"),
-    (".opencode/plugins/blunt.mjs", "'blunt', 'SKILL.md'"),
-    ("extensions/blunt.ts", '"blunt",'),
-    ("GEMINI.md", "@./skills/blunt/SKILL.md"),
+    ("hooks/always-on.mjs", 'join(scriptDir, "..", "skills", "succinct", "SKILL.md")'),
+    ("hooks/always-on.sh", "skills/succinct/SKILL.md"),
+    ("hooks/always-on.ps1", "../skills/succinct/SKILL.md"),
+    (".opencode/plugins/succinct.mjs", "'succinct', 'SKILL.md'"),
+    ("extensions/succinct.ts", '"succinct",'),
+    ("GEMINI.md", "@./skills/succinct/SKILL.md"),
 ):
     if marker not in read(ROOT / relative):
         raise SystemExit(f"{relative} must reference the canonical skill: {marker}")
 
-if not (ROOT / ".opencode/command/blunt.md").is_file():
-    raise SystemExit(".opencode/command/blunt.md is missing")
+if not (ROOT / ".opencode/command/succinct.md").is_file():
+    raise SystemExit(".opencode/command/succinct.md is missing")
 
-openai_yaml = read(ROOT / "skills" / "blunt" / "agents" / "openai.yaml")
+openai_yaml = read(ROOT / "skills" / "succinct" / "agents" / "openai.yaml")
 require_match(
     re.search(r"(?m)^  allow_implicit_invocation: false$", openai_yaml),
-    "skills/blunt/agents/openai.yaml must set allow_implicit_invocation: false",
+    "skills/succinct/agents/openai.yaml must set allow_implicit_invocation: false",
 )
 
-print(f"blunt package v{skill_version} is valid")
+print(f"succinct package v{skill_version} is valid")

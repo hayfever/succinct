@@ -51,17 +51,17 @@ jobs:
         run: |
           python3 -m pip install --quiet pyyaml
           python3 -c "import json,glob;[json.load(open(p)) for p in glob.glob('**/*.json',recursive=True)];print('json ok')"
-          python3 -c "import yaml;yaml.safe_load(open('skills/blunt/agents/openai.yaml'));print('yaml ok')"
-          python3 -c "import tomllib;tomllib.load(open('skills/blunt/agents/gemini.toml','rb'));print('toml ok')"
+          python3 -c "import yaml;yaml.safe_load(open('skills/succinct/agents/openai.yaml'));print('yaml ok')"
+          python3 -c "import tomllib;tomllib.load(open('skills/succinct/agents/gemini.toml','rb'));print('toml ok')"
       - name: Hook script syntax
         run: |
           node --check hooks/always-on.mjs
-          node --check .opencode/plugins/blunt.mjs
+          node --check .opencode/plugins/succinct.mjs
       - name: Extension transpiles
         run: |
-          bun build extensions/blunt.ts --target=bun \
+          bun build extensions/succinct.ts --target=bun \
             --external '@earendil-works/pi-coding-agent' \
-            --outfile "$RUNNER_TEMP/blunt.js"
+            --outfile "$RUNNER_TEMP/succinct.js"
       - name: context-compat unit tests (bun)
         run: bun test tests/context_compat.test.ts
 

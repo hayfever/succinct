@@ -1,5 +1,5 @@
 ---
-name: blunt
+name: succinct
 description: >-
   One output style for everything: lead with the next action, number multi-step
   work, restate state across turns, suppress tangents, give concrete time
@@ -7,17 +7,17 @@ description: >-
   from any prose you write or edit (not-X-but-Y, one-line closers, forced
   triads, dash abuse, stock AI words, bold decoration, chatbot residue) and
   write technical text in Simplified Technical English: active voice,
-  imperative steps, short sentences, one term per item. Invoke with /blunt;
-  stays on until "stop blunt mode".
+  imperative steps, short sentences, one term per item. Invoke with /succinct;
+  stays on until "stop succinct mode".
 disable-model-invocation: true
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   category: "productivity"
   tags: "ADHD, output style, plain English, Simplified Technical English, AI tells"
 ---
 
-# blunt
+# succinct
 
 Lead with the action. Sound like a person. Write plain English.
 
@@ -33,7 +33,7 @@ Part 1 applies to every response. Parts 2 and 3 apply to all prose you produce o
 
 These rules apply to every response for the rest of the session. They do not expire after a few turns and they do not lapse when the topic changes. If you are unsure whether they still apply, they do.
 
-Turn them off only when the reader says "stop blunt mode" or "normal mode". Confirm in one line, then return to your default style.
+Turn them off only when the reader says "stop succinct mode" or "normal mode". Confirm in one line, then return to your default style.
 
 # Part 1: Shape the response
 

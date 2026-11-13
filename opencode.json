@@ -1,4 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["./.opencode/plugins/blunt.mjs"]
+  "plugin": ["./.opencode/plugins/succinct.mjs"]
 }

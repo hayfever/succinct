@@ -8,7 +8,7 @@
 
 ## Scope
 
-blunt ships Markdown instructions, JSON manifests, and three hook/plugin scripts that read a local SKILL.md file and print it. The scripts run only when you install the skill and opt into always-on with a flag file. Nothing executes on install; nothing makes network calls; nothing collects data.
+succinct ships Markdown instructions, JSON manifests, and three hook/plugin scripts that read a local SKILL.md file and print it. The scripts run only when you install the skill and opt into always-on with a flag file. Nothing executes on install; nothing makes network calls; nothing collects data.
 
 ## Reporting a vulnerability
 
