@@ -437,13 +437,14 @@ Start a new Pi session. Toggle succinct output for the current session:
 /succinct
 ```
 
-The footer shows `● SUCCINCT ON` while the mode is active. Run the command again to turn it off, or be explicit:
+The footer shows `● SUCCINCT ON` while the mode is active. Run the command again to turn it off. To save the choice for future sessions, add `on` or `off`:
 
 ```text
 /succinct on
 /succinct off
-stop succinct mode
 ```
+
+`stop succinct mode` and `normal mode` turn the mode off for the current session only. They do not change the saved choice.
 
 The extension adds the ruleset to the conversation once instead of rewriting the system prompt on every request, and adds it again after compaction drops it. The existing Agent Skills command remains available as an alias:
 
@@ -487,7 +488,7 @@ Create a flag in Pi's agent configuration directory:
 touch ~/.pi/agent/.succinct-always
 ```
 
-The extension checks the flag at every new, resumed, forked, or reloaded session. A saved choice for the current session wins over this default, so `stop succinct mode` keeps that session disabled.
+The extension checks the flag at every new, resumed, forked, or reloaded session. The stop phrases and the bare `/succinct` toggle affect only the current session, so the flag turns the mode on again next time. Run `/succinct off` to save an off choice that outranks the flag.
 
 Back to on-demand:
 
@@ -508,12 +509,15 @@ Create `~/.pi/agent/succinct.json` in Pi's agent configuration directory:
 
 - `alwaysOn`: start every session with the rules active, same as the `.succinct-always` flag file, which still works
 - `hideStatus`: keep the `● SUCCINCT ON` status-bar entry hidden; the rules and the `/succinct` command still work
+- `enabled`: written by `/succinct on` or `/succinct off`; outranks `alwaysOn` and the flag file
 
-Read once at extension startup, so restart Pi after changing it. If `PI_CODING_AGENT_DIR` is set, put `.succinct-always` in that directory instead. Run `/reload` or start a new session after changing the flag.
+The extension reads the file at the start of each session. Run `/reload` or start a new session after you change it. If `PI_CODING_AGENT_DIR` is set, put `.succinct-always` in that directory instead.
 
 ### Status line placement
 
-Plain Pi renders extension statuses on their own footer line below the stats row, and truncates with an ellipsis on overflow. There is no powerline `status` segment in Pi, so the separate line is the runtime's design; the same-line option above is OMP-only.
+Plain Pi renders extension statuses on their own footer line below the stats row, and truncates with an ellipsis on overflow. There is no powerline `status` segment in Pi, so the separate line is the runtime's design; the same-line option below is OMP-only.
+
+</details>
 
 <details>
 <summary><strong>Oh My Pi (OMP)</strong></summary>
@@ -525,7 +529,7 @@ omp plugin marketplace add hayfever/succinct
 omp plugin install --scope user succinct@succinct
 ```
 
-Start a new OMP session and run `/succinct` to toggle the mode. The footer shows `● SUCCINCT ON` while the mode is active.
+Start a new OMP session and run `/succinct` to toggle the mode. The footer shows `● SUCCINCT ON` while the mode is active. Run `/succinct on` or `/succinct off` to save the choice for future sessions.
 
 ### Same-line status (optional)
 
@@ -563,7 +567,7 @@ Create a flag in OMP's agent configuration directory:
 touch ~/.omp/agent/.succinct-always
 ```
 
-Or set `"alwaysOn": true` in `~/.omp/agent/succinct.json`. A saved choice for the current session wins over the default, so `stop succinct mode` keeps that session disabled. Run `/reload` or start a new session after changing the flag.
+Or set `"alwaysOn": true` in `~/.omp/agent/succinct.json`. The stop phrases and the bare `/succinct` toggle affect only the current session, so the flag turns the mode on again next session. Run `/succinct off` to save an off choice that outranks the flag. Run `/reload` or start a new session after changing the file.
 
 </details>
 

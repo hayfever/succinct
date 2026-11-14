@@ -61,8 +61,8 @@ jobs:
           bun build extensions/succinct.ts --target=bun \
             --external '@earendil-works/pi-coding-agent' \
             --outfile "$RUNNER_TEMP/succinct.js"
-      - name: context-compat unit tests (bun)
-        run: bun test tests/context_compat.test.ts
+      - name: Extension unit tests (bun)
+        run: bun test tests/
 
   claude:
     runs-on: ubuntu-latest
