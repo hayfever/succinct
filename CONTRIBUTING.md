@@ -37,8 +37,8 @@ python3 scripts/check_extension.py --runtime omp
 
 1. One change per pull request.
 2. Run the checks above and paste the output into the PR description.
-3. Bump the version in `package.json`, `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `kimi.plugin.json`, `qwen-extension.json`, `gemini-extension.json`, and the `metadata.version` in the skill. `python3 scripts/bump-version.py 1.0.1` does all seven.
-4. Add a `CHANGELOG.md` entry under "Unreleased".
+3. Bump the version in `package.json`, `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `kimi.plugin.json`, `qwen-extension.json`, `gemini-extension.json`, and the `metadata.version` in the skill. `python3 scripts/bump-version.py <new-version>` does all seven, including the Cursor mirror, then fails if a stale version string remains anywhere else.
+4. Move the `CHANGELOG.md` entry from "Unreleased" into a new section for the version you ship.
 5. Behavior changes to the skill need an eval delta: add or update a case in `evals/cases.jsonl`, run the paired eval, and attach `evals/results/gate.json` to the PR.
 
 The fastest review path: change the skill, add a case that fails without the change, show the gate passing with it.
