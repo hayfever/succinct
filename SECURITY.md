@@ -2,13 +2,15 @@
 
 ## Supported versions
 
+Only the current major release gets fixes.
+
 | Version | Supported |
 | --- | --- |
-| 1.0.x | Yes |
+| 2.x | Yes |
 
 ## Scope
 
-succinct ships Markdown instructions, JSON manifests, and three hook/plugin scripts that read a local SKILL.md file and print it. The scripts run only when you install the skill and opt into always-on with a flag file. Nothing executes on install; nothing makes network calls; nothing collects data.
+succinct ships Markdown instructions, JSON manifests, and four hook, plugin, and extension scripts that read a local SKILL.md file and print or inject it. The hooks run only after you opt into always-on with a flag file; the extension and plugin also run when you invoke the `/succinct` command. Nothing executes on install; nothing makes network calls; nothing collects data.
 
 ## Reporting a vulnerability
 
