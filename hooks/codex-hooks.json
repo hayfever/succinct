@@ -8,7 +8,7 @@
           {
             "type": "command",
             "command": "sh \"$CLAUDE_PLUGIN_ROOT/hooks/always-on.sh\"; exit 0",
-            "commandWindows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%CLAUDE_PLUGIN_ROOT%\\hooks\\always-on.ps1\" -SkipShellCheck & exit /b 0",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"%CLAUDE_PLUGIN_ROOT%\\hooks\\always-on.ps1\" -SkipShellCheck & exit /b 0",
             "timeout": 30,
             "statusMessage": "Checking succinct always-on flag..."
           }
