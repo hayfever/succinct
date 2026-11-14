@@ -1,6 +1,6 @@
 # How to install
 
-The canonical skill is `skills/succinct/SKILL.md`. Every agent that reads agent skills accepts it with no conversion; plugin manifests serve the marketplaces of Claude Code, Codex, Kimi, Antigravity, and OMP.
+The canonical skill is `skills/succinct/SKILL.md`. Every agent that reads agent skills accepts it with no conversion; plugin manifests serve the marketplaces and extension galleries of Claude Code, Codex, Gemini CLI, Kimi Code, Qwen Code, Antigravity, and OMP.
 
 This repository lives at `https://github.com/hayfever/succinct`. If you forked it, swap `hayfever/succinct` for your own `owner/repo` in every command below. Local copies work everywhere: the "without the CLI" fallback in each section is a folder copy, and several marketplaces accept a local path (Claude Code: the path must point at the repo root).
 
@@ -185,25 +185,25 @@ Do not want Codex to run plugin hooks at all? Add the [always-on snippet](#alway
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
-Gemini CLI has no plugin marketplace, so there are two native routes: a **custom command** (opt-in, off until you invoke it) or an **extension** (always-on once installed). The command route matches this skill's default posture; pick it unless you want the rules on every session.
+Gemini CLI installs extensions from a GitHub repository or a local path. Its [extension gallery](https://geminicli.com/extensions/browse/) lists public repositories that carry the `gemini-cli-extension` topic. The extension ships the skill and the `/succinct` command. Run `/succinct` to turn the style on; Gemini CLI can also load the skill by itself when a task matches its description.
 
-### Install (command, opt-in)
-
-```bash
-mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/hayfever/succinct/main/skills/succinct/agents/gemini.toml \
-  -o ~/.gemini/commands/succinct.toml
-```
-
-Start a new session, type `/succinct`. It stays on for that session.
-
-### Install (extension, always-on)
+### Install (extension, recommended)
 
 ```bash
 gemini extensions install https://github.com/hayfever/succinct
 ```
 
-The extension loads `GEMINI.md`, which imports the full skill, so the rules apply from message one. `git` must be installed.
+`git` must be installed. Gemini CLI copies the extension at install time; run `gemini extensions update` to pull changes.
+
+### Install (command only)
+
+Without the extension, install just the command:
+
+```bash
+mkdir -p ~/.gemini/commands
+curl -fsSL https://raw.githubusercontent.com/hayfever/succinct/main/commands/succinct.toml \
+  -o ~/.gemini/commands/succinct.toml
+```
 
 ### Verify
 
@@ -212,7 +212,7 @@ gemini extensions list          # extension route
 ls ~/.gemini/commands           # command route: succinct.toml present
 ```
 
-Or type `/` in a session and confirm `succinct` is listed.
+Then start a session and type `/`. `succinct` must appear in the list, and `/skills list` must show the skill.
 
 ### Update
 
@@ -227,6 +227,10 @@ gemini extensions update succinct    # extension route
 gemini extensions uninstall succinct    # extension route
 rm ~/.gemini/commands/succinct.toml     # command route
 ```
+
+### Always-on (optional)
+
+Add the [always-on snippet](#always-on-snippet) to `~/.gemini/GEMINI.md`.
 
 </details>
 
@@ -333,24 +337,41 @@ Add the [always-on snippet](#always-on-snippet) to the `AGENTS.md` in your worki
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Kimi Code installs a plugin from a GitHub repository URL. A plain repository URL installs the latest release and falls back to the default branch when the repository has no release.
+
 ### Install
 
-Start a Kimi Code session, then:
+Run this inside a Kimi Code session:
 
-1. Run `/plugins`.
-2. Choose **Custom**.
-3. Paste `https://github.com/hayfever/succinct` and press `Enter`.
-4. Choose **Trust and install**.
+```text
+/plugins install https://github.com/hayfever/succinct
+```
 
-Use slash command `/skill:succinct` to invoke the skill explicitly.
+Then run `/reload` or start a new session. The interactive route also works: run `/plugins`, choose the **Custom** tab, paste the URL, and press `Enter`.
+
+Kimi Code names plugin skills `<plugin>:<skill>`, so invoke it as `/skill:succinct:succinct`. Installing the plugin changes no output until you invoke the skill.
+
+### Verify
+
+Inside a Kimi Code session, run:
+
+```text
+/plugins list
+```
+
+`succinct` must appear, and `/skill:succinct:succinct` must turn the style on.
 
 ### Update
 
-`/plugins` in a Kimi Code session, cursor to **Succinct**, press `R`.
+Run the install command again, or run `/plugins`, select **Succinct**, and press `Enter`.
 
 ### Uninstall
 
-`/plugins` in a Kimi Code session, cursor to **Succinct**, press `D`.
+Run `/plugins remove succinct`, or run `/plugins`, select **Succinct**, and press `D`.
+
+### Always-on (optional)
+
+Add the [always-on snippet](#always-on-snippet) to `~/.kimi-code/AGENTS.md`.
 
 </details>
 
@@ -582,7 +603,7 @@ qwen extensions install hayfever/succinct
 
 Qwen Code supports the GitHub shorthand and installs the repository as a native extension. The extension discovers the skill under `skills/`.
 
-Type `/succinct` to invoke the skill explicitly. Installing the extension does not change output until the skill is invoked.
+Qwen Code prefixes extension skills with the extension name, so the command is `/succinct:succinct`. Installing the extension does not change output until you invoke the skill.
 
 ### Verify
 
@@ -590,7 +611,7 @@ Type `/succinct` to invoke the skill explicitly. Installing the extension does n
 qwen extensions list
 ```
 
-Then start a new Qwen Code session and run `/skills`. Confirm that `succinct` appears in the list.
+Then start a new Qwen Code session and run `/skills`. Confirm that `succinct:succinct` appears in the list.
 
 ### Update
 
@@ -603,6 +624,10 @@ qwen extensions update succinct
 ```bash
 qwen extensions uninstall succinct
 ```
+
+### Always-on (optional)
+
+Add the [always-on snippet](#always-on-snippet) to `~/.qwen/QWEN.md`.
 
 </details>
 
@@ -700,7 +725,7 @@ Paste the [always-on snippet](#always-on-snippet) into your agent's persistent r
 ## How activation works
 
 1. **Installed, not invoked.** In Claude Code, Qwen Code, and Codex, nothing happens until you invoke the skill explicitly. Claude Code and Qwen Code honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `skills/succinct/agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
-2. **You invoke it explicitly.** Type `/succinct` in Claude Code or Qwen Code, or `$succinct` in Codex. Rules stay on for that session. "stop succinct mode" or "normal mode" turns them off.
+2. **You invoke it explicitly.** Type `/succinct` in Claude Code or Gemini CLI, or `/succinct:succinct` in Qwen Code, or `$succinct` in Codex. Rules stay on for that session. "stop succinct mode" or "normal mode" turns them off.
 3. **You touch `~/.claude/.succinct-always`** (Claude Code, Codex) or `~/.config/opencode/.succinct-always` (OpenCode) or `~/.pi/agent/.succinct-always` (Pi, OMP). A hook or extension loads the full ruleset from message one, every session.
 4. **You add the always-on snippet** (other harnesses). Keeps the core rules in your agent's persistent context.
 

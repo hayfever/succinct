@@ -1,5 +1,6 @@
 # Gemini CLI custom command for succinct.
-# Install: copy to ~/.gemini/commands/succinct.toml, then type /succinct.
+# The extension registers this as /succinct.
+# Without the extension, copy it to ~/.gemini/commands/succinct.toml.
 # Self-contained so it works as a global command from any directory.
 
 description = "Succinct output: action-first, human voice, plain Simplified Technical English. No preamble, no AI tells."

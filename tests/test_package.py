@@ -70,7 +70,7 @@ class PackageContractTest(unittest.TestCase):
         self.assertIn("allow_implicit_invocation: false", text)
 
     def test_gemini_command_passes_args_through(self):
-        toml = (ROOT / "skills" / "succinct" / "agents" / "gemini.toml").read_text(
+        toml = (ROOT / "commands" / "succinct.toml").read_text(
             encoding="utf8"
         )
         self.assertIn("{{args}}", toml)
@@ -81,7 +81,7 @@ class PackageContractTest(unittest.TestCase):
             "hooks/always-on.sh": "skills/succinct/SKILL.md",
             "hooks/always-on.ps1": "../skills/succinct/SKILL.md",
             ".opencode/plugins/succinct/index.js": '"succinct", "SKILL.md"',
-            "GEMINI.md": "@./skills/succinct/SKILL.md",
+            "GEMINI.md": "skills/succinct/SKILL.md",
         }
         for relative, marker in markers.items():
             text = (ROOT / relative).read_text(encoding="utf8")
