@@ -1,5 +1,5 @@
 # succinct
 
-Shape every response for a reader with ADHD, strip AI tells from your prose, and write technical text in plain Simplified Technical English. Follow the rules imported below in full: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible, and cut all preamble and closers.
+succinct is an output style for coding agents. The rules live in `skills/succinct/SKILL.md`.
 
-@./skills/succinct/SKILL.md
+Gemini CLI finds that skill through this extension's `skills/` directory, and only when a task matches it. Type `/succinct` to turn the style on for the current session. To keep it on in every session, add the always-on snippet from `INSTALL.md` to `~/.gemini/GEMINI.md`.

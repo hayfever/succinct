@@ -136,7 +136,7 @@ for relative, marker in (
     ("hooks/always-on.ps1", "../skills/succinct/SKILL.md"),
     (".opencode/plugins/succinct/index.js", '"succinct", "SKILL.md"'),
     ("extensions/succinct.ts", '"succinct",'),
-    ("GEMINI.md", "@./skills/succinct/SKILL.md"),
+    ("GEMINI.md", "skills/succinct/SKILL.md"),
 ):
     if marker not in read(ROOT / relative):
         raise SystemExit(f"{relative} must reference the canonical skill: {marker}")

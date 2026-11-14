@@ -17,7 +17,7 @@ Do not read secrets, home-directory configuration, unrelated files, or local run
 | --- | --- | --- |
 | Canonical skill | `skills/succinct/SKILL.md` | The source of truth for the succinct ruleset: shape (10 rules), tells (25), plain technical English. |
 | Skill mirror | `.cursor/skills/succinct/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
-| Skill adapters | `skills/succinct/agents/` | Codex (`openai.yaml`) and Gemini CLI (`gemini.toml`) formats. |
+| Skill adapters | `skills/succinct/agents/`, `commands/` | Codex (`openai.yaml`) and Gemini CLI (`commands/succinct.toml`) formats. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.sh`, `hooks/always-on.ps1` | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
