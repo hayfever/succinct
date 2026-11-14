@@ -336,45 +336,54 @@ Use slash command `/skill:succinct` to invoke the skill explicitly.
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-OpenCode loads this repository as a server plugin: `.opencode/plugins/succinct.mjs` registers the `skills/` entry point and the `/succinct` command, and injects the ruleset when always-on is enabled. OpenCode also reads `skills/` natively, so the skill still works even without the plugin; the plugin adds the `/succinct` command and the always-on flag.
+OpenCode 2 loads this repository as a local plugin. The plugin in `.opencode/plugins/succinct/` registers the `/succinct` command and appends the ruleset to the system prompt when always-on is on. The `skills` entry adds the skill itself, so the `skill` tool can load it.
+
+OpenCode 1 cannot load this plugin. Its plugin API is different, and OpenCode 2 does not run OpenCode 1 plugins.
 
 ### Install
 
-Clone the repo and point OpenCode at the plugin. An absolute path shares one checkout across every project:
+Clone the repo. One checkout serves every project:
 
 ```bash
 git clone https://github.com/hayfever/succinct ~/.config/opencode/vendor/succinct
 ```
 
-Add to your `opencode.json` (global: `~/.config/opencode/opencode.json`):
+Add both entries to your global `~/.config/opencode/opencode.json`. The paths must be absolute, and a plugin path must point at a directory, not a file:
 
 ```json
-{ "plugin": ["/absolute/path/to/succinct/.opencode/plugins/succinct.mjs"] }
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["/absolute/path/to/succinct/.opencode/plugins/succinct"],
+  "skills": ["/absolute/path/to/succinct/skills"]
+}
 ```
 
-Or run OpenCode from the checkout; it ships a root `opencode.json` with the plugin already wired up.
+Or run OpenCode from the checkout. The root `opencode.json` already has both entries.
 
-Start a new session and turn on succinct output for the session:
+### Use
+
+Start a new session and turn on succinct output:
 
 ```text
 /succinct
 ```
 
-Rules stay on until `stop succinct mode` or `normal mode`.
+The rules stay on until `stop succinct mode` or `normal mode`.
 
 ### Verify
 
-Start OpenCode, type `/`, and confirm `succinct` appears in the command list.
+Type `/` and confirm `succinct` appears in the command list. Ask the agent to list its skills and confirm `succinct` is there.
 
 ### Update
 
 ```bash
 git -C ~/.config/opencode/vendor/succinct pull
+opencode service restart
 ```
 
 ### Uninstall
 
-Remove the `plugin` entry from `opencode.json`.
+Remove the `plugins` and `skills` entries from `opencode.json`.
 
 ### Always-on (optional)
 
@@ -382,7 +391,7 @@ Remove the `plugin` entry from `opencode.json`.
 touch ~/.config/opencode/.succinct-always
 ```
 
-While the flag exists, the plugin appends the full ruleset to the system prompt every turn. `stop succinct mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
+While the flag exists, the plugin appends the full ruleset to the system prompt of every model request. `stop succinct mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
 
 ```bash
 rm ~/.config/opencode/.succinct-always

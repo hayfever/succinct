@@ -37,7 +37,7 @@ When debugging or changing one integration, begin with its entry point:
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/succinct/agents/openai.yaml` |
 | Pi | `package.json` (`pi`), `extensions/succinct.ts` |
 | OMP | `package.json` (`omp`), `extensions/succinct.ts`, `extensions/context-compat.ts` |
-| OpenCode | `opencode.json`, `.opencode/plugins/succinct.mjs`, `.opencode/command/succinct.md` |
+| OpenCode | `opencode.json`, `.opencode/plugins/succinct/`, `.opencode/command/succinct.md` |
 | Qwen, Kimi, Gemini | The corresponding manifest above, plus `GEMINI.md` for Gemini behavior |
 | Agent-skills harnesses | `skills/succinct/SKILL.md` (Claude Code, Copilot, Zed, Cursor, Amp, Hermes, Qwen) |
 

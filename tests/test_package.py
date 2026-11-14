@@ -53,7 +53,7 @@ class PackageContractTest(unittest.TestCase):
                 '"stop succinct mode": true,',
                 '"normal mode": true,',
             ],
-            ".opencode/plugins/succinct.mjs": ['"stop succinct mode" or "normal mode"'],
+            ".opencode/plugins/succinct/index.js": ['"stop succinct mode" or "normal mode"'],
             ".opencode/command/succinct.md": ['"stop succinct mode" or "normal mode"'],
             "skills/succinct/SKILL.md": ["stop succinct mode", "normal mode"],
         }
@@ -81,7 +81,7 @@ class PackageContractTest(unittest.TestCase):
             "hooks/always-on.mjs": '"skills", "succinct", "SKILL.md"',
             "hooks/always-on.sh": "skills/succinct/SKILL.md",
             "hooks/always-on.ps1": "../skills/succinct/SKILL.md",
-            ".opencode/plugins/succinct.mjs": "'succinct', 'SKILL.md'",
+            ".opencode/plugins/succinct/index.js": '"succinct", "SKILL.md"',
             "GEMINI.md": "@./skills/succinct/SKILL.md",
         }
         for relative, marker in markers.items():

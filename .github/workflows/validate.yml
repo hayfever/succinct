@@ -56,7 +56,7 @@ jobs:
       - name: Hook script syntax
         run: |
           node --check hooks/always-on.mjs
-          node --check .opencode/plugins/succinct.mjs
+          node --check .opencode/plugins/succinct/index.js
       - name: Extension transpiles
         run: |
           bun build extensions/succinct.ts --target=bun \
