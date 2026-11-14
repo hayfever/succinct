@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/succinct-banner.webp" alt="succinct: lead with the next action, sound human, write plain" width="100%"></p>
+
 [![Validate](https://github.com/hayfever/succinct/actions/workflows/validate.yml/badge.svg)](https://github.com/hayfever/succinct/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/hayfever/succinct?sort=semver)](https://github.com/hayfever/succinct/releases/latest)
