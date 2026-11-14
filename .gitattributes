@@ -1,0 +1,7 @@
+# Git for Windows enables core.autocrlf, which checks out shell scripts with
+# CRLF line endings. sh cannot run a CRLF script, so text files stay LF here.
+* text=auto eol=lf
+*.sh text eol=lf
+*.mjs text eol=lf
+# PowerShell scripts keep the Windows line ending.
+*.ps1 text eol=crlf

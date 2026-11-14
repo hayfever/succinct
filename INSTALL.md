@@ -100,7 +100,7 @@ Or keep it installed and turn it off: `claude plugin disable succinct`.
 
 ### Always-on (optional)
 
-A `SessionStart` hook loads the full ruleset at the start of every session, no `/succinct` needed:
+A `SessionStart` hook loads the ruleset at the start of every session, no `/succinct` needed:
 
 ```bash
 touch ~/.claude/.succinct-always
@@ -118,7 +118,11 @@ Back to on-demand:
 rm ~/.claude/.succinct-always
 ```
 
-The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. "stop succinct mode" still turns it off for the current session.
+The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. It tests for the flag, prints nothing, and exits 0 in about 30 ms. "stop succinct mode" still turns it off for the current session.
+
+The hook needs no Node install. It runs `hooks/always-on.sh` with `sh` on macOS and Linux and in Git Bash on Windows. When Git Bash is missing, Claude Code passes the same command line to PowerShell, and `hooks/always-on.ps1` loads the ruleset instead.
+
+Claude Code limits one hook's text to 10,000 characters. The ruleset is larger than that, so Claude receives a preview and the path of a saved copy. Shorten `skills/succinct/SKILL.md` below 10,000 characters if you need the whole text in context.
 
 </details>
 
@@ -133,6 +137,8 @@ codex plugin add succinct@succinct
 ```
 
 Invoke the skill explicitly by typing `$succinct`. Codex will not activate it automatically.
+
+The plugin ships a `SessionStart` hook. Codex asks you to review and trust plugin hooks before they run: type `/hooks`, read the hook, and trust it. Until you do, Codex skips the hook and prints a warning at startup.
 
 ### Verify
 
@@ -157,7 +163,22 @@ codex plugin marketplace remove succinct
 
 ### Always-on (optional)
 
-Add the [always-on snippet](#always-on-snippet) to `~/.codex/AGENTS.md`.
+The same `SessionStart` hook as Claude Code loads the ruleset at the start of every session. It reads one flag file for both agents:
+
+```bash
+mkdir -p ~/.claude
+touch ~/.claude/.succinct-always
+```
+
+Back to on-demand:
+
+```bash
+rm ~/.claude/.succinct-always
+```
+
+Trust the hook in `/hooks` first. Without that trust, Codex skips it. When you use a custom Claude configuration directory, create the flag at `"$CLAUDE_CONFIG_DIR/.succinct-always"` instead.
+
+Do not want Codex to run plugin hooks at all? Add the [always-on snippet](#always-on-snippet) to `~/.codex/AGENTS.md` instead.
 
 </details>
 

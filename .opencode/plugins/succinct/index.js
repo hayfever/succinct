@@ -36,8 +36,8 @@ const flagFile = join(
 const FRONTMATTER = /^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---[^\S\r\n]*(?:\r?\n|$)/;
 
 // Body of a Markdown file, without its leading YAML frontmatter. The
-// frontmatter pattern matches hooks/always-on.mjs, so every harness strips the
-// same block.
+// frontmatter pattern mirrors the stripping in hooks/always-on.sh, so every
+// harness drops the same block.
 function body(text) {
   return text.replace(FRONTMATTER, "").trim();
 }

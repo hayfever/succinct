@@ -132,7 +132,6 @@ if tells != list(range(1, 26)):
 
 # Runtime entry points must point at the canonical skill and use succinct phrases.
 for relative, marker in (
-    ("hooks/always-on.mjs", 'join(scriptDir, "..", "skills", "succinct", "SKILL.md")'),
     ("hooks/always-on.sh", "skills/succinct/SKILL.md"),
     ("hooks/always-on.ps1", "../skills/succinct/SKILL.md"),
     (".opencode/plugins/succinct/index.js", '"succinct", "SKILL.md"'),
