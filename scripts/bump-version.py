@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Bump the package version across every manifest and the skill frontmatter.
 
-Usage: python3 scripts/bump-version.py 1.0.1 [--from 1.0.0]
+Usage: python3 scripts/bump-version.py <new-version> [--from <old-version>]
 
 Updates metadata.version in skills/succinct/SKILL.md (and the .cursor mirror),
 package.json, .claude-plugin/plugin.json, .codex-plugin/plugin.json,
-kimi.plugin.json, qwen-extension.json, and gemini-extension.json. Reminds you
-about CHANGELOG.md, which stays hand-written.
+kimi.plugin.json, qwen-extension.json, and gemini-extension.json. Then scans the
+repository for the old version and fails if one remains, so a hard-coded version
+in a doc or badge cannot go stale. Reminds you about CHANGELOG.md, which stays
+hand-written.
 """
 
 from __future__ import annotations
@@ -31,6 +33,13 @@ SKILL_FILES = (
     "skills/succinct/SKILL.md",
     ".cursor/skills/succinct/SKILL.md",
 )
+# History files keep old versions on purpose; everything else must move.
+HISTORY_FILES = ("CHANGELOG.md",)
+SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules"}
+TEXT_SUFFIXES = {
+    ".json", ".md", ".toml", ".yaml", ".yml", ".ts", ".mjs", ".js",
+    ".py", ".sh", ".ps1", ".txt", ".jsonl",
+}
 
 def current_version() -> str:
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
@@ -64,6 +73,13 @@ def main() -> int:
     for relative in SKILL_FILES:
         replace_in_file(ROOT / relative, old, args.new_version)
 
+    leftovers = find_leftovers(old)
+    if leftovers:
+        print("Old version still present in:", file=sys.stderr)
+        for relative in leftovers:
+            print(f"  {relative}", file=sys.stderr)
+        raise SystemExit("update those files, then rerun the bump")
+
     result = subprocess_ok()
     if not result:
         raise SystemExit("bump applied but validation failed; inspect the diff")
@@ -74,6 +90,25 @@ def main() -> int:
     print(f"2. Commit and tag: git commit -am 'v{args.new_version}' && git tag v{args.new_version}")
     print("3. Push the tag; the release workflow drafts the GitHub release.")
     return 0
+
+def find_leftovers(old: str) -> list[str]:
+    pattern = re.compile(rf"(?<![0-9.]){re.escape(old)}(?![0-9.])")
+    found: list[str] = []
+    for path in sorted(ROOT.rglob("*")):
+        if not path.is_file() or path.suffix not in TEXT_SUFFIXES:
+            continue
+        relative = path.relative_to(ROOT)
+        if any(part in SKIP_DIRS for part in relative.parts):
+            continue
+        if relative.as_posix() in HISTORY_FILES:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if pattern.search(text):
+            found.append(relative.as_posix())
+    return found
 
 def subprocess_ok() -> bool:
     import subprocess
