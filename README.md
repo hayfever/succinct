@@ -93,19 +93,17 @@ Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the fo
 
 ## The rules
 
-**Shape (10 rules).** Lead with the next action. Number multi-step tasks. End with one concrete next action. Suppress tangents. Restate state every turn. Specific time estimates. Make wins visible. Matter-of-fact errors. Cap lists at 5 items. No preamble, no recap, no closers.
+The [canonical skill](skills/succinct/SKILL.md) holds all of it: 284 lines, three parts.
 
-**Sound human (25 tells).** The core carries the five strongest tells: not-X-but-Y contrasts, one-line closers, deep-sounding sayings, staged run-ups, and arguing with no one. It also cuts chatbot residue, knowledge-limit guesses, heading echoes, history of the previous version, and stock AI words. The full catalog, with examples and weak-alone markers, is in [references/patterns.md](skills/succinct/references/patterns.md).
+- Shape: ten rules that make an answer actable for a reader with ADHD, from the next action in line one to the five-item list cap. ([Part 1](skills/succinct/SKILL.md#part-1-shape-the-response))
+- Sound human: 25 patterns that mark text as machine-made, strongest first, from [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing). Keep every supported claim; never invent a fact. ([Part 2](skills/succinct/SKILL.md#part-2-sound-like-a-person))
+- Write plain: Simplified Technical English, the controlled standard behind aerospace maintenance docs. Active voice, imperative steps, steps of 20 words or fewer, one term per item. ([Part 3](skills/succinct/SKILL.md#part-3-write-plain-simplified-technical-english))
 
-**Write plain (STE).** The core summarizes the rules: one word, one meaning ("ensure" becomes "make sure", "perform" becomes "do", "shall" becomes "must"). No phrasal verbs. Verbs act; nouns sit. Active voice; imperative steps. 20 words per step, 25 per description. No semicolons. Keep articles, subjects, and "that". No contractions. Conditions first, then the command. One technical term per item. Multi-word nouns of three words or fewer. Full detail and replacement lists are in [references/plain-english.md](skills/succinct/references/plain-english.md).
+### What it costs
 
-The source of truth is the core [skills/succinct/SKILL.md](skills/succinct/SKILL.md) plus its two reference files. Every harness above loads the core file. The references load only on demand.
+`SKILL.md` is 284 lines, 3,464 words, and 5,018 tokens with the o200k tokenizer. That is about 2.5 percent of a 200,000-token context window, added once when the skill loads.
 
-## What it costs
-
-The core is 2,055 o200k tokens: 164 lines, 1,359 words. It loads once at session start, through `/succinct`, a hook, or an extension, and it stays in context for the session. The references load only when the model needs them. `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens. Counts use `tiktoken` with the `o200k_base` encoding.
-
-Before the split the single file was 5,589 tokens, 311 lines, and 3,897 words. The up-front load is 63 percent smaller.
+Every harness above loads that one file. The ASD standard is a free download; this skill summarizes its writing rules and does not reproduce the dictionary.
 
 ## Tune it
 
