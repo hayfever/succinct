@@ -19,7 +19,7 @@ Do not read secrets, home-directory configuration, unrelated files, or local run
 | Skill mirror | `.cursor/skills/succinct/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
 | Skill adapters | `skills/succinct/agents/`, `commands/` | Codex (`openai.yaml`) and Gemini CLI (`commands/succinct.toml`) formats. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
-| Shared hooks | `hooks/hooks.json`, `hooks/always-on.sh`, `hooks/always-on.ps1` | Hook declarations and cross-platform always-on behavior. |
+| Shared hooks | `hooks/`, `hooks/hooks.json` (Claude Code), `hooks/codex-hooks.json` (Codex) | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
 | OpenCode | `opencode.json`, `.opencode/` | OpenCode plugin and command entry points. |
 | Other runtimes | `qwen-extension.json`, `kimi.plugin.json`, `gemini-extension.json`, `GEMINI.md`, `plugin.json` | Qwen, Kimi, Gemini, and Antigravity metadata. |
@@ -34,7 +34,7 @@ When debugging or changing one integration, begin with its entry point:
 | Runtime | Read first |
 | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.sh` |
-| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/succinct/agents/openai.yaml` |
+| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/succinct/agents/openai.yaml`, `hooks/codex-hooks.json` |
 | Pi | `package.json` (`pi`), `extensions/succinct.ts` |
 | OMP | `package.json` (`omp`), `extensions/succinct.ts`, `extensions/context-compat.ts` |
 | OpenCode | `opencode.json`, `.opencode/plugins/succinct/`, `.opencode/command/succinct.md` |

@@ -6,10 +6,15 @@
 # hooks/hooks.json runs always-on.sh first. Claude Code passes the command line
 # to PowerShell only when Git Bash is not installed, so this script skips when a
 # POSIX shell is on PATH: always-on.sh already handled that session, and the
-# ruleset must not be injected twice.
+# ruleset must not be injected twice. Codex runs this script directly from
+# hooks/codex-hooks.json, where no sh branch ran, so it passes -SkipShellCheck.
+
+param(
+  [switch]$SkipShellCheck
+)
 
 try {
-  if (Get-Command sh -CommandType Application -ErrorAction SilentlyContinue) {
+  if (-not $SkipShellCheck -and (Get-Command sh -CommandType Application -ErrorAction SilentlyContinue)) {
     exit 0
   }
 
