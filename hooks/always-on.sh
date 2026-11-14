@@ -9,6 +9,10 @@
 # script exits early when sh is available, so only one of the two injects the
 # ruleset. Plain-text stdout is what both Claude Code and Codex add to the
 # context as developer instructions.
+#
+# The hook commands check that always-on.ps1 exists before they run it:
+# Windows PowerShell prints its copyright banner when -File names a missing
+# script, and a broken plugin install must still leave stdout empty.
 
 claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 flag_path="$claude_dir/.succinct-always"
