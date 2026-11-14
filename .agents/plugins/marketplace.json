@@ -7,9 +7,8 @@
     {
       "name": "succinct",
       "source": {
-        "source": "url",
-        "url": "https://github.com/hayfever/succinct.git",
-        "ref": "main"
+        "source": "local",
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -3,8 +3,12 @@
 # opted in by creating $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude).
 # Never blocks session start: any failure exits 0.
 #
-# POSIX fallback for environments where the default Node hook cannot run. It
-# works with sh on macOS/Linux and Git Bash on Windows without a Node install.
+# hooks/hooks.json runs this script first with sh, which is on every macOS and
+# Linux system and in Git Bash on Windows. On Windows without Git Bash the
+# shell is PowerShell, so the same command line runs always-on.ps1 next. That
+# script exits early when sh is available, so only one of the two injects the
+# ruleset. Plain-text stdout is what both Claude Code and Codex add to the
+# context as developer instructions.
 
 claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 flag_path="$claude_dir/.succinct-always"
@@ -12,15 +16,15 @@ flag_path="$claude_dir/.succinct-always"
 # Only fire when the user has opted in.
 [ -f "$flag_path" ] || exit 0
 
-# $0 is the absolute script path substituted into hooks.json by Claude Code,
-# so resolve SKILL.md relative to it instead of trusting an exported env var.
+# $0 is the path substituted into hooks.json by the harness, so resolve
+# SKILL.md relative to it instead of trusting an exported environment variable.
 script_dir=$(dirname -- "$0")
 skill_path="$script_dir/../skills/succinct/SKILL.md"
 [ -f "$skill_path" ] || exit 0
 
 # Strip a leading YAML frontmatter block (--- ... --- at the very top of file).
 # An unterminated fence is not frontmatter, so the whole file is kept unless the
-# closing delimiter exists (two passes; matches the Node and PowerShell hooks).
+# closing delimiter exists (two passes; matches the PowerShell hook).
 body=$(awk '
   NR == FNR {
     if (NR == 1 && $0 ~ /^---[[:space:]]*$/) { in_fm = 1; next }

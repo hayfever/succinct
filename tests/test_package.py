@@ -78,7 +78,6 @@ class PackageContractTest(unittest.TestCase):
     def test_all_runtime_files_reference_the_canonical_skill(self):
         markers = {
             "extensions/succinct.ts": '"SKILL.md",',
-            "hooks/always-on.mjs": '"skills", "succinct", "SKILL.md"',
             "hooks/always-on.sh": "skills/succinct/SKILL.md",
             "hooks/always-on.ps1": "../skills/succinct/SKILL.md",
             ".opencode/plugins/succinct/index.js": '"succinct", "SKILL.md"',
