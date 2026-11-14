@@ -19,6 +19,7 @@
     "codex"
   ],
   "skills": "./skills/",
+  "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "Succinct",
     "shortDescription": "Action-first, human, plain output",

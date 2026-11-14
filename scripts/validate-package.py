@@ -23,6 +23,7 @@ JSON_MANIFESTS = (
     "gemini-extension.json",
     "opencode.json",
     "hooks/hooks.json",
+    "hooks/codex-hooks.json",
 )
 
 JSON_MANIFESTS_WITH_NAME = (

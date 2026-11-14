@@ -1,0 +1,19 @@
+{
+  "description": "Load the succinct ruleset at session start when the user opted in with the .succinct-always flag. Codex uses this file instead of hooks/hooks.json: Codex reads the plugin path from the PLUGIN_ROOT environment variable rather than substituting it into the command text, and its default Windows shell is cmd.exe.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PLUGIN_ROOT/hooks/always-on.sh\"; exit 0",
+            "commandWindows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%CLAUDE_PLUGIN_ROOT%\\hooks\\always-on.ps1\" -SkipShellCheck & exit /b 0",
+            "timeout": 30,
+            "statusMessage": "Checking succinct always-on flag..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -163,7 +163,7 @@ codex plugin marketplace remove succinct
 
 ### Always-on (optional)
 
-The same `SessionStart` hook as Claude Code loads the ruleset at the start of every session. It reads one flag file for both agents:
+A `SessionStart` hook loads the ruleset at the start of every session. It reads one flag file for both agents:
 
 ```bash
 mkdir -p ~/.claude

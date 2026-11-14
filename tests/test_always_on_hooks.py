@@ -8,9 +8,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SESSION_START_COMMAND = json.loads(
-    (ROOT / "hooks" / "hooks.json").read_text(encoding="utf8")
-)["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+
+def load_hooks(relative):
+    return json.loads((ROOT / "hooks" / relative).read_text(encoding="utf8"))
+
+
+CLAUDE_HOOKS = load_hooks("hooks.json")
+CODEX_HOOKS = load_hooks("codex-hooks.json")
+SESSION_START_COMMAND = CLAUDE_HOOKS["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+CODEX_SESSION_START = CODEX_HOOKS["hooks"]["SessionStart"][0]["hooks"][0]
 
 
 def path_without(executable):
@@ -64,7 +70,7 @@ class AlwaysOnHookTest(unittest.TestCase):
             env=env or self.hook_env(),
         )
 
-    def run_powershell(self, env=None):
+    def run_powershell(self, env=None, extra_args=()):
         powershell = self.powershell()
         if powershell is None:
             self.skipTest("no PowerShell runtime is available")
@@ -76,6 +82,7 @@ class AlwaysOnHookTest(unittest.TestCase):
                 "Bypass",
                 "-File",
                 str(self.plugin_root / "hooks" / "always-on.ps1"),
+                *extra_args,
             ],
             check=False,
             capture_output=True,
@@ -83,14 +90,14 @@ class AlwaysOnHookTest(unittest.TestCase):
             env=env or self.hook_env(),
         )
 
-    def run_session_start_command(self, path=None, plugin_root=None):
+    def run_session_start_command(self, path=None, plugin_root=None, command=None):
         shell = self.shell()
         if shell is None:
             self.skipTest("no sh runtime is available")
         run_env = self.hook_env(path)
         run_env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root or self.plugin_root)
         return subprocess.run(
-            [shell, "-c", SESSION_START_COMMAND],
+            [shell, "-c", command or SESSION_START_COMMAND],
             check=False,
             capture_output=True,
             text=True,
@@ -231,6 +238,50 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("", result.stdout)
+
+    def test_codex_hook_declares_sh_and_windows_commands(self):
+        claude_session_start = CLAUDE_HOOKS["hooks"]["SessionStart"][0]
+        codex_session_start = CODEX_HOOKS["hooks"]["SessionStart"][0]
+
+        self.assertEqual(claude_session_start["matcher"], codex_session_start["matcher"])
+        self.assertEqual("command", CODEX_SESSION_START["type"])
+        self.assertEqual(30, CODEX_SESSION_START["timeout"])
+        command = CODEX_SESSION_START["command"]
+        windows = CODEX_SESSION_START["commandWindows"]
+        # Codex sets CLAUDE_PLUGIN_ROOT as an environment variable instead of
+        # substituting it into the command text, so sh expands it but cmd.exe
+        # needs its own syntax.
+        self.assertIn('sh "$CLAUDE_PLUGIN_ROOT/hooks/always-on.sh"', command)
+        self.assertTrue(command.strip().endswith("exit 0"))
+        self.assertIn("%CLAUDE_PLUGIN_ROOT%\\hooks\\always-on.ps1", windows)
+        self.assertIn("-SkipShellCheck", windows)
+        self.assertTrue(windows.strip().endswith("exit /b 0"))
+        for text in (command, windows):
+            self.assertNotIn("node", text)
+
+    def test_codex_sh_command_injects_the_ruleset(self):
+        self.opt_in()
+
+        result = self.run_session_start_command(
+            path_without("node"), command=CODEX_SESSION_START["command"]
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("SUCCINCT MODE ACTIVE (always-on).", result.stdout)
+        self.assertIn("## 1. Lead with the next action", result.stdout)
+
+    def test_codex_powershell_command_skips_the_sh_check(self):
+        # Codex runs the PowerShell hook on its own, so a POSIX shell on PATH
+        # does not mean the ruleset was already injected.
+        if shutil.which("sh") is None:
+            self.skipTest("no sh on PATH, so the plain deferral test covers this")
+        self.opt_in()
+
+        result = self.run_powershell(extra_args=("-SkipShellCheck",))
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("", result.stderr)
+        self.assertIn("SUCCINCT MODE ACTIVE (always-on).", result.stdout)
 
     def test_session_start_hook_declares_a_portable_command(self):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text(encoding="utf8"))
