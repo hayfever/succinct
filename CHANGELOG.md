@@ -2,7 +2,11 @@
 
 All notable changes to succinct are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org).
 
-## [1.2.0] - 2026-11-13
+## [2.0.0] - 2026-11-14
+
+### Breaking
+
+- The rename removes `/blunt`, `--blunt`, and `stop blunt mode` with no alias. Use `/succinct`, `--succinct`, and `stop succinct mode` instead. This is why the version jumps to 2.0.0.
 
 ### Changed
 
@@ -40,6 +44,6 @@ All notable changes to succinct are documented here. The format follows [Keep a 
 - Test harness: package consistency validator, cross-runtime unit tests, extension RPC smoke tests with no model calls, paired baseline-vs-candidate evals with a blind judge and release gate, and a deterministic style linter.
 - GitHub Actions: `validate.yml` on every push and pull request, `evals.yml` on manual dispatch.
 
-[1.2.0]: https://github.com/hayfever/succinct/releases/tag/v1.2.0
+[2.0.0]: https://github.com/hayfever/succinct/releases/tag/v2.0.0
 [1.1.0]: https://github.com/hayfever/succinct/releases/tag/v1.1.0
 [1.0.0]: https://github.com/hayfever/succinct/releases/tag/v1.0.0
