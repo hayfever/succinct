@@ -4,7 +4,7 @@
 
 # succinct
 
-One output style for coding agents: lead with the next action, sound like a person, write plain English.
+An output style for coding agents, built for readers with ADHD: lead with the next action, sound like a person, write plain English.
 
 ## Before
 
