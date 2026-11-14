@@ -16,41 +16,41 @@ const SKILL_PATH = join(
   EXTENSION_DIR,
   "..",
   "skills",
-  "blunt",
+  "succinct",
   "SKILL.md",
 );
-const STATE_ENTRY_TYPE = "blunt-state";
-const RULES_MESSAGE_TYPE = "blunt-rules";
-const DISABLED_MESSAGE_TYPE = "blunt-disabled";
-const STATUS_KEY = "blunt";
-const DISABLE_CONFIRMATION = "Blunt mode disabled.";
+const STATE_ENTRY_TYPE = "succinct-state";
+const RULES_MESSAGE_TYPE = "succinct-rules";
+const DISABLED_MESSAGE_TYPE = "succinct-disabled";
+const STATUS_KEY = "succinct";
+const DISABLE_CONFIRMATION = "Succinct mode disabled.";
 const STOP_PHRASES: Record<string, true> = {
-  "stop blunt mode": true,
+  "stop succinct mode": true,
   "normal mode": true,
 };
 const RULES_HEADER =
-  'BLUNT MODE ACTIVE. The ruleset below applies to every response until turned off. "stop blunt mode" or "normal mode" turns it off for this session and future sessions. Run /blunt to switch it back on.';
+  'SUCCINCT MODE ACTIVE. The ruleset below applies to every response until turned off. "stop succinct mode" or "normal mode" turns it off for this session and future sessions. Run /succinct to switch it back on.';
 const DISABLED_NOTICE =
-  "BLUNT MODE OFF. Ignore the blunt ruleset injected earlier in this conversation and return to your default response style.";
+  "SUCCINCT MODE OFF. Ignore the succinct ruleset injected earlier in this conversation and return to your default response style.";
 
-type BluntModeState = {
+type SuccinctModeState = {
   enabled: boolean;
 };
 
-type BluntConfig = {
+type SuccinctConfig = {
   alwaysOn?: boolean;
   hideStatus?: boolean;
   /**
-   * Persisted toggle state. /blunt and the stop phrases write it so the
+   * Persisted toggle state. /succinct and the stop phrases write it so the
    * choice carries to future sessions; it outranks the legacy always-on
    * defaults but not a session's own saved state.
    */
   enabled?: boolean;
 };
 
-function loadConfig(): BluntConfig {
+function loadConfig(): SuccinctConfig {
   try {
-    return JSON.parse(readFileSync(join(getAgentDir(), "blunt.json"), "utf8"));
+    return JSON.parse(readFileSync(join(getAgentDir(), "succinct.json"), "utf8"));
   } catch {
     return {};
   }
@@ -61,10 +61,10 @@ function loadConfig(): BluntConfig {
  * Returns false when the preference file cannot be written.
  */
 function persistState(nextEnabled: boolean): boolean {
-  const merged: BluntConfig = { ...loadConfig(), enabled: nextEnabled };
+  const merged: SuccinctConfig = { ...loadConfig(), enabled: nextEnabled };
   try {
     writeFileSync(
-      join(getAgentDir(), "blunt.json"),
+      join(getAgentDir(), "succinct.json"),
       `${JSON.stringify(merged, null, 2)}\n`,
       "utf8",
     );
@@ -91,13 +91,13 @@ function loadRules(): string {
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Unable to load blunt rules from ${SKILL_PATH}: ${reason}`,
+      `Unable to load succinct rules from ${SKILL_PATH}: ${reason}`,
     );
   }
 
   const rules = stripFrontmatter(content);
   if (!rules) {
-    throw new Error(`The blunt rules file is empty: ${SKILL_PATH}`);
+    throw new Error(`The succinct rules file is empty: ${SKILL_PATH}`);
   }
 
   return rules;
@@ -111,7 +111,7 @@ function getSavedState(ctx: ExtensionContext): boolean | undefined {
       continue;
     }
 
-    const data = entry.data as Partial<BluntModeState> | undefined;
+    const data = entry.data as Partial<SuccinctModeState> | undefined;
     if (typeof data?.enabled === "boolean") {
       savedState = data.enabled;
     }
@@ -135,9 +135,9 @@ function rulesAreInContext(ctx: ExtensionContext): boolean {
   );
 }
 
-export default function bluntExtension(pi: ExtensionAPI) {
+export default function succinctExtension(pi: ExtensionAPI) {
   const rules = loadRules();
-  const alwaysOnFlag = join(getAgentDir(), ".blunt-always");
+  const alwaysOnFlag = join(getAgentDir(), ".succinct-always");
   const config = loadConfig();
   let enabled = false;
 
@@ -148,7 +148,7 @@ export default function bluntExtension(pi: ExtensionAPI) {
     }
 
     const dot = ctx.ui.theme.fg("success", "●");
-    const label = ctx.ui.theme.fg("accent", "BLUNT ON");
+    const label = ctx.ui.theme.fg("accent", "SUCCINCT ON");
     ctx.ui.setStatus(STATUS_KEY, `${dot} ${label}`);
   };
 
@@ -185,12 +185,12 @@ export default function bluntExtension(pi: ExtensionAPI) {
 
   const restoreState = (ctx: ExtensionContext): void => {
     const savedState = getSavedState(ctx);
-    const cliFlag = pi.getFlag("blunt") === true;
+    const cliFlag = pi.getFlag("succinct") === true;
     const persisted = loadConfig().enabled;
     const enabledByDefault = config.alwaysOn === true || existsSync(alwaysOnFlag);
 
     // A session's own history wins, then the persisted toggle, then the
-    // launch-time defaults. --blunt keeps force-on semantics for that run.
+    // launch-time defaults. --succinct keeps force-on semantics for that run.
     const defaultForSession = cliFlag
       ? true
       : typeof persisted === "boolean"
@@ -203,11 +203,11 @@ export default function bluntExtension(pi: ExtensionAPI) {
 
   const setEnabled = (nextEnabled: boolean, ctx: ExtensionContext): void => {
     enabled = nextEnabled;
-    pi.appendEntry(STATE_ENTRY_TYPE, { enabled } satisfies BluntModeState);
+    pi.appendEntry(STATE_ENTRY_TYPE, { enabled } satisfies SuccinctModeState);
 
     if (!persistState(nextEnabled)) {
       ctx.ui.notify(
-        "Could not save the blunt preference; this toggle is session-only.",
+        "Could not save the succinct preference; this toggle is session-only.",
         "warning",
       );
     }
@@ -215,19 +215,19 @@ export default function bluntExtension(pi: ExtensionAPI) {
     updateStatus(ctx);
     syncContext(ctx);
     ctx.ui.notify(
-      `Blunt mode ${enabled ? "enabled" : "disabled"} (saved for future sessions)`,
+      `Succinct mode ${enabled ? "enabled" : "disabled"} (saved for future sessions)`,
       "info",
     );
   };
 
-  pi.registerFlag("blunt", {
-    description: "Start with blunt output enabled",
+  pi.registerFlag("succinct", {
+    description: "Start with succinct output enabled",
     type: "boolean",
     default: false,
   });
 
-  pi.registerCommand("blunt", {
-    description: "Toggle blunt output (persists across sessions)",
+  pi.registerCommand("succinct", {
+    description: "Toggle succinct output (persists across sessions)",
     handler: async (args, ctx) => {
       const argument = args.trim().toLowerCase();
 
@@ -246,7 +246,7 @@ export default function bluntExtension(pi: ExtensionAPI) {
         return;
       }
 
-      ctx.ui.notify("Usage: /blunt [on|off]", "warning");
+      ctx.ui.notify("Usage: /succinct [on|off]", "warning");
     },
   });
 
@@ -255,7 +255,7 @@ export default function bluntExtension(pi: ExtensionAPI) {
 
     // Keep the built-in skill command working as an alias without letting the
     // runtime expand a second copy of the same rules into the conversation.
-    if (input === "/skill:blunt") {
+    if (input === "/skill:succinct") {
       setEnabled(true, ctx);
       return { action: "handled" };
     }

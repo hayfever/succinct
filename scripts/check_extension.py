@@ -32,11 +32,11 @@ def validate_package_manifest() -> None:
         )
 
     assert package.get("pi") == {
-        "extensions": ["./extensions/blunt.ts"],
+        "extensions": ["./extensions/succinct.ts"],
         "skills": ["./skills"],
     }
     assert package.get("omp") == {
-        "extensions": ["./extensions/blunt.ts"],
+        "extensions": ["./extensions/succinct.ts"],
     }
 
 class RpcClient:
@@ -175,7 +175,7 @@ def status_texts(events: list[dict[str, Any]]) -> list[str | None]:
         for event in events
         if event.get("type") == "extension_ui_request"
         and event.get("method") == "setStatus"
-        and event.get("statusKey") == "blunt"
+        and event.get("statusKey") == "succinct"
     ]
 
 def message_count(entries_response: dict[str, Any], custom_type: str) -> int:
@@ -191,15 +191,15 @@ def latest_enabled(entries_response: dict[str, Any]) -> bool:
         entry.get("data", {}).get("enabled")
         for entry in entries_response["data"]["entries"]
         if entry.get("type") == "custom"
-        and entry.get("customType") == "blunt-state"
+        and entry.get("customType") == "succinct-state"
     ]
     if not states or not isinstance(states[-1], bool):
-        raise AssertionError("No persisted blunt state found")
+        raise AssertionError("No persisted succinct state found")
     return states[-1]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Smoke-test the blunt extension without a model request."
+        description="Smoke-test the succinct extension without a model request."
     )
     parser.add_argument(
         "--runtime",
@@ -217,7 +217,7 @@ def main() -> None:
         raise RuntimeError(f"{args.runtime} executable is not available")
 
     with tempfile.TemporaryDirectory(
-        prefix=f"blunt-{args.runtime}-"
+        prefix=f"succinct-{args.runtime}-"
     ) as agent_dir:
         env = build_isolated_env(agent_dir)
         if args.runtime == "omp":
@@ -271,7 +271,7 @@ export default function (pi: ExtensionAPI) {
             *extension_args,
             "-e",
             str(reload_probe),
-            "--blunt",
+            "--succinct",
         )
         if args.runtime == "omp":
             try:
@@ -284,10 +284,10 @@ export default function (pi: ExtensionAPI) {
                     command["name"]
                     for command in command_event["commands"]
                 }
-                assert "blunt" in command_names
-                assert "skill:blunt" in command_names
+                assert "succinct" in command_names
+                assert "skill:succinct" in command_names
                 assert any(
-                    "BLUNT ON" in (text or "")
+                    "SUCCINCT ON" in (text or "")
                     for text in status_texts(startup_events)
                 )
             finally:
@@ -299,75 +299,75 @@ export default function (pi: ExtensionAPI) {
         try:
             commands, startup_events = client.request("commands", {"type": "get_commands"})
             command_names = {command["name"] for command in commands["data"]["commands"]}
-            assert "blunt" in command_names
-            assert "skill:blunt" in command_names
-            assert any("BLUNT ON" in (text or "") for text in status_texts(startup_events))
+            assert "succinct" in command_names
+            assert "skill:succinct" in command_names
+            assert any("SUCCINCT ON" in (text or "") for text in status_texts(startup_events))
 
             entries, _ = client.request("entries-startup", {"type": "get_entries"})
-            assert message_count(entries, "blunt-rules") == 1
-            assert message_count(entries, "blunt-disabled") == 0
+            assert message_count(entries, "succinct-rules") == 1
+            assert message_count(entries, "succinct-disabled") == 0
 
             reloaded, reload_events = client.request(
                 "reload-enabled",
                 {"type": "prompt", "message": "/reload-probe"},
             )
             assert reloaded["success"] is True
-            assert any("BLUNT ON" in (text or "") for text in status_texts(reload_events))
+            assert any("SUCCINCT ON" in (text or "") for text in status_texts(reload_events))
 
             entries, _ = client.request("entries-reloaded", {"type": "get_entries"})
-            assert message_count(entries, "blunt-rules") == 1, (
+            assert message_count(entries, "succinct-rules") == 1, (
                 "Rules were injected twice for one active session"
             )
 
             toggled_off, toggle_off_events = client.request(
                 "toggle-off",
-                {"type": "prompt", "message": "/blunt"},
+                {"type": "prompt", "message": "/succinct"},
             )
             assert toggled_off["success"] is True
             assert None in status_texts(toggle_off_events)
 
             entries, _ = client.request("entries-toggled-off", {"type": "get_entries"})
             assert latest_enabled(entries) is False
-            assert message_count(entries, "blunt-disabled") == 1
+            assert message_count(entries, "succinct-disabled") == 1
 
             reloaded, reload_events = client.request(
                 "reload-disabled",
                 {"type": "prompt", "message": "/reload-probe"},
             )
             assert reloaded["success"] is True
-            assert not any("BLUNT ON" in (text or "") for text in status_texts(reload_events))
+            assert not any("SUCCINCT ON" in (text or "") for text in status_texts(reload_events))
 
             entries, _ = client.request("entries-reload-disabled", {"type": "get_entries"})
-            assert message_count(entries, "blunt-rules") == 1
-            assert message_count(entries, "blunt-disabled") == 1
+            assert message_count(entries, "succinct-rules") == 1
+            assert message_count(entries, "succinct-disabled") == 1
 
             toggled_on, toggle_on_events = client.request(
                 "toggle-on",
-                {"type": "prompt", "message": "/blunt"},
+                {"type": "prompt", "message": "/succinct"},
             )
             assert toggled_on["success"] is True
-            assert any("BLUNT ON" in (text or "") for text in status_texts(toggle_on_events))
+            assert any("SUCCINCT ON" in (text or "") for text in status_texts(toggle_on_events))
 
             entries, _ = client.request("entries-toggled-on", {"type": "get_entries"})
             assert latest_enabled(entries) is True
-            assert message_count(entries, "blunt-rules") == 2
+            assert message_count(entries, "succinct-rules") == 2
 
             explicit_off, _ = client.request(
                 "explicit-off",
-                {"type": "prompt", "message": "/blunt off"},
+                {"type": "prompt", "message": "/succinct off"},
             )
             assert explicit_off["success"] is True
 
             skill, skill_events = client.request(
                 "skill-alias",
-                {"type": "prompt", "message": "/skill:blunt"},
+                {"type": "prompt", "message": "/skill:succinct"},
             )
             assert skill["success"] is True
             assert not any(event.get("type") == "agent_start" for event in skill_events)
 
             entries, _ = client.request("entries-enabled", {"type": "get_entries"})
             assert latest_enabled(entries) is True
-            assert message_count(entries, "blunt-rules") == 3
+            assert message_count(entries, "succinct-rules") == 3
 
             stopped, stop_events = client.request(
                 "stop-phrase",
@@ -399,7 +399,7 @@ export default function (pi: ExtensionAPI) {
         # 1.1.0: the stop phrase above persisted the OFF choice. Verify the
         # preference file and that a fresh session starts OFF without flags.
         persisted_config = json.loads(
-            Path(agent_dir, "blunt.json").read_text(encoding="utf8")
+            Path(agent_dir, "succinct.json").read_text(encoding="utf8")
         )
         assert persisted_config.get("enabled") is False
 
@@ -409,20 +409,20 @@ export default function (pi: ExtensionAPI) {
                 "persisted-off", {"type": "get_state"},
             )
             assert not any(
-                "BLUNT ON" in (text or "")
+                "SUCCINCT ON" in (text or "")
                 for text in status_texts(persisted_off_events)
             )
             entries, _ = persisted_off.request(
                 "entries-persisted-off", {"type": "get_entries"},
             )
-            assert message_count(entries, "blunt-rules") == 0
+            assert message_count(entries, "succinct-rules") == 0
         finally:
             persisted_off.close()
 
         # The legacy always-on flag still forces ON once the persisted
         # preference is cleared.
-        Path(agent_dir, "blunt.json").unlink(missing_ok=True)
-        Path(agent_dir, ".blunt-always").touch()
+        Path(agent_dir, "succinct.json").unlink(missing_ok=True)
+        Path(agent_dir, ".succinct-always").touch()
         always_on = RpcClient(
             executable,
             env,
@@ -435,15 +435,15 @@ export default function (pi: ExtensionAPI) {
                 {"type": "get_state"},
             )
             assert any(
-                "BLUNT ON" in (text or "")
+                "SUCCINCT ON" in (text or "")
                 for text in status_texts(always_on_events)
             )
         finally:
             always_on.close()
 
         # The persisted ON choice restores in a fresh session with no flags.
-        Path(agent_dir, ".blunt-always").unlink(missing_ok=True)
-        Path(agent_dir, "blunt.json").write_text(
+        Path(agent_dir, ".succinct-always").unlink(missing_ok=True)
+        Path(agent_dir, "succinct.json").write_text(
             json.dumps({"enabled": True}), encoding="utf8",
         )
         persisted_on = RpcClient(executable, env, "--no-session", *extension_args)
@@ -452,13 +452,13 @@ export default function (pi: ExtensionAPI) {
                 "persisted-on", {"type": "get_state"},
             )
             assert any(
-                "BLUNT ON" in (text or "")
+                "SUCCINCT ON" in (text or "")
                 for text in status_texts(persisted_on_events)
             )
             entries, _ = persisted_on.request(
                 "entries-persisted-on", {"type": "get_entries"},
             )
-            assert message_count(entries, "blunt-rules") == 1
+            assert message_count(entries, "succinct-rules") == 1
         finally:
             persisted_on.close()
 

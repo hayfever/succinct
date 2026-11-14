@@ -1,14 +1,14 @@
 {
-  "name": "blunt",
+  "name": "succinct",
   "interface": {
-    "displayName": "Blunt"
+    "displayName": "Succinct"
   },
   "plugins": [
     {
-      "name": "blunt",
+      "name": "succinct",
       "source": {
         "source": "url",
-        "url": "https://github.com/hayfever/blunt.git",
+        "url": "https://github.com/hayfever/succinct.git",
         "ref": "main"
       },
       "policy": {

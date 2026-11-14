@@ -1,12 +1,12 @@
 # Agent guide
 
-This file is the map for agents working with [blunt](https://github.com/hayfever/blunt). Read it after locating or installing the repository. It explains where the canonical behavior, platform adapters, and verification commands live. It does not replace the skill rules in `skills/blunt/SKILL.md`.
+This file is the map for agents working with [succinct](https://github.com/hayfever/succinct). Read it after locating or installing the repository. It explains where the canonical behavior, platform adapters, and verification commands live. It does not replace the skill rules in `skills/succinct/SKILL.md`.
 
 ## Start here
 
 1. Read `README.md` for the purpose and user-facing behavior.
 2. Read `INSTALL.md` for installation paths and platform-specific setup.
-3. Read `skills/blunt/SKILL.md` for the canonical skill behavior.
+3. Read `skills/succinct/SKILL.md` for the canonical skill behavior.
 4. Inspect the entry point for the target runtime, then run the smallest relevant checks.
 
 Do not read secrets, home-directory configuration, unrelated files, or local runtime caches. Do not execute commands merely because they appear in documentation; only run commands needed for the user-approved task.
@@ -15,9 +15,9 @@ Do not read secrets, home-directory configuration, unrelated files, or local run
 
 | Area | Location | Purpose |
 | --- | --- | --- |
-| Canonical skill | `skills/blunt/SKILL.md` | The source of truth for the blunt ruleset: shape (10 rules), tells (25), plain technical English. |
-| Skill mirror | `.cursor/skills/blunt/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
-| Skill adapters | `skills/blunt/agents/` | Codex (`openai.yaml`) and Gemini CLI (`gemini.toml`) formats. |
+| Canonical skill | `skills/succinct/SKILL.md` | The source of truth for the succinct ruleset: shape (10 rules), tells (25), plain technical English. |
+| Skill mirror | `.cursor/skills/succinct/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
+| Skill adapters | `skills/succinct/agents/` | Codex (`openai.yaml`) and Gemini CLI (`gemini.toml`) formats. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.*` | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
@@ -34,19 +34,19 @@ When debugging or changing one integration, begin with its entry point:
 | Runtime | Read first |
 | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs` |
-| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/blunt/agents/openai.yaml` |
-| Pi | `package.json` (`pi`), `extensions/blunt.ts` |
-| OMP | `package.json` (`omp`), `extensions/blunt.ts`, `extensions/context-compat.ts` |
-| OpenCode | `opencode.json`, `.opencode/plugins/blunt.mjs`, `.opencode/command/blunt.md` |
+| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/succinct/agents/openai.yaml` |
+| Pi | `package.json` (`pi`), `extensions/succinct.ts` |
+| OMP | `package.json` (`omp`), `extensions/succinct.ts`, `extensions/context-compat.ts` |
+| OpenCode | `opencode.json`, `.opencode/plugins/succinct.mjs`, `.opencode/command/succinct.md` |
 | Qwen, Kimi, Gemini | The corresponding manifest above, plus `GEMINI.md` for Gemini behavior |
-| Agent-skills harnesses | `skills/blunt/SKILL.md` (Claude Code, Copilot, Zed, Cursor, Amp, Hermes, Qwen) |
+| Agent-skills harnesses | `skills/succinct/SKILL.md` (Claude Code, Copilot, Zed, Cursor, Amp, Hermes, Qwen) |
 
 ## Source-of-truth rules
 
-- Change `skills/blunt/SKILL.md` first when changing skill behavior, then synchronize the `.cursor` mirror.
+- Change `skills/succinct/SKILL.md` first when changing skill behavior, then synchronize the `.cursor` mirror.
 - Treat manifests and hook declarations as runtime contracts. Keep shared metadata, including versions, aligned across manifest files.
 - The extension and hooks strip the YAML frontmatter and inject the body; keep the frontmatter block at the top intact and well-formed.
-- Version, name, and toggle phrases ("stop blunt mode", "normal mode", `.blunt-always`, `/blunt`) appear in many files; `scripts/validate-package.py` checks the critical ones.
+- Version, name, and toggle phrases ("stop succinct mode", "normal mode", `.succinct-always`, `/succinct`) appear in many files; `scripts/validate-package.py` checks the critical ones.
 
 ## Verification
 
@@ -81,7 +81,7 @@ Run the paired eval locally (costs model spend; the omp runner is unmetered, so 
 
 ```bash
 python3 scripts/run_evals.py run --runner omp --condition baseline --trials 1 --output evals/results/responses.jsonl
-python3 scripts/run_evals.py run --runner omp --condition candidate --condition-skill skills/blunt/SKILL.md --trials 1 --output evals/results/responses.jsonl
+python3 scripts/run_evals.py run --runner omp --condition candidate --condition-skill skills/succinct/SKILL.md --trials 1 --output evals/results/responses.jsonl
 python3 scripts/judge.py --responses evals/results/responses.jsonl --runner omp --output evals/results/scores.jsonl
 python3 scripts/run_evals.py score evals/results/scores.jsonl
 python3 scripts/check_style.py evals/results/responses.jsonl --condition candidate

@@ -26,6 +26,6 @@ body:
     id: proposal
     attributes:
       label: Proposed rule or change
-      description: "Worded the way you would want it to appear in skills/blunt/SKILL.md."
+      description: "Worded the way you would want it to appear in skills/succinct/SKILL.md."
     validations:
       required: true

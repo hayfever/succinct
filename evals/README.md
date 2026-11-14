@@ -1,6 +1,6 @@
 # Evals
 
-Paired response-quality evaluation: the same case is answered twice, once without the skill (`baseline`) and once with `skills/blunt/SKILL.md` injected into the prompt (`candidate`). A judge model grades blind and a release gate decides.
+Paired response-quality evaluation: the same case is answered twice, once without the skill (`baseline`) and once with `skills/succinct/SKILL.md` injected into the prompt (`candidate`). A judge model grades blind and a release gate decides.
 
 ## Pipeline
 
@@ -9,7 +9,7 @@ Paired response-quality evaluation: the same case is answered twice, once withou
 python3 scripts/run_evals.py run --runner omp --condition baseline \
   --trials 1 --allow-unmetered --output evals/results/responses.jsonl
 python3 scripts/run_evals.py run --runner omp --condition candidate \
-  --condition-skill skills/blunt/SKILL.md \
+  --condition-skill skills/succinct/SKILL.md \
   --trials 1 --allow-unmetered --output evals/results/responses.jsonl
 
 # 2. Judge blind: responses get opaque labels, the judge never sees condition names.

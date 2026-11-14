@@ -3,7 +3,7 @@
 
 Usage: python3 scripts/bump-version.py 1.0.1 [--from 1.0.0]
 
-Updates metadata.version in skills/blunt/SKILL.md (and the .cursor mirror),
+Updates metadata.version in skills/succinct/SKILL.md (and the .cursor mirror),
 package.json, .claude-plugin/plugin.json, .codex-plugin/plugin.json,
 kimi.plugin.json, qwen-extension.json, and gemini-extension.json. Reminds you
 about CHANGELOG.md, which stays hand-written.
@@ -28,8 +28,8 @@ VERSIONED_FILES = (
     "gemini-extension.json",
 )
 SKILL_FILES = (
-    "skills/blunt/SKILL.md",
-    ".cursor/skills/blunt/SKILL.md",
+    "skills/succinct/SKILL.md",
+    ".cursor/skills/succinct/SKILL.md",
 )
 
 def current_version() -> str:

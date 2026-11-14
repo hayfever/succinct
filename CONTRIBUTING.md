@@ -1,14 +1,14 @@
-# Contributing to blunt
+# Contributing to succinct
 
 Thanks for considering a contribution. This repository is small and opinionated: one skill file, cross-runtime packaging, a test harness, and paired evals. Changes stay small and verified.
 
 ## Project rules
 
-1. `skills/blunt/SKILL.md` is the single source of truth. Everything else mirrors, wraps, or validates it.
-2. Keep `skills/blunt/SKILL.md` at 400 lines or fewer. A skill the model skims beats a skill it ignores.
+1. `skills/succinct/SKILL.md` is the single source of truth. Everything else mirrors, wraps, or validates it.
+2. Keep `skills/succinct/SKILL.md` at 400 lines or fewer. A skill the model skims beats a skill it ignores.
 3. Keep manifests aligned: `name`, `version`, `description`, `license`, and `homepage` agree across `package.json` and `kimi.plugin.json`; all manifests share one version. `scripts/validate-package.py` enforces the critical subset.
-4. Change the canonical skill first, then re-copy it to `.cursor/skills/blunt/SKILL.md`. The validator fails on drift.
-5. The toggle phrases ("stop blunt mode", "normal mode"), the flag file (`.blunt-always`), and the command (`/blunt`) are cross-runtime contracts. Do not rename them casually; update every runtime in the same commit.
+4. Change the canonical skill first, then re-copy it to `.cursor/skills/succinct/SKILL.md`. The validator fails on drift.
+5. The toggle phrases ("stop succinct mode", "normal mode"), the flag file (`.succinct-always`), and the command (`/succinct`) are cross-runtime contracts. Do not rename them casually; update every runtime in the same commit.
 6. Every sentence in the skill should obey the skill. No em dashes, no chatbot residue, steps of 20 words or fewer.
 
 ## Development setup
@@ -16,13 +16,13 @@ Thanks for considering a contribution. This repository is small and opinionated:
 No build step and no install step. You need Python 3.10+, Node 22, and Bun.
 
 ```bash
-git clone https://github.com/hayfever/blunt
-cd blunt
+git clone https://github.com/hayfever/succinct
+cd succinct
 python3 scripts/validate-package.py
 python3 -m unittest discover -s tests -v
 bun test tests/context_compat.test.ts
-bun build extensions/blunt.ts --target=bun \
-  --external '@earendil-works/pi-coding-agent' --outfile /tmp/blunt.js
+bun build extensions/succinct.ts --target=bun \
+  --external '@earendil-works/pi-coding-agent' --outfile /tmp/succinct.js
 ```
 
 With the runtimes installed locally, also run:
@@ -49,7 +49,7 @@ Each line of `evals/cases.jsonl` is one JSON object with `id`, `category`, `prom
 
 ```bash
 python3 scripts/run_evals.py run --runner omp --condition candidate \
-  --condition-skill skills/blunt/SKILL.md --case <your-id> --trials 1 \
+  --condition-skill skills/succinct/SKILL.md --case <your-id> --trials 1 \
   --allow-unmetered --output evals/results/responses.jsonl
 ```
 
@@ -58,7 +58,7 @@ python3 scripts/run_evals.py run --runner omp --condition candidate \
 1. Read `INSTALL.md` and find the agent's install mechanics.
 2. Add the smallest manifest that makes the agent install the package, and one unit test in `tests/test_package.py` asserting the manifest contract.
 3. Document Install, Verify, Update, Uninstall, and Always-on in `INSTALL.md`, and keep the always-on snippet a link to the one canonical copy.
-4. If the agent can load extensions, prefer pointing at the canonical `skills/blunt/SKILL.md` over duplicating the ruleset.
+4. If the agent can load extensions, prefer pointing at the canonical `skills/succinct/SKILL.md` over duplicating the ruleset.
 
 ## Reporting issues
 

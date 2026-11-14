@@ -1,7 +1,7 @@
 name: Evals
 
 # Paired response-quality evaluation: baseline (no skill) versus candidate
-# (skills/blunt/SKILL.md injected). Costs API spend, so it runs on demand only.
+# (skills/succinct/SKILL.md injected). Costs API spend, so it runs on demand only.
 # Requires the ANTHROPIC_API_KEY repository secret for the claude runner.
 
 on:
@@ -55,7 +55,7 @@ jobs:
           python3 scripts/run_evals.py run \
             --runner "${{ inputs.runner }}" \
             --condition candidate \
-            --condition-skill skills/blunt/SKILL.md \
+            --condition-skill skills/succinct/SKILL.md \
             --trials "${{ inputs.trials }}" \
             --budget-usd "${{ inputs.budget }}" \
             --output evals/results/responses.jsonl

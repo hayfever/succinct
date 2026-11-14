@@ -1,13 +1,13 @@
 {
-  "name": "blunt",
-  "version": "1.1.0",
-  "description": "Blunt output for Codex: action first, numbered steps, no AI tells, plain Simplified Technical English, and visible progress.",
+  "name": "succinct",
+  "version": "2.0.0",
+  "description": "Succinct output for Codex: action first, numbered steps, no AI tells, plain Simplified Technical English, and visible progress.",
   "author": {
     "name": "Hayden Luckenbach",
     "url": "https://github.com/hayfever"
   },
-  "homepage": "https://github.com/hayfever/blunt",
-  "repository": "https://github.com/hayfever/blunt",
+  "homepage": "https://github.com/hayfever/succinct",
+  "repository": "https://github.com/hayfever/succinct",
   "license": "MIT",
   "keywords": [
     "adhd",
@@ -20,7 +20,7 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Blunt",
+    "displayName": "Succinct",
     "shortDescription": "Action-first, human, plain output",
     "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible. Strip AI writing tells from all prose and write technical text in plain Simplified Technical English.",
     "developerName": "Hayden Luckenbach",
@@ -28,9 +28,9 @@
     "capabilities": [
       "Instructions"
     ],
-    "websiteURL": "https://github.com/hayfever/blunt",
+    "websiteURL": "https://github.com/hayfever/succinct",
     "defaultPrompt": [
-      "Use blunt for this task.",
+      "Use succinct for this task.",
       "Make this answer action-first and easy to execute.",
       "Rewrite this text without AI tells, in plain English."
     ],

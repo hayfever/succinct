@@ -1,6 +1,6 @@
 # SessionStart hook fallback for Windows PowerShell. Injects the full
-# blunt ruleset when the user has opted in by creating
-# $CLAUDE_CONFIG_DIR/.blunt-always (default ~/.claude).
+# succinct ruleset when the user has opted in by creating
+# $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude).
 # Never blocks session start: any failure exits 0.
 
 try {
@@ -9,14 +9,14 @@ try {
   } else {
     Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
   }
-  $flagPath = Join-Path $claudeDir ".blunt-always"
+  $flagPath = Join-Path $claudeDir ".succinct-always"
 
   if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
     exit 0
   }
 
   $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-  $skillPath = Join-Path $scriptDir "../skills/blunt/SKILL.md"
+  $skillPath = Join-Path $scriptDir "../skills/succinct/SKILL.md"
   if (-not (Test-Path -LiteralPath $skillPath -PathType Leaf)) {
     exit 0
   }
@@ -41,8 +41,8 @@ try {
     ""
   }
 
-  $banner = 'BLUNT MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
-    '"stop blunt mode" turns it off for this session; delete '
+  $banner = 'SUCCINCT MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
+    '"stop succinct mode" turns it off for this session; delete '
   [Console]::Out.Write($banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n")
 } catch {
   # Never block session start.

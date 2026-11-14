@@ -1,19 +1,19 @@
-// blunt — OpenCode plugin.
+// succinct — OpenCode plugin.
 //
 // Mirrors the Claude Code / Codex behaviour for OpenCode: the skill in
-// `skills/blunt/SKILL.md` is the single source of truth for the ruleset.
+// `skills/succinct/SKILL.md` is the single source of truth for the ruleset.
 //
-//   • On demand   — registers the skills directory and a `/blunt`
+//   • On demand   — registers the skills directory and a `/succinct`
 //                   command so the ruleset applies for the rest of the session.
 //   • Always-on   — when the opt-in flag file exists, the full ruleset is
 //                   appended to the system prompt every turn (the OpenCode
 //                   equivalent of the SessionStart hook in hooks/always-on.sh).
 //
-// Opt in to always-on:   touch ~/.config/opencode/.blunt-always
-// Opt back out:          rm ~/.config/opencode/.blunt-always
+// Opt in to always-on:   touch ~/.config/opencode/.succinct-always
+// Opt back out:          rm ~/.config/opencode/.succinct-always
 //
 // Install — add to opencode.json:
-//   { "plugin": ["./.opencode/plugins/blunt.mjs"] }
+//   { "plugin": ["./.opencode/plugins/succinct.mjs"] }
 
 import fs from 'fs';
 import os from 'os';
@@ -22,14 +22,14 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const skillsDir = path.resolve(__dirname, '../../skills');
-const skillPath = path.join(skillsDir, 'blunt', 'SKILL.md');
+const skillPath = path.join(skillsDir, 'succinct', 'SKILL.md');
 
-// Always-on opt-in flag, mirroring Claude Code's ~/.claude/.blunt-always
+// Always-on opt-in flag, mirroring Claude Code's ~/.claude/.succinct-always
 // but under OpenCode's config dir so the two tools stay independent.
 const flagPath = path.join(
   process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'),
   'opencode',
-  '.blunt-always',
+  '.succinct-always',
 );
 
 // Read SKILL.md and strip a leading YAML frontmatter block (--- ... ---).
@@ -44,7 +44,7 @@ function rulesetBody() {
 
 export default async () => {
   return {
-    // Make the skill discoverable (so the `skill` tool and the /blunt
+    // Make the skill discoverable (so the `skill` tool and the /succinct
     // command can load it).
     config: async (config) => {
       config.skills = config.skills || {};
@@ -53,7 +53,7 @@ export default async () => {
     },
 
     // Always-on: append the ruleset to the system prompt every turn while the
-    // flag file exists. "stop blunt mode" turns it off for the session (the
+    // flag file exists. "stop succinct mode" turns it off for the session (the
     // model honours the skill's own Persistence rules); deleting the flag
     // turns always-on off for good.
     'experimental.chat.system.transform': async (_input, output) => {
@@ -65,8 +65,8 @@ export default async () => {
       try { body = rulesetBody(); } catch (e) { return; }
 
       const header =
-        'BLUNT MODE ACTIVE (always-on). The ruleset below applies to every ' +
-        'response. "stop blunt mode" or "normal mode" turns it off for this ' +
+        'SUCCINCT MODE ACTIVE (always-on). The ruleset below applies to every ' +
+        'response. "stop succinct mode" or "normal mode" turns it off for this ' +
         'session; delete ' + flagPath + ' to turn always-on off for good.';
       const injected = header + '\n\n' + body;
 

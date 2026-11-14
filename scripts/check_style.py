@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Deterministic style check for blunt eval responses.
+"""Deterministic style check for succinct eval responses.
 
 Catches the mechanical tells without a judge model: chatbot residue, staged
 openers and closers, dashes used as connectors, curly quotes, Latin
 abbreviations, not-X-but-Y contrasts, and over-long lists. Code fences, inline
-code, and commands are exempt; the rules in skills/blunt/SKILL.md exclude them
+code, and commands are exempt; the rules in skills/succinct/SKILL.md exclude them
 too.
 
 Input is the responses JSONL written by scripts/run_evals.py, or one file of
