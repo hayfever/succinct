@@ -4,6 +4,27 @@ All notable changes to succinct are documented here. The format follows [Keep a 
 
 ## [Unreleased]
 
+### Breaking
+
+- OpenCode 1 can no longer load the plugin. The OpenCode plugin now uses the OpenCode 2 plugin API.
+
+### Changed
+
+- Pi and OMP: the bare `/succinct` toggle and the stop phrases (`stop succinct mode`, `normal mode`) apply to the current session only. Only `/succinct on` and `/succinct off` save the choice for future sessions. This reverses the 1.1.0 behaviour, where every toggle wrote the choice to the agent config.
+- The Pi/OMP extension writes `succinct.json` through a temporary file and a rename, so a concurrent session never reads a partial file. An unreadable file is reported once, left as it is, and the toggle stays session-only.
+- OpenCode: the plugin moved from `.opencode/plugins/succinct.mjs` to `.opencode/plugins/succinct/index.js`. `opencode.json` uses the `plugins` and `skills` keys.
+- The SessionStart hook no longer needs Node. `hooks/always-on.mjs` is removed. `hooks/always-on.sh` runs under `sh`, and `hooks/always-on.ps1` covers Windows without Git Bash. Codex reads `hooks/codex-hooks.json`, which gives its Windows shell `cmd.exe` a command that uses `%CLAUDE_PLUGIN_ROOT%`.
+- Gemini CLI: the command moved to `commands/succinct.toml`, so the extension registers `/succinct`. `GEMINI.md` no longer imports the skill a second time.
+- `LICENSE` is plain MIT. The third-party notices moved to `THIRD_PARTY_NOTICES.md`.
+- CI: `validate.yml` runs the unit tests on Linux, macOS, and Windows, and adds runtime load jobs for Claude Code, Codex, Gemini CLI, OpenCode, OMP, and Pi. `release.yml` calls `validate.yml` before it drafts a release. Every action is pinned to a commit SHA, and Dependabot updates the pins.
+- The Codex marketplace entry points at the local plugin root. `INSTALL.md` documents the Codex hook trust step and the always-on snippet route for Codex.
+- `README.md` shows a before/after example and the current install commands.
+
+### Fixed
+
+- The PowerShell always-on hook skipped when `sh` was on PATH. The Codex hook passes `-SkipShellCheck`, so its Windows hook injects the ruleset even when Git Bash is installed.
+- The Pi section of `INSTALL.md` closed its `<details>` block late, which swallowed the OMP section.
+
 ## [2.0.0] - 2026-11-14
 
 ### Breaking
