@@ -135,7 +135,7 @@ for relative, marker in (
     ("hooks/always-on.mjs", 'join(scriptDir, "..", "skills", "succinct", "SKILL.md")'),
     ("hooks/always-on.sh", "skills/succinct/SKILL.md"),
     ("hooks/always-on.ps1", "../skills/succinct/SKILL.md"),
-    (".opencode/plugins/succinct.mjs", "'succinct', 'SKILL.md'"),
+    (".opencode/plugins/succinct/index.js", '"succinct", "SKILL.md"'),
     ("extensions/succinct.ts", '"succinct",'),
     ("GEMINI.md", "@./skills/succinct/SKILL.md"),
 ):
@@ -144,6 +144,13 @@ for relative, marker in (
 
 if not (ROOT / ".opencode/command/succinct.md").is_file():
     raise SystemExit(".opencode/command/succinct.md is missing")
+
+# OpenCode 2 renamed the config keys and only loads plugin directories.
+opencode_config = json.loads(read(ROOT / "opencode.json"))
+if opencode_config.get("plugins") != ["./.opencode/plugins/succinct"]:
+    raise SystemExit("opencode.json must list ./.opencode/plugins/succinct in plugins")
+if opencode_config.get("skills") != ["./skills"]:
+    raise SystemExit("opencode.json must list ./skills in skills")
 
 openai_yaml = read(ROOT / "skills" / "succinct" / "agents" / "openai.yaml")
 require_match(
