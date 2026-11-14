@@ -40,17 +40,31 @@ claude plugin install succinct@succinct
 Codex:
 
 ```bash
-codex plugin marketplace add hayfever/succinct
+codex plugin marketplace add hayfever/succinct --ref main
 codex plugin add succinct@succinct
 ```
 
-Any agent, through the skills CLI:
+Every harness, with the command to type after install:
 
-```bash
-npx skills add hayfever/succinct
-```
+| Harness | Install | Type | Always-on | INSTALL |
+|---|---|---|---|---|
+| Claude Code | see block above | `/succinct` | flag file, `SessionStart` hook | [Claude Code](INSTALL.md#claude-code) |
+| Codex | see block above | `$succinct` | flag file, `SessionStart` hook | [Codex](INSTALL.md#codex) |
+| Gemini CLI | `gemini extensions install https://github.com/hayfever/succinct` | `/succinct` | snippet | [Gemini CLI](INSTALL.md#gemini-cli) |
+| Kimi Code | `/plugins install https://github.com/hayfever/succinct` | `/skill:succinct:succinct` | snippet | [Kimi Code](INSTALL.md#kimi-code) |
+| Qwen Code | `qwen extensions install hayfever/succinct` | `/succinct:succinct` | snippet | [Qwen Code](INSTALL.md#qwen-code) |
+| OpenCode 2 | see INSTALL | `/succinct` | flag file | [OpenCode](INSTALL.md#opencode) |
+| Pi | `pi install https://github.com/hayfever/succinct` | `/succinct` | flag file, `succinct.json` | [Pi](INSTALL.md#pi) |
+| OMP | see INSTALL | `/succinct` | flag file, `succinct.json` | [OMP](INSTALL.md#omp) |
+| Cursor | `npx skills add hayfever/succinct -a cursor -y` | `/succinct` | snippet, user rules | [Cursor and Amp](INSTALL.md#agent-skills-harnesses) |
+| GitHub Copilot | `npx skills add hayfever/succinct -a github-copilot` | `/succinct` | snippet | [GitHub Copilot](INSTALL.md#github-copilot) |
+| Zed | see INSTALL, Skills manager URL | `/succinct` | snippet | [Zed](INSTALL.md#zed) |
+| Antigravity | `agy plugin install https://github.com/hayfever/succinct` | none documented | snippet | [Antigravity](INSTALL.md#antigravity) |
+| Hermes | `hermes skills install hayfever/succinct/skills/succinct` | `/succinct` | snippet | [Hermes](INSTALL.md#hermes) |
+| Amp | `npx skills add hayfever/succinct` | `/succinct` | snippet | [Cursor and Amp](INSTALL.md#agent-skills-harnesses) |
+| Any skills CLI agent | `npx skills add hayfever/succinct` | `/succinct` | snippet | [Any skills CLI agent](INSTALL.md#agent-skills-harnesses) |
 
-Gemini CLI, Kimi Code, Qwen Code, OpenCode, Pi, OMP, Cursor, GitHub Copilot, Zed, Antigravity, and Amp have their own routes. See [INSTALL.md](INSTALL.md).
+Always-on: "snippet" means the rules go in the agent's persistent rules file (`CLAUDE.md`, `AGENTS.md`, Cursor user rules, and so on). One copy lives in [INSTALL.md](INSTALL.md#always-on-snippet). "Flag file" is the one-line version: a `SessionStart` hook or extension loads the full ruleset at session start. Each section in INSTALL.md shows the exact path.
 
 ## Supported harnesses
 
@@ -75,15 +89,6 @@ Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. 
 
 Edit only `skills/succinct/SKILL.md`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
 
-## Activate
-
-Type the command for your harness:
-
-- `/succinct` in Claude Code, Gemini CLI, OpenCode, Pi, and OMP
-- `$succinct` in Codex
-- `/succinct:succinct` in Qwen Code (extension skills carry the extension name)
-- `/skill:succinct:succinct` in Kimi Code
-
 Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
 
 ## The rules
@@ -101,10 +106,6 @@ The source of truth is the core [skills/succinct/SKILL.md](skills/succinct/SKILL
 The core is 2,055 o200k tokens: 164 lines, 1,359 words. It loads once at session start, through `/succinct`, a hook, or an extension, and it stays in context for the session. The references load only when the model needs them. `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens. Counts use `tiktoken` with the `o200k_base` encoding.
 
 Before the split the single file was 5,589 tokens, 311 lines, and 3,897 words. The up-front load is 63 percent smaller.
-
-## Always-on
-
-Every agent has a persistent-rules route. Paste the always-on snippet from [INSTALL.md](INSTALL.md#always-on-snippet) into your agent's rules file (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`, Cursor user rules, and so on). Claude Code, Codex, OpenCode, and Pi/OMP also support flag-file always-on; see each agent's section.
 
 ## Tune it
 
