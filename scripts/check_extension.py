@@ -22,6 +22,23 @@ ROOT = Path(__file__).resolve().parents[1]
 RPC_TIMEOUT_SECONDS = 30
 SHARED_MANIFEST_FIELDS = ("name", "version", "description", "license", "homepage")
 
+# omp picks a default model while it starts, even in RPC mode with no prompt,
+# and exits when the agent dir has no catalog. The isolated agent dir therefore
+# gets one placeholder provider so the check needs no API key. The base URL is
+# unroutable on purpose: the check must never reach a model.
+OMP_PLACEHOLDER_MODEL = "ci/placeholder"
+OMP_MODEL_CATALOG = """providers:
+  ci:
+    api: openai-responses
+    auth: none
+    baseUrl: http://127.0.0.1:1/v1
+    models:
+      - id: placeholder
+        name: placeholder
+        input:
+          - text
+"""
+
 def validate_package_manifest() -> None:
     package = json.loads((ROOT / "package.json").read_text(encoding="utf8"))
     kimi = json.loads((ROOT / "kimi.plugin.json").read_text(encoding="utf8"))
@@ -229,7 +246,12 @@ def main() -> None:
     ) as agent_dir:
         env = build_isolated_env(agent_dir)
         if args.runtime == "omp":
-            env.pop("PI_CODING_AGENT_DIR", None)
+            # omp reads its catalog from the agent dir that PI_CODING_AGENT_DIR
+            # names, so both the catalog and the check stay inside the temp dir.
+            Path(agent_dir, "models.yml").write_text(
+                OMP_MODEL_CATALOG,
+                encoding="utf8",
+            )
         if args.runtime == "pi":
             subprocess.run(
                 [executable, "install", str(ROOT)],
@@ -272,10 +294,14 @@ export default function (pi: ExtensionAPI) {
             encoding="utf8",
         )
 
+        model_args = (
+            ["--model", OMP_PLACEHOLDER_MODEL] if args.runtime == "omp" else []
+        )
         client = RpcClient(
             executable,
             env,
             "--no-session",
+            *model_args,
             *extension_args,
             "-e",
             str(reload_probe),
