@@ -1,13 +1,15 @@
 name: Validate
 
-# Full structural gate: package consistency, unit tests, runtime load checks.
-# Installs the Claude Code CLI and the Pi runtime from npm, so everything here
-# runs without model credentials.
+# Full structural gate: package consistency, unit tests, and runtime load
+# checks. Every runtime job installs its CLI from npm and loads this checkout
+# without model credentials. release.yml calls this workflow, so a release
+# cannot start until every job here passes.
 
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
@@ -20,10 +22,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.x"
       - name: Unit tests
@@ -33,16 +35,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.x"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
-      - uses: oven-sh/setup-bun@v2
+          node-version: 24
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: latest
       - name: Package consistency
@@ -61,34 +63,154 @@ jobs:
           bun build extensions/succinct.ts --target=bun \
             --external '@earendil-works/pi-coding-agent' \
             --outfile "$RUNNER_TEMP/succinct.js"
-      - name: Extension unit tests (bun)
+      - name: Bun tests
         run: bun test tests/
 
   claude:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 24
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
       - name: Validate manifests
         run: claude plugin validate . --strict
 
+  codex:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex
+      - name: Load the plugin from the checkout
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-home
+        run: |
+          mkdir -p "$CODEX_HOME"
+          codex --version
+          codex plugin marketplace add "$PWD"
+          codex plugin add succinct@succinct
+      - name: Check the plugin is installed and enabled
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-home
+        run: |
+          codex plugin list | tee codex-plugins.txt
+          grep -Eq 'succinct@succinct +installed, enabled' codex-plugins.txt
+
+  gemini:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Install Gemini CLI
+        run: npm install -g @google/gemini-cli
+      - name: Validate the extension manifest
+        run: |
+          gemini --version
+          gemini extensions validate .
+      - name: Link the extension from the checkout
+        run: |
+          mkdir -p ~/.gemini
+          printf '{"security":{"folderTrust":{"enabled":false}},"telemetry":{"enabled":false}}' > ~/.gemini/settings.json
+          printf 'y\ny\n' | gemini extensions link .
+      - name: Check the extension is loaded
+        run: |
+          gemini extensions list 2>&1 | tee gemini-extensions.txt
+          grep -q 'succinct' gemini-extensions.txt
+          grep -q 'GEMINI.md' gemini-extensions.txt
+
+  opencode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Install OpenCode
+        run: npm install -g @opencode/cli
+      - name: Resolve the project configuration
+        run: |
+          opencode --version
+          opencode debug config | tee opencode-config.txt
+          grep -q 'opencode.json' opencode-config.txt
+      - name: Check every configured plugin path exists
+        run: |
+          python3 - <<'EOF'
+          import json
+          import pathlib
+
+          config = json.loads(pathlib.Path("opencode.json").read_text(encoding="utf8"))
+          entries = config.get("plugins") or config.get("plugin") or []
+          assert entries, "opencode.json configures no plugin"
+          for entry in entries:
+              path = pathlib.Path(entry)
+              assert path.exists(), f"plugin path is missing: {entry}"
+              print(f"plugin entry {entry} resolves")
+          EOF
+      - name: Server boots with the project configuration
+        run: |
+          opencode serve --port 4096 > serve.log 2>&1 &
+          for _ in $(seq 1 30); do
+            if grep -q 'server listening' serve.log; then break; fi
+            sleep 1
+          done
+          grep -q 'server listening' serve.log
+          if grep -qi 'error' serve.log; then
+            cat serve.log
+            exit 1
+          fi
+          cat serve.log
+
+  omp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Install OMP
+        run: npm install -g @oh-my-pi/pi-coding-agent
+      - name: Link the plugin from the checkout
+        run: |
+          omp --version
+          omp plugin link . --scope user
+          omp plugin list | tee omp-plugins.txt
+          grep -q 'succinct' omp-plugins.txt
+      - name: Extension RPC smoke test (no model request)
+        run: python3 scripts/check_extension.py --runtime omp
+
   pi:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 24
       - name: Install Pi
         run: npm install -g --ignore-scripts @earendil-works/pi-coding-agent
       - name: Extension RPC smoke test (no model request)
