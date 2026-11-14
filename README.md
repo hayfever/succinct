@@ -107,7 +107,9 @@ Every harness above loads that one file. The ASD standard is a free download; th
 
 ## Tune it
 
-Fork, edit `skills/succinct/SKILL.md`, then swap your copy in:
+Fork the repo, edit `skills/succinct/SKILL.md`, then reinstall from your fork. Every harness in the table installs a fork the same way: swap `hayfever/succinct` for `owner/repo`.
+
+Claude Code, as an example:
 
 ```bash
 claude plugin uninstall succinct            # drop the upstream copy first:
@@ -116,7 +118,7 @@ claude plugin marketplace add <your-username>/succinct
 claude plugin install succinct@succinct
 ```
 
-Restart Claude Code, then re-invoke `/succinct`.
+Restart the harness, then invoke the skill again.
 
 ## Results
 
