@@ -140,8 +140,12 @@ class ChatRunnerConfigTest(unittest.TestCase):
         config = json.loads((ROOT / "evals" / "runners.json").read_text(encoding="utf8"))
         answer = run_evals.resolve_command(config["ollama-answer"]["command"])
         judge = run_evals.resolve_command(config["ollama-judge"]["command"])
-        self.assertEqual(str(SCRIPT), answer[1])
-        self.assertEqual(str(SCRIPT), judge[1])
+        # resolve_command substitutes {root} into a string such as
+        # "{root}/scripts/chat_runner.py", so the command keeps a forward slash
+        # on Windows. Compare Path objects, which treat both separators as the
+        # same path, instead of comparing the strings.
+        self.assertEqual(SCRIPT, Path(answer[1]))
+        self.assertEqual(SCRIPT, Path(judge[1]))
         self.assertTrue(Path(answer[1]).is_file())
         self.assertNotEqual(answer[answer.index("--model") + 1], judge[judge.index("--model") + 1])
 
