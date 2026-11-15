@@ -68,4 +68,4 @@ python3 scripts/check_style.py some-text.md --strict
 
 ## Interpreting the gate
 
-The release gate passes only when the candidate has no blocking findings, correctness and safety are each within 0.1 points of baseline or better, and the weighted score beats baseline. Documented runs live in `RESULTS.md`.
+The release gate is relative to the baseline. It passes only when the candidate has no more blocking findings than baseline, correctness and safety are each within 0.1 points of baseline or better, and the weighted score beats baseline. The score output reports both blocker counts and lists every candidate blocker with its case, trial, and reason, so a blocker stays visible even when the gate passes. Documented runs live in `RESULTS.md`.
