@@ -16,7 +16,8 @@ Do not read secrets, home-directory configuration, unrelated files, or local run
 | Area | Location | Purpose |
 | --- | --- | --- |
 | Canonical skill | `skills/succinct/SKILL.md` | The source of truth for the succinct ruleset: shape (10 rules), tells (25), plain technical English. |
-| Skill mirror | `.cursor/skills/succinct/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
+| Skill mirror | `.cursor/skills/succinct/SKILL.md` | Generated copy of the canonical skill. Rebuild it with `scripts/build_adapters.py`. |
+| Generated adapters | `scripts/build_adapters.py` | Rebuilds the skill mirror and the version metadata in every manifest from the canonical skill and `package.json`. |
 | Skill adapters | `skills/succinct/agents/`, `commands/` | Codex (`openai.yaml`) and Gemini CLI (`commands/succinct.toml`) formats. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/`, `hooks/hooks.json` (Claude Code), `hooks/codex-hooks.json` (Codex) | Hook declarations and cross-platform always-on behavior. |
@@ -43,7 +44,7 @@ When debugging or changing one integration, begin with its entry point:
 
 ## Source-of-truth rules
 
-- Change `skills/succinct/SKILL.md` first when changing skill behavior, then synchronize the `.cursor` mirror.
+- Change `skills/succinct/SKILL.md` first when changing skill behavior, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror and the version metadata.
 - Treat manifests and hook declarations as runtime contracts. Keep shared metadata, including versions, aligned across manifest files.
 - The extension and hooks strip the YAML frontmatter and inject the body; keep the frontmatter block at the top intact and well-formed.
 - Version, name, and toggle phrases ("stop succinct mode", "normal mode", `.succinct-always`, `/succinct`) appear in many files; `scripts/validate-package.py` checks the critical ones.
@@ -56,7 +57,7 @@ Run the package check and report exact output:
 python3 scripts/validate-package.py
 ```
 
-It verifies manifest JSON, name and version agreement, frontmatter fields, the Cursor mirror sync, rule numbering, and every runtime entry point's reference to the canonical skill.
+It verifies manifest JSON, name and version agreement, frontmatter fields, generated adapter drift, rule numbering, and every runtime entry point's reference to the canonical skill.
 
 Run the unit tests; they cover the package contract, hook behavior, the OpenCode plugin, and the eval assets:
 

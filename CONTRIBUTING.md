@@ -7,7 +7,7 @@ Thanks for considering a contribution. This repository is small and opinionated:
 1. `skills/succinct/SKILL.md` is the single source of truth. Everything else mirrors, wraps, or validates it.
 2. Keep `skills/succinct/SKILL.md` at 400 lines or fewer. A skill the model skims beats a skill it ignores.
 3. Keep manifests aligned: `name`, `version`, `description`, `license`, and `homepage` agree across `package.json` and `kimi.plugin.json`; all manifests share one version. `scripts/validate-package.py` enforces the critical subset.
-4. Change the canonical skill first, then re-copy it to `.cursor/skills/succinct/SKILL.md`. The validator fails on drift.
+4. Change the canonical skill first, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror. The validator fails on drift.
 5. The toggle phrases ("stop succinct mode", "normal mode"), the flag file (`.succinct-always`), and the command (`/succinct`) are cross-runtime contracts. Do not rename them casually; update every runtime in the same commit.
 6. Every sentence in the skill should obey the skill. No em dashes, no chatbot residue, steps of 20 words or fewer.
 
@@ -19,6 +19,7 @@ No build step and no install step. You need Python 3.10+, Node 22, and Bun.
 git clone https://github.com/hayfever/succinct
 cd succinct
 python3 scripts/validate-package.py
+python3 scripts/build_adapters.py --check
 python3 -m unittest discover -s tests -v
 bun test tests/context_compat.test.ts
 bun build extensions/succinct.ts --target=bun \
@@ -37,7 +38,7 @@ python3 scripts/check_extension.py --runtime omp
 
 1. One change per pull request.
 2. Run the checks above and paste the output into the PR description.
-3. Bump the version in `package.json`, `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `kimi.plugin.json`, `qwen-extension.json`, `gemini-extension.json`, and the `metadata.version` in the skill. `python3 scripts/bump-version.py <new-version>` does all seven, including the Cursor mirror, then fails if a stale version string remains anywhere else.
+3. Bump the version with `python3 scripts/bump-version.py <new-version>`. It sets `package.json`, regenerates the skill metadata, every manifest version, and the Cursor mirror, then fails if a stale version string remains anywhere else.
 4. Move the `CHANGELOG.md` entry from "Unreleased" into a new section for the version you ship.
 5. Behavior changes to the skill need an eval delta: add or update a case in `evals/cases.jsonl`, run the paired eval, and attach `evals/results/gate.json` to the PR.
 

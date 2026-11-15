@@ -5,12 +5,13 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
 SKILL_PATH = ROOT / "skills" / "succinct" / "SKILL.md"
-MIRROR_PATH = ROOT / ".cursor" / "skills" / "succinct" / "SKILL.md"
 
 JSON_MANIFESTS = (
     "package.json",
@@ -75,11 +76,15 @@ skill_version = require_match(
 if len(SKILL.splitlines()) > 400:
     raise SystemExit("Keep skills/succinct/SKILL.md at 400 lines or fewer")
 
-# Canonical skill and the Cursor mirror must be byte-identical.
-if not MIRROR_PATH.exists():
-    raise SystemExit(".cursor/skills/succinct/SKILL.md is missing; copy the canonical skill there")
-if SKILL != read(MIRROR_PATH):
-    raise SystemExit(".cursor/skills/succinct/SKILL.md is out of sync with skills/succinct/SKILL.md")
+# Generated adapters must match the canonical skill and package.json.
+# build_adapters.py owns the Cursor mirror and every manifest version.
+adapters = subprocess.run(
+    [sys.executable, str(ROOT / "scripts" / "build_adapters.py"), "--check"],
+    capture_output=True,
+    text=True,
+)
+if adapters.returncode != 0:
+    raise SystemExit(adapters.stdout + adapters.stderr)
 
 # Only one skill, and its folder name must match the frontmatter name.
 skill_files = {path.relative_to(ROOT) for path in ROOT.rglob("SKILL.md")}
