@@ -52,6 +52,29 @@ npx skills add hayfever/succinct
 
 Gemini CLI, Kimi Code, Qwen Code, OpenCode, Pi, OMP, Cursor, GitHub Copilot, Zed, Antigravity, and Amp have their own routes. See [INSTALL.md](INSTALL.md).
 
+## Supported harnesses
+
+| Harness | Loads | Last verified |
+| --- | --- | --- |
+| Claude Code | `.claude-plugin/plugin.json` | not yet verified |
+| Codex | `.codex-plugin/plugin.json` | not yet verified |
+| Gemini CLI | `gemini-extension.json` | not yet verified |
+| Kimi Code | `kimi.plugin.json` | not yet verified |
+| Qwen Code | `qwen-extension.json` | not yet verified |
+| OpenCode | `opencode.json` | not yet verified |
+| Pi | `package.json` | not yet verified |
+| OMP | `package.json` | not yet verified |
+| Cursor | `.cursor/skills/succinct/SKILL.md` | not yet verified |
+| GitHub Copilot | `skills/succinct/SKILL.md` | not yet verified |
+| Zed | `skills/succinct/SKILL.md` | not yet verified |
+| Amp | `skills/succinct/SKILL.md` | not yet verified |
+| Antigravity | `plugin.json` | not yet verified |
+| Skills CLI | `skills/succinct/SKILL.md` | not yet verified |
+
+Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. No harness version is pinned in this repository, so every row says not yet verified. A row gets a version once CI pins one.
+
+Edit only `skills/succinct/SKILL.md`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
+
 ## Activate
 
 Type the command for your harness:
