@@ -56,7 +56,11 @@ BULLET_PREFIXES = tuple(f"{number}. " for number in range(1, 10)) + ("- ", "* ")
 
 
 def strip_code(text: str) -> str:
-    """Drop fenced code blocks and inline code spans from the text."""
+    """Drop fenced code blocks and inline code spans from the text.
+
+    The span has to go as a whole. Leaving its body behind flags a command like
+    `git log --oneline -- file` as a prose dash, when the skill exempts code.
+    """
     lines: list[str] = []
     in_fence = False
     for line in text.splitlines():
@@ -67,6 +71,7 @@ def strip_code(text: str) -> str:
             continue
         lines.append(line)
     clean = "\n".join(lines)
+    clean = re.sub(r"`[^`\n]*`", "", clean)
     return clean.replace("`", "")
 
 

@@ -90,6 +90,10 @@ claude plugin install succinct@succinct
 
 Restart Claude Code, then re-invoke `/succinct`.
 
+## Results
+
+Paired eval on 17 cases, 3 trials per case, judged blind: baseline weighted 4.46, candidate weighted 4.76. The candidate carries one blocking finding, a wrong PKCE test vector, and the baseline carries two. Numbers, per-dimension means, and gate rule: [evals/RESULTS.md](evals/RESULTS.md).
+
 ## Credits
 
 - [i-have-adhd](https://github.com/ayghri/i-have-adhd) by Ayoub G. (MIT), based on *The Adult ADHD Tool Kit* by J. Russell Ramsay and Anthony L. Rostain.

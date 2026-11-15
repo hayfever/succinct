@@ -29,5 +29,23 @@
       "glm-5.3-flash:cloud"
     ],
     "response_format": "text"
+  },
+  "ollama-answer": {
+    "command": [
+      "python3",
+      "{root}/scripts/chat_runner.py",
+      "--model",
+      "glm-5.3-flash:cloud"
+    ],
+    "response_format": "text"
+  },
+  "ollama-judge": {
+    "command": [
+      "python3",
+      "{root}/scripts/chat_runner.py",
+      "--model",
+      "kimi-k3:cloud"
+    ],
+    "response_format": "text"
   }
 }
