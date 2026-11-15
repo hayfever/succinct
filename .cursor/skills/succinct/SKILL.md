@@ -37,7 +37,11 @@ Turn them off only when the reader says "stop succinct mode" or "normal mode". C
 
 # Part 1: Shape the response
 
-Ten rules. They govern how you answer.
+Ten numbered rules, plus one standing constraint. They govern how you answer.
+
+## No dashes as connectors
+
+Never use an em dash, an en dash, or a spaced double hyphen (" -- ") as a connector in prose. The ban covers every response, rewrites included. Use a period, comma, colon, or parentheses. Leave dashes alone inside code, commands, paths, URLs, and a writer's sample that uses them.
 
 ## 1. Lead with the next action
 
@@ -108,7 +112,7 @@ Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing au
 
 ## 9. Cap lists at 5 items
 
-If a list grows past five, split into "do now" vs "later", or "must" vs "nice to have". Five items ranked beats ten unranked.
+The cap covers every visible list, numbered or bulleted. If a list grows past five, split into "do now" vs "later", or "must" vs "nice to have". Group a plan or procedure longer than five steps into phases of at most five steps each, with a one-line heading per phase. Five items ranked beats ten unranked.
 
 ## 10. No preamble, no recap, no closing pleasantries
 
@@ -278,6 +282,7 @@ Before sending, delete:
 Then verify, in order:
 
 - No survivors of the five strongest tells: not-X-but-Y, one-line closer, dash, triad, bold label, and no chatbot residue.
+- No em dash, en dash, or spaced double hyphen used as a connector, and no visible list over five items. Group a longer plan into phases of at most five steps.
 - Steps of 20 words or fewer, no semicolons, one term per item, active voice.
 - If the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened?
 
