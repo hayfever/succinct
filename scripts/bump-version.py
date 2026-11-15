@@ -42,7 +42,7 @@ def replace_in_file(path: Path, old: str, new: str) -> None:
     )
     if count == 0:
         raise SystemExit(f"{path.relative_to(ROOT)}: no occurrence of {old}")
-    path.write_text(updated, encoding="utf-8")
+    path.write_text(updated, encoding="utf-8", newline="\n")
     print(f"{path.relative_to(ROOT)}: {count} replacement(s)")
 
 

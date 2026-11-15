@@ -131,6 +131,7 @@ class BuildAdaptersTest(unittest.TestCase):
 
         self.assertEqual(0, code, stderr)
         mirror = self.root / ".cursor" / "skills" / "succinct" / "SKILL.md"
+        self.assertNotIn(b"\r\n", mirror.read_bytes())
         text = mirror.read_text(encoding="utf8")
         lines = text.splitlines()
         self.assertEqual("---", lines[0])
