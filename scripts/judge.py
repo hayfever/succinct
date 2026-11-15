@@ -239,7 +239,15 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--runner-config", type=Path, default=ROOT / "evals" / "runners.json"
     )
-    parser.add_argument("--runner", required=True)
+    parser.add_argument(
+        "--runner",
+        required=True,
+        help=(
+            "Judging runner from --runner-config. Pick a model from a different "
+            "family than the runner that answered: a model grading its own "
+            "answers adds noise to the gate."
+        ),
+    )
     parser.add_argument(
         "--conditions",
         nargs="+",
@@ -289,7 +297,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     config = json.loads(args.runner_config.read_text(encoding="utf-8"))
     runner = config[args.runner]
-    command = list(runner["command"])
+    command = run_evals.resolve_command(runner["command"])
     response_format = runner.get("response_format", "text")
 
     total_cost = 0.0

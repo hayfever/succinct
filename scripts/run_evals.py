@@ -29,6 +29,16 @@ WEIGHTS = {
     "concision": 0.10,
 }
 CONDITIONS = {"baseline", "candidate", "comparator"}
+ROOT_TOKEN = "{root}"
+
+
+def resolve_command(entries: list[str]) -> list[str]:
+    """Expand the `{root}` token in a runner command.
+
+    Runners execute in a throwaway working directory, so a script path in
+    evals/runners.json cannot be relative to the caller.
+    """
+    return [entry.replace(ROOT_TOKEN, str(ROOT)) for entry in entries]
 
 
 @contextmanager
@@ -256,7 +266,7 @@ def run_evaluations(args: argparse.Namespace) -> int:
         raise ValueError(f"--case matched no evaluation case: {', '.join(unknown)}")
     config = json.loads(args.runner_config.read_text(encoding="utf-8"))
     runner = config[args.runner]
-    command = list(runner["command"])
+    command = resolve_command(runner["command"])
     response_format = runner.get("response_format", "text")
     if response_format != "claude-json" and not args.allow_unmetered:
         raise RuntimeError(
