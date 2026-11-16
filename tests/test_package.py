@@ -72,12 +72,6 @@ class PackageContractTest(unittest.TestCase):
         )
         self.assertIn("allow_implicit_invocation: false", text)
 
-    def test_gemini_command_passes_args_through(self):
-        toml = (ROOT / "commands" / "succinct.toml").read_text(
-            encoding="utf8"
-        )
-        self.assertIn("{{args}}", toml)
-
     def test_skill_points_at_its_reference_files(self):
         skill = (ROOT / "skills" / "succinct" / "SKILL.md").read_text(encoding="utf8")
         for relative in (
@@ -94,7 +88,6 @@ class PackageContractTest(unittest.TestCase):
             "hooks/always-on.sh": "skills/succinct/SKILL.md",
             "hooks/always-on.ps1": "../skills/succinct/SKILL.md",
             ".opencode/plugins/succinct/index.js": '"succinct", "SKILL.md"',
-            "GEMINI.md": "skills/succinct/SKILL.md",
         }
         for relative, marker in markers.items():
             text = (ROOT / relative).read_text(encoding="utf8")
@@ -157,7 +150,7 @@ class PackageGateTest(unittest.TestCase):
         self.assertIn("must declare description", result.stdout + result.stderr)
 
     def test_validator_rejects_a_missing_manifest_path(self):
-        path = self.root / "qwen-extension.json"
+        path = self.root / ".codex-plugin" / "plugin.json"
         data = json.loads(path.read_text(encoding="utf8"))
         data["skills"] = "./missing-skills"
         path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf8")
@@ -168,42 +161,27 @@ class PackageGateTest(unittest.TestCase):
         self.assertIn("points at a missing path", result.stdout + result.stderr)
 
     def test_validator_rejects_a_missing_required_file(self):
-        (self.root / "GEMINI.md").unlink()
+        (self.root / "hooks" / "toggle.ps1").unlink()
 
         result = self.run_validator()
 
         self.assertNotEqual(0, result.returncode)
-        self.assertIn("Required file is missing: GEMINI.md", result.stdout + result.stderr)
+        self.assertIn("Required file is missing: hooks/toggle.ps1", result.stdout + result.stderr)
 
-    def test_validator_rejects_stale_generated_adapters(self):
-        path = self.root / ".cursor" / "skills" / "succinct" / "SKILL.md"
-        path.write_text(path.read_text(encoding="utf8") + "\ndrift\n", encoding="utf8")
-
-        result = self.run_validator()
-
-        self.assertNotEqual(0, result.returncode)
-        self.assertIn(".cursor/skills/succinct/SKILL.md", result.stdout + result.stderr)
-        self.assertIn("out of date", result.stdout + result.stderr)
-
-    def test_validator_rejects_stale_mirror_reference(self):
-        path = (
-            self.root
-            / ".cursor"
-            / "skills"
-            / "succinct"
-            / "references"
-            / "patterns.md"
+    def test_validator_rejects_a_stale_skill_version(self):
+        path = self.root / "skills" / "succinct" / "SKILL.md"
+        text = re.sub(
+            r'(?m)^(\s+version:\s*")[0-9.]+(")',
+            lambda match: match.group(1) + self.next_version() + match.group(2),
+            path.read_text(encoding="utf8"),
+            count=1,
         )
-        path.write_text("# Patterns\n\nDrift.\n", encoding="utf8")
+        path.write_text(text, encoding="utf8")
 
         result = self.run_validator()
 
         self.assertNotEqual(0, result.returncode)
-        self.assertIn(
-            ".cursor/skills/succinct/references/patterns.md",
-            result.stdout + result.stderr,
-        )
-        self.assertIn("out of date", result.stdout + result.stderr)
+        self.assertIn("must match package.json", result.stdout + result.stderr)
 
 
 class EvalAssetsTest(unittest.TestCase):

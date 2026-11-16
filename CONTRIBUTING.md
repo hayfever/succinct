@@ -6,15 +6,16 @@ Thanks for considering a contribution. This repository is small and opinionated:
 
 The skill:
 
-1. `skills/succinct/SKILL.md` plus `skills/succinct/references/` are the single source of truth. Everything else mirrors, wraps, or validates them.
+1. `skills/succinct/SKILL.md` plus `skills/succinct/references/` are the single source of truth. Everything else wraps or validates them.
 2. Keep `SKILL.md` at 200 lines or fewer. Detail belongs in `skills/succinct/references/`. A skill the model skims beats a skill it ignores.
 3. Every sentence in the skill obeys the skill. No em dashes, no chatbot residue, steps of 20 words or fewer.
 
 The package:
 
-1. Keep manifests aligned: `name`, `version`, `description`, `license`, and `homepage` agree across `package.json` and `kimi.plugin.json`; all manifests share one version. `scripts/validate-package.py` enforces the critical subset.
-2. Change the canonical skill first, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror and manifest versions. The validator fails on drift.
-3. The toggle phrases ("stop succinct mode", "normal mode"), the flag file (`.succinct-always`), and the command (`/succinct`) are cross-runtime contracts. Do not rename them casually; update every runtime in the same commit.
+1. Keep manifests aligned: `name`, `version`, `license`, and `homepage` agree across `package.json` and `.codex-plugin/plugin.json`; all manifests share one version. `scripts/validate-package.py` enforces the critical subset.
+2. Change the canonical skill first, then run `python3 scripts/build_adapters.py` to rebuild the version fields. The validator fails on drift.
+3. The toggle phrases ("stop succinct mode", "normal mode"), the flag file (`.succinct-always`), and the commands (`/succinct`, `/succinct on`, `/succinct off`) are cross-runtime contracts. Do not rename them casually; update every runtime in the same commit.
+4. succinct supports five harnesses: Claude Code, Codex, OpenCode, Pi, and OMP. Every other agent uses the always-on snippet.
 
 ## Development setup
 
@@ -32,7 +33,7 @@ bun build extensions/succinct.ts --target=bun \
 node --check .opencode/plugins/succinct/index.js
 ```
 
-CI's package job also parses every JSON, YAML, and TOML manifest. A syntax error fails that job before any runtime job starts.
+CI's package job also parses every JSON and YAML manifest. A syntax error fails that job before any runtime job starts.
 
 With the runtimes installed locally, also run:
 
@@ -46,7 +47,7 @@ python3 scripts/check_extension.py --runtime omp
 
 1. One change per pull request.
 2. Run the checks above and paste the output into the PR description.
-3. Bump the version with `python3 scripts/bump-version.py <new-version>`. It sets `package.json`, regenerates the skill metadata, every manifest version, and the Cursor mirror, then fails if a stale version string remains anywhere else.
+3. Bump the version with `python3 scripts/bump-version.py <new-version>`. It sets `package.json`, regenerates the skill metadata and every manifest version, then fails if a stale version string remains anywhere else.
 4. Move the `CHANGELOG.md` entry from "Unreleased" into a new section for the version you ship.
 5. Behavior changes to the skill need an eval delta: add or update a case in `evals/cases.jsonl`, run the paired eval, and attach `evals/results/gate.json` to the PR.
 
@@ -62,12 +63,9 @@ python3 scripts/run_evals.py run --runner omp --condition candidate \
   --allow-unmetered --output evals/results/responses.jsonl
 ```
 
-## Adding an agent integration
+## Other agents
 
-1. Read `INSTALL.md` and find the agent's install mechanics.
-2. Add the smallest manifest that makes the agent install the package, and one unit test in `tests/test_package.py` asserting the manifest contract.
-3. Document Install, Verify, Update, Uninstall, and Always-on in `INSTALL.md`, and keep the always-on snippet a link to the one canonical copy.
-4. If the agent can load extensions, prefer pointing at the canonical `skills/succinct/SKILL.md` over duplicating the ruleset.
+An agent outside the five supported harnesses uses the always-on snippet in `INSTALL.md`. Open an issue before you add a new harness: each one must support the same activation model (`/succinct on` creates the flag, `/succinct off` deletes it, every session starts from the flag) and a CI load check.
 
 ## Reporting issues
 

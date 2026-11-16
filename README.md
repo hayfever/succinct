@@ -48,27 +48,25 @@ codex plugin add succinct@succinct
 
 Every harness, with the command to type after install:
 
-| Harness | Install | Type | Always-on | INSTALL |
-|---|---|---|---|---|
-| Claude Code | see block above | `/succinct` | flag file, `succinct.json` | [Claude Code](INSTALL.md#claude-code) |
-| Codex | see block above | `$succinct` | flag file, `succinct.json` | [Codex](INSTALL.md#codex) |
-| Gemini CLI | `gemini extensions install https://github.com/hayfever/succinct` | `/succinct` | snippet | [Gemini CLI](INSTALL.md#gemini-cli) |
-| Kimi Code | `/plugins install https://github.com/hayfever/succinct` | `/skill:succinct:succinct` | snippet | [Kimi Code](INSTALL.md#kimi-code) |
-| Qwen Code | `qwen extensions install hayfever/succinct` | `/succinct:succinct` | snippet | [Qwen Code](INSTALL.md#qwen-code) |
-| OpenCode 2 | see INSTALL | `/succinct` | flag file | [OpenCode](INSTALL.md#opencode) |
-| Pi | `pi install https://github.com/hayfever/succinct` | `/succinct` | flag file, `succinct.json` | [Pi](INSTALL.md#pi) |
-| OMP | see INSTALL | `/succinct` | flag file, `succinct.json` | [OMP](INSTALL.md#omp) |
-| Cursor | `npx skills add hayfever/succinct -a cursor -y` | `/succinct` | snippet, user rules | [Cursor and Amp](INSTALL.md#agent-skills-harnesses) |
-| GitHub Copilot | `npx skills add hayfever/succinct -a github-copilot` | `/succinct` | snippet | [GitHub Copilot](INSTALL.md#github-copilot) |
-| Zed | see INSTALL, Skills manager URL | `/succinct` | snippet | [Zed](INSTALL.md#zed) |
-| Antigravity | `agy plugin install https://github.com/hayfever/succinct` | none documented | snippet | [Antigravity](INSTALL.md#antigravity) |
-| Hermes | `hermes skills install hayfever/succinct/skills/succinct` | `/succinct` | snippet | [Hermes](INSTALL.md#hermes) |
-| Amp | `npx skills add hayfever/succinct` | `/succinct` | snippet | [Cursor and Amp](INSTALL.md#agent-skills-harnesses) |
-| Any skills CLI agent | `npx skills add hayfever/succinct` | `/succinct` | snippet | [Any skills CLI agent](INSTALL.md#agent-skills-harnesses) |
+| Harness | Install | Type | INSTALL |
+|---|---|---|---|
+| Claude Code | see block above | `/succinct` | [Claude Code](INSTALL.md#claude-code) |
+| Codex | see block above | `$succinct` | [Codex](INSTALL.md#codex) |
+| OpenCode 2 | see INSTALL | `/succinct` | [OpenCode](INSTALL.md#opencode) |
+| Pi | `pi install https://github.com/hayfever/succinct` | `/succinct` | [Pi](INSTALL.md#pi) |
+| OMP | see INSTALL | `/succinct` | [OMP](INSTALL.md#omp) |
+| Other agents | `npx skills add hayfever/succinct`, or paste the always-on snippet into the agent's rules file | `/succinct` | [Other agents](INSTALL.md#other-agents) |
 
-Always-on: "snippet" means the rules go in the agent's persistent rules file (`CLAUDE.md`, `AGENTS.md`, Cursor user rules, and so on). One copy lives in [INSTALL.md](INSTALL.md#always-on-snippet). "Flag file" is the one-line version: a `SessionStart` hook or extension loads the full ruleset at session start. Each section in INSTALL.md shows the exact path.
+## Turn it on and off
 
-Rules stay on until "stop succinct mode" or "normal mode". In Claude Code, Codex, Pi, and OMP, `/succinct on` or `/succinct off` (`$succinct on` or `$succinct off` in Codex) saves the choice in `succinct.json` for future sessions, and it outranks the flag file. The stop phrases and a bare `/succinct` change only the current session. In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
+The five harnesses share one activation model:
+
+1. `/succinct` turns the mode on for the current session (`$succinct` in Codex).
+2. `/succinct on` turns it on and creates a `.succinct-always` flag file in the harness's configuration directory. Every new session starts on while the flag exists.
+3. `/succinct off` turns it off and deletes the flag. Every new session starts off.
+4. "stop succinct mode" or "normal mode" turns the mode off for the current session only.
+
+In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts one session with the mode on. Other agents keep the rules on through the [always-on snippet](INSTALL.md#always-on-snippet) in their rules file (`AGENTS.md`, Cursor user rules, `GEMINI.md`, and so on).
 
 ## Supported harnesses
 
@@ -76,23 +74,14 @@ Rules stay on until "stop succinct mode" or "normal mode". In Claude Code, Codex
 | --- | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json` | manifest checked in CI |
 | Codex | `.codex-plugin/plugin.json` | loads in CI |
-| Gemini CLI | `gemini-extension.json` | loads in CI |
-| Kimi Code | `kimi.plugin.json` | install documented |
-| Qwen Code | `qwen-extension.json` | install documented |
 | OpenCode | `opencode.json` | loads in CI |
 | Pi | `package.json` | loads in CI |
 | OMP | `package.json` | loads in CI |
-| Cursor | `.cursor/skills/succinct/SKILL.md` | install documented |
-| GitHub Copilot | `skills/succinct/SKILL.md` | install documented |
-| Zed | `skills/succinct/SKILL.md` | install documented |
-| Amp | `skills/succinct/SKILL.md` | install documented |
-| Antigravity | `plugin.json` | install documented |
-| Hermes | `skills/succinct/SKILL.md` | install documented |
-| Skills CLI | `skills/succinct/SKILL.md` | install documented |
+| Other agents | `skills/succinct/SKILL.md` or the always-on snippet | install documented |
 
-Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. "Loads in CI" means a job in `.github/workflows/validate.yml` installs the latest harness CLI and loads this checkout with no model request. For Claude Code, CI runs `claude plugin validate . --strict` on the manifests. "Install documented" means the route in [INSTALL.md](INSTALL.md) is written out, but CI does not run that harness.
+Every row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. "Loads in CI" means a job in `.github/workflows/validate.yml` installs the latest harness CLI and loads this checkout with no model request. For Claude Code, CI runs `claude plugin validate . --strict` on the manifests. Unit tests cover `/succinct on`, `/succinct off`, and the flag file in all five harnesses.
 
-Edit only `skills/succinct/SKILL.md` and its `references/`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
+Edit only `skills/succinct/SKILL.md` and its `references/`. Run `python3 scripts/build_adapters.py` to update the version fields.
 
 ## The rules
 

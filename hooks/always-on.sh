@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
-# SessionStart hook: injects the succinct core ruleset when the user has
-# opted in by creating $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude).
-# A choice saved with "/succinct on" or "/succinct off" (toggle.sh) outranks
-# the flag: it lives in succinct.json in the same directory, or in
-# $CODEX_HOME (default ~/.codex) when Codex passes --codex.
-# Never blocks session start: any failure exits 0.
+# SessionStart hook: injects the succinct core ruleset when the flag file
+# $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude) exists. Codex passes
+# --codex, which reads $CODEX_HOME/.succinct-always (default ~/.codex)
+# instead. "/succinct on" creates the flag and "/succinct off" deletes it
+# (toggle.sh). Never blocks session start: any failure exits 0.
 #
 # hooks/hooks.json runs this script first with sh, which is on every macOS and
 # Linux system and in Git Bash on Windows. On Windows without Git Bash the
@@ -17,28 +16,16 @@
 # Windows PowerShell prints its copyright banner when -File names a missing
 # script, and a broken plugin install must still leave stdout empty.
 
-claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-flag_path="$claude_dir/.succinct-always"
 if [ "${1:-}" = "--codex" ]; then
-  state_path="${CODEX_HOME:-$HOME/.codex}/succinct.json"
+  flag_path="${CODEX_HOME:-$HOME/.codex}/.succinct-always"
   off_command='$succinct off'
 else
-  state_path="$claude_dir/succinct.json"
+  flag_path="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.succinct-always"
   off_command='/succinct off'
 fi
 
-# The saved choice wins. Without one, fire only when the user has opted in
-# with the flag.
-saved=""
-if [ -f "$state_path" ]; then
-  saved=$(tr -d ' \t\r\n' < "$state_path" 2>/dev/null |
-    sed -E -n 's/.*"enabled":(true|false).*/\1/p')
-fi
-case "$saved" in
-  false) exit 0 ;;
-  true) ;;
-  *) [ -f "$flag_path" ] || exit 0 ;;
-esac
+# Only fire when the flag exists.
+[ -f "$flag_path" ] || exit 0
 
 # $0 is the path substituted into hooks.json by the harness, so resolve
 # SKILL.md relative to it instead of trusting an exported environment variable.

@@ -14,18 +14,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-try:
-    import tomllib
-except ModuleNotFoundError:  # Python 3.10 has no tomllib.
-    tomllib = None
-
 ROOT = Path(__file__).resolve().parent.parent
 
 PACKAGE = ROOT / "package.json"
-SKILL_PATHS = (
-    Path("skills/succinct/SKILL.md"),
-    Path(".cursor/skills/succinct/SKILL.md"),
-)
+SKILL_PATHS = (Path("skills/succinct/SKILL.md"),)
 SKILL_PATH = ROOT / SKILL_PATHS[0]
 
 JSON_MANIFESTS = (
@@ -34,10 +26,6 @@ JSON_MANIFESTS = (
     ".claude-plugin/marketplace.json",
     ".codex-plugin/plugin.json",
     ".agents/plugins/marketplace.json",
-    "kimi.plugin.json",
-    "qwen-extension.json",
-    "gemini-extension.json",
-    "plugin.json",
     "opencode.json",
     "hooks/hooks.json",
     "hooks/codex-hooks.json",
@@ -49,10 +37,6 @@ JSON_MANIFESTS_WITH_NAME = (
     ".claude-plugin/marketplace.json",
     ".codex-plugin/plugin.json",
     ".agents/plugins/marketplace.json",
-    "kimi.plugin.json",
-    "qwen-extension.json",
-    "gemini-extension.json",
-    "plugin.json",
 )
 
 # These manifests must carry the package version. The marketplace manifests
@@ -60,21 +44,13 @@ JSON_MANIFESTS_WITH_NAME = (
 VERSIONED_MANIFESTS = (
     ".claude-plugin/plugin.json",
     ".codex-plugin/plugin.json",
-    "kimi.plugin.json",
-    "qwen-extension.json",
-    "gemini-extension.json",
 )
 
 REQUIRED_FILES = (
     "skills/succinct/SKILL.md",
     "skills/succinct/references/patterns.md",
     "skills/succinct/references/plain-english.md",
-    ".cursor/skills/succinct/SKILL.md",
-    ".cursor/skills/succinct/references/patterns.md",
-    ".cursor/skills/succinct/references/plain-english.md",
     "skills/succinct/agents/openai.yaml",
-    "commands/succinct.toml",
-    "GEMINI.md",
     "extensions/succinct.ts",
     "extensions/context-compat.ts",
     "hooks/always-on.sh",
@@ -91,9 +67,6 @@ PATH_FIELDS = (
     ("package.json", ("omp", "extensions")),
     ("package.json", ("pi", "extensions")),
     ("package.json", ("pi", "skills")),
-    ("kimi.plugin.json", ("skills",)),
-    ("qwen-extension.json", ("skills",)),
-    ("gemini-extension.json", ("contextFileName",)),
     (".codex-plugin/plugin.json", ("skills",)),
     (".codex-plugin/plugin.json", ("hooks",)),
     ("opencode.json", ("plugins",)),
@@ -272,12 +245,6 @@ for relative in ("hooks/hooks.json", "hooks/codex-hooks.json"):
         if not (ROOT / script).is_file():
             raise SystemExit(f"{relative} runs a missing script: {script}")
 
-if tomllib is not None:
-    try:
-        tomllib.loads(read(ROOT / "commands" / "succinct.toml"))
-    except tomllib.TOMLDecodeError as error:
-        raise SystemExit(f"Fix the TOML in commands/succinct.toml: {error}")
-
 # Rule numbering: Part 1 has rules 1 to 10 in the core. The core keeps the
 # five strongest tells; the reference keeps all 25. The reference also keeps
 # Part 3's 15 numbered rules.
@@ -321,7 +288,6 @@ for relative, marker in (
     ("hooks/always-on.ps1", "../skills/succinct/SKILL.md"),
     (".opencode/plugins/succinct/index.js", '"succinct", "SKILL.md"'),
     ("extensions/succinct.ts", '"succinct",'),
-    ("GEMINI.md", "skills/succinct/SKILL.md"),
 ):
     if marker not in read(ROOT / relative):
         raise SystemExit(f"{relative} must reference the canonical skill: {marker}")

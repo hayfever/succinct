@@ -16,14 +16,12 @@ Do not read secrets, home-directory configuration, unrelated files, or local run
 | Area | Location | Purpose |
 | --- | --- | --- |
 | Canonical skill | `skills/succinct/SKILL.md`, `skills/succinct/references/` | The source of truth: a core with shape rules, five strongest tells, and plain technical English, plus the full 25-tell and STE catalogs. |
-| Skill mirror | `.cursor/skills/succinct/` | Generated copy of the whole canonical skill folder. Rebuild it with `scripts/build_adapters.py`. |
-| Generated adapters | `scripts/build_adapters.py` | Rebuilds the skill mirror and the version metadata in every manifest from the canonical skill folder and `package.json`. |
-| Skill adapters | `skills/succinct/agents/`, `commands/` | Codex (`openai.yaml`) and Gemini CLI (`commands/succinct.toml`) formats. |
+| Generated versions | `scripts/build_adapters.py` | Rebuilds the version metadata in the skill and every manifest from `package.json`. |
+| Skill adapters | `skills/succinct/agents/` | Codex (`openai.yaml`) format. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
-| Shared hooks | `hooks/`, `hooks/hooks.json` (Claude Code), `hooks/codex-hooks.json` (Codex) | Hook declarations, cross-platform always-on behavior, and the saved `/succinct on` or `/succinct off` choice. |
+| Shared hooks | `hooks/`, `hooks/hooks.json` (Claude Code), `hooks/codex-hooks.json` (Codex) | Hook declarations, cross-platform always-on behavior, and `/succinct on` or `/succinct off`, which create or delete the flag file. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
 | OpenCode | `opencode.json`, `.opencode/` | OpenCode plugin and command entry points. |
-| Other runtimes | `qwen-extension.json`, `kimi.plugin.json`, `gemini-extension.json`, `GEMINI.md`, `plugin.json` | Qwen, Kimi, Gemini, and Antigravity metadata. |
 | Documentation | `README.md`, `INSTALL.md` | User-facing overview and installation. |
 | Verification | `tests/`, `evals/`, `scripts/` | Unit tests, extension RPC smoke test, paired response evals, style linter. |
 | CI | `.github/workflows/` | `validate.yml` (structure, unit tests, runtime load checks) and `evals.yml` (manual paired eval run). |
@@ -35,16 +33,15 @@ When debugging or changing one integration, begin with its entry point:
 | Runtime | Read first |
 | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.sh`, `hooks/toggle.sh` |
-| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/succinct/agents/openai.yaml`, `hooks/codex-hooks.json` |
+| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `skills/succinct/agents/openai.yaml`, `hooks/codex-hooks.json`, `hooks/toggle.sh` |
 | Pi | `package.json` (`pi`), `extensions/succinct.ts` |
 | OMP | `package.json` (`omp`), `extensions/succinct.ts`, `extensions/context-compat.ts` |
 | OpenCode | `opencode.json`, `.opencode/plugins/succinct/`, `.opencode/command/succinct.md` |
-| Qwen, Kimi, Gemini | The corresponding manifest above, plus `GEMINI.md` for Gemini behavior |
-| Agent-skills harnesses | `skills/succinct/SKILL.md` (Claude Code, Copilot, Zed, Cursor, Amp, Hermes, Qwen) |
+| Other agents | `skills/succinct/SKILL.md` through `npx skills add`, or the always-on snippet in `INSTALL.md` |
 
 ## Source-of-truth rules
 
-- Change `skills/succinct/SKILL.md` or its `references/` files first when changing skill behavior, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror and the version metadata.
+- Change `skills/succinct/SKILL.md` or its `references/` files first when changing skill behavior, then run `python3 scripts/build_adapters.py` to rebuild the version metadata.
 - Treat manifests and hook declarations as runtime contracts. Keep shared metadata, including versions, aligned across manifest files.
 - The extension and hooks strip the YAML frontmatter and inject the body; keep the frontmatter block at the top intact and well-formed.
 - Version, name, and toggle phrases ("stop succinct mode", "normal mode", `.succinct-always`, `/succinct`) appear in many files; `scripts/validate-package.py` checks the critical ones.
@@ -57,7 +54,7 @@ Run the package check and report exact output:
 python3 scripts/validate-package.py
 ```
 
-It verifies manifest JSON, name and version agreement, frontmatter fields, generated adapter drift, rule numbering, and every runtime entry point's reference to the canonical skill.
+It verifies manifest JSON, name and version agreement, frontmatter fields, generated version drift, rule numbering, and every runtime entry point's reference to the canonical skill.
 
 Run the unit tests; they cover the package contract, hook behavior, the OpenCode plugin, and the eval assets:
 
