@@ -68,6 +68,8 @@ Every harness, with the command to type after install:
 
 Always-on: "snippet" means the rules go in the agent's persistent rules file (`CLAUDE.md`, `AGENTS.md`, Cursor user rules, and so on). One copy lives in [INSTALL.md](INSTALL.md#always-on-snippet). "Flag file" is the one-line version: a `SessionStart` hook or extension loads the full ruleset at session start. Each section in INSTALL.md shows the exact path.
 
+Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
+
 ## Supported harnesses
 
 | Harness | Loads | Last verified |
@@ -85,17 +87,16 @@ Always-on: "snippet" means the rules go in the agent's persistent rules file (`C
 | Zed | `skills/succinct/SKILL.md` | not yet verified |
 | Amp | `skills/succinct/SKILL.md` | not yet verified |
 | Antigravity | `plugin.json` | not yet verified |
+| Hermes | `skills/succinct/SKILL.md` | not yet verified |
 | Skills CLI | `skills/succinct/SKILL.md` | not yet verified |
 
 Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. No harness version is pinned in this repository, so every row says not yet verified. A row gets a version once CI pins one.
 
 Edit only `skills/succinct/SKILL.md`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
 
-Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
-
 ## The rules
 
-The [canonical skill](skills/succinct/SKILL.md) holds all of it: 284 lines, three parts.
+The [canonical skill](skills/succinct/SKILL.md) holds all of it: 311 lines, three parts.
 
 - Shape: ten rules that make an answer actable for a reader with ADHD, from the next action in line one to the five-item list cap. ([Part 1](skills/succinct/SKILL.md#part-1-shape-the-response))
 - Sound human: 25 patterns that mark text as machine-made, strongest first, from [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing). Keep every supported claim; never invent a fact. ([Part 2](skills/succinct/SKILL.md#part-2-sound-like-a-person))
@@ -103,7 +104,7 @@ The [canonical skill](skills/succinct/SKILL.md) holds all of it: 284 lines, thre
 
 ### What it costs
 
-`SKILL.md` is 284 lines, 3,464 words, and 5,018 tokens with the o200k tokenizer. That is about 2.5 percent of a 200,000-token context window, added once when the skill loads.
+`SKILL.md` is 311 lines, 3,895 words, and 5,592 tokens with the o200k tokenizer. That is about 2.8 percent of a 200,000-token context window, added once when the skill loads.
 
 Every harness above loads that one file. The ASD standard is a free download; this skill summarizes its writing rules and does not reproduce the dictionary.
 
