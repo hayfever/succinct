@@ -72,25 +72,25 @@ Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the fo
 
 ## Supported harnesses
 
-| Harness | Loads | Last verified |
+| Harness | Loads | Status |
 | --- | --- | --- |
-| Claude Code | `.claude-plugin/plugin.json` | not yet verified |
-| Codex | `.codex-plugin/plugin.json` | not yet verified |
-| Gemini CLI | `gemini-extension.json` | not yet verified |
-| Kimi Code | `kimi.plugin.json` | not yet verified |
-| Qwen Code | `qwen-extension.json` | not yet verified |
-| OpenCode | `opencode.json` | not yet verified |
-| Pi | `package.json` | not yet verified |
-| OMP | `package.json` | not yet verified |
-| Cursor | `.cursor/skills/succinct/SKILL.md` | not yet verified |
-| GitHub Copilot | `skills/succinct/SKILL.md` | not yet verified |
-| Zed | `skills/succinct/SKILL.md` | not yet verified |
-| Amp | `skills/succinct/SKILL.md` | not yet verified |
-| Antigravity | `plugin.json` | not yet verified |
-| Hermes | `skills/succinct/SKILL.md` | not yet verified |
-| Skills CLI | `skills/succinct/SKILL.md` | not yet verified |
+| Claude Code | `.claude-plugin/plugin.json` | manifest checked in CI |
+| Codex | `.codex-plugin/plugin.json` | loads in CI |
+| Gemini CLI | `gemini-extension.json` | loads in CI |
+| Kimi Code | `kimi.plugin.json` | install documented |
+| Qwen Code | `qwen-extension.json` | install documented |
+| OpenCode | `opencode.json` | loads in CI |
+| Pi | `package.json` | loads in CI |
+| OMP | `package.json` | loads in CI |
+| Cursor | `.cursor/skills/succinct/SKILL.md` | install documented |
+| GitHub Copilot | `skills/succinct/SKILL.md` | install documented |
+| Zed | `skills/succinct/SKILL.md` | install documented |
+| Amp | `skills/succinct/SKILL.md` | install documented |
+| Antigravity | `plugin.json` | install documented |
+| Hermes | `skills/succinct/SKILL.md` | install documented |
+| Skills CLI | `skills/succinct/SKILL.md` | install documented |
 
-Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. No harness version is pinned in this repository, so every row says not yet verified. A row gets a version once CI pins one.
+Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. "Loads in CI" means a job in `.github/workflows/validate.yml` installs the latest harness CLI and loads this checkout with no model request. For Claude Code, CI runs `claude plugin validate . --strict` on the manifests. "Install documented" means the route in [INSTALL.md](INSTALL.md) is written out, but CI does not run that harness.
 
 Edit only `skills/succinct/SKILL.md` and its `references/`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
 
@@ -127,7 +127,7 @@ Restart the harness, then invoke the skill again.
 
 ## Results
 
-Paired eval on 17 cases, 3 trials per case, judged blind: baseline weighted 4.46, candidate weighted 4.76. The candidate carries one blocking finding, a wrong PKCE test vector, and the baseline carries two. Numbers, per-dimension means, and gate rule: [evals/RESULTS.md](evals/RESULTS.md).
+Paired eval of the shipped core on 17 cases, 3 trials per case, judged blind: baseline weighted 4.48, candidate weighted 4.75. The candidate carries no blocking finding and the baseline carries one. The candidate loaded only the core `SKILL.md`, with no reference file. Numbers, per-dimension means, earlier rounds, and the gate rule: [evals/RESULTS.md](evals/RESULTS.md).
 
 ## Credits
 
