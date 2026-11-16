@@ -6,7 +6,7 @@ What changes, and why. One paragraph.
 
 - [ ] `python3 scripts/validate-package.py` passes
 - [ ] `python3 -m unittest discover -s tests -v` passes
-- [ ] `.cursor/skills/succinct/SKILL.md` re-copied after any `skills/succinct/SKILL.md` change
+- [ ] `python3 scripts/build_adapters.py` run after any `skills/succinct/SKILL.md` change
 - [ ] Version bumped in all manifests and `CHANGELOG.md` updated (if user-facing)
 - [ ] Behavior changes include an eval case and `evals/results/gate.json`
 - [ ] `skills/succinct/SKILL.md` stays at 400 lines or fewer

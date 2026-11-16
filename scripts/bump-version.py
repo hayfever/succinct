@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Bump the package version across every manifest and the skill frontmatter.
+"""Bump the package version and regenerate every derived adapter.
 
 Usage: python3 scripts/bump-version.py <new-version> [--from <old-version>]
 
-Updates metadata.version in skills/succinct/SKILL.md (and the .cursor mirror),
-package.json, .claude-plugin/plugin.json, .codex-plugin/plugin.json,
-kimi.plugin.json, qwen-extension.json, and gemini-extension.json. Then scans the
-repository for the old version and fails if one remains, so a hard-coded version
-in a doc or badge cannot go stale. Reminds you about CHANGELOG.md, which stays
-hand-written.
+Sets version in package.json, then runs scripts/build_adapters.py to write
+metadata.version in skills/succinct/SKILL.md, the version in every plugin and
+extension manifest, and the Cursor mirror. Then scans the repository for the
+old version and fails if one remains, so a hard-coded version in a doc or badge
+cannot go stale. Reminds you about CHANGELOG.md, which stays hand-written.
 """
 
 from __future__ import annotations
@@ -16,23 +15,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-VERSIONED_FILES = (
-    "package.json",
-    ".claude-plugin/plugin.json",
-    ".codex-plugin/plugin.json",
-    "kimi.plugin.json",
-    "qwen-extension.json",
-    "gemini-extension.json",
-)
-SKILL_FILES = (
-    "skills/succinct/SKILL.md",
-    ".cursor/skills/succinct/SKILL.md",
-)
 # History files keep old versions on purpose; everything else must move.
 HISTORY_FILES = ("CHANGELOG.md",)
 SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules"}
@@ -41,9 +29,11 @@ TEXT_SUFFIXES = {
     ".py", ".sh", ".ps1", ".txt", ".jsonl",
 }
 
+
 def current_version() -> str:
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
     return str(package["version"])
+
 
 def replace_in_file(path: Path, old: str, new: str) -> None:
     text = path.read_text(encoding="utf-8")
@@ -52,8 +42,24 @@ def replace_in_file(path: Path, old: str, new: str) -> None:
     )
     if count == 0:
         raise SystemExit(f"{path.relative_to(ROOT)}: no occurrence of {old}")
-    path.write_text(updated, encoding="utf-8")
+    path.write_text(updated, encoding="utf-8", newline="\n")
     print(f"{path.relative_to(ROOT)}: {count} replacement(s)")
+
+
+def run_script(relative: str, *args: str) -> bool:
+    """Run a repository script and print its output."""
+    result = subprocess.run(
+        [sys.executable, str(ROOT / relative), *args],
+        capture_output=True,
+        text=True,
+    )
+    if result.stdout:
+        print(result.stdout, end="")
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr, end="")
+        return False
+    return True
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -67,11 +73,14 @@ def main() -> int:
     old = args.old_version or current_version()
     if old == args.new_version:
         raise SystemExit(f"version is already {args.new_version}")
+    if current_version() != old:
+        raise SystemExit(
+            f"package.json is at {current_version()}, not {old}; rerun without --from"
+        )
 
-    for relative in VERSIONED_FILES:
-        replace_in_file(ROOT / relative, old, args.new_version)
-    for relative in SKILL_FILES:
-        replace_in_file(ROOT / relative, old, args.new_version)
+    replace_in_file(ROOT / "package.json", old, args.new_version)
+    if not run_script("scripts/build_adapters.py"):
+        raise SystemExit("bump applied but adapter generation failed; inspect the diff")
 
     leftovers = find_leftovers(old)
     if leftovers:
@@ -80,8 +89,7 @@ def main() -> int:
             print(f"  {relative}", file=sys.stderr)
         raise SystemExit("update those files, then rerun the bump")
 
-    result = subprocess_ok()
-    if not result:
+    if not run_script("scripts/validate-package.py"):
         raise SystemExit("bump applied but validation failed; inspect the diff")
 
     print()
@@ -90,6 +98,7 @@ def main() -> int:
     print(f"2. Commit and tag: git commit -am 'v{args.new_version}' && git tag v{args.new_version}")
     print("3. Push the tag; the release workflow drafts the GitHub release.")
     return 0
+
 
 def find_leftovers(old: str) -> list[str]:
     pattern = re.compile(rf"(?<![0-9.]){re.escape(old)}(?![0-9.])")
@@ -110,18 +119,6 @@ def find_leftovers(old: str) -> list[str]:
             found.append(relative.as_posix())
     return found
 
-def subprocess_ok() -> bool:
-    import subprocess
-    result = subprocess.run(
-        ["python3", str(ROOT / "scripts" / "validate-package.py")],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        print(result.stdout + result.stderr, file=sys.stderr)
-        return False
-    print(result.stdout.strip())
-    return True
 
 if __name__ == "__main__":
     raise SystemExit(main())
