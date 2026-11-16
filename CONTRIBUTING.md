@@ -4,8 +4,8 @@ Thanks for considering a contribution. This repository is small and opinionated:
 
 ## Project rules
 
-1. `skills/succinct/SKILL.md` is the single source of truth. Everything else mirrors, wraps, or validates it.
-2. Keep `skills/succinct/SKILL.md` at 400 lines or fewer. A skill the model skims beats a skill it ignores.
+1. `skills/succinct/SKILL.md` plus `skills/succinct/references/` are the single source of truth. Everything else mirrors, wraps, or validates it.
+2. Keep `skills/succinct/SKILL.md` at 200 lines or fewer. Detail belongs in `skills/succinct/references/`. A skill the model skims beats a skill it ignores.
 3. Keep manifests aligned: `name`, `version`, `description`, `license`, and `homepage` agree across `package.json` and `kimi.plugin.json`; all manifests share one version. `scripts/validate-package.py` enforces the critical subset.
 4. Change the canonical skill first, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror. The validator fails on drift.
 5. The toggle phrases ("stop succinct mode", "normal mode"), the flag file (`.succinct-always`), and the command (`/succinct`) are cross-runtime contracts. Do not rename them casually; update every runtime in the same commit.

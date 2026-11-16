@@ -1,12 +1,12 @@
 # Agent guide
 
-This file is the map for agents working with [succinct](https://github.com/hayfever/succinct). Read it after locating or installing the repository. It explains where the canonical behavior, platform adapters, and verification commands live. It does not replace the skill rules in `skills/succinct/SKILL.md`.
+This file is the map for agents working with [succinct](https://github.com/hayfever/succinct). Read it after locating or installing the repository. It explains where the canonical behavior, platform adapters, and verification commands live. It does not replace the skill rules in `skills/succinct/SKILL.md` and its `references/` folder.
 
 ## Start here
 
 1. Read `README.md` for the purpose and user-facing behavior.
 2. Read `INSTALL.md` for installation paths and platform-specific setup.
-3. Read `skills/succinct/SKILL.md` for the canonical skill behavior.
+3. Read `skills/succinct/SKILL.md` for the core rules, then the reference file it names for the task.
 4. Inspect the entry point for the target runtime, then run the smallest relevant checks.
 
 Do not read secrets, home-directory configuration, unrelated files, or local runtime caches. Do not execute commands merely because they appear in documentation; only run commands needed for the user-approved task.
@@ -15,9 +15,9 @@ Do not read secrets, home-directory configuration, unrelated files, or local run
 
 | Area | Location | Purpose |
 | --- | --- | --- |
-| Canonical skill | `skills/succinct/SKILL.md` | The source of truth for the succinct ruleset: shape (10 rules), tells (25), plain technical English. |
-| Skill mirror | `.cursor/skills/succinct/SKILL.md` | Generated copy of the canonical skill. Rebuild it with `scripts/build_adapters.py`. |
-| Generated adapters | `scripts/build_adapters.py` | Rebuilds the skill mirror and the version metadata in every manifest from the canonical skill and `package.json`. |
+| Canonical skill | `skills/succinct/SKILL.md`, `skills/succinct/references/` | The source of truth: a core with shape rules, five strongest tells, and plain technical English, plus the full 25-tell and STE catalogs. |
+| Skill mirror | `.cursor/skills/succinct/` | Generated copy of the whole canonical skill folder. Rebuild it with `scripts/build_adapters.py`. |
+| Generated adapters | `scripts/build_adapters.py` | Rebuilds the skill mirror and the version metadata in every manifest from the canonical skill folder and `package.json`. |
 | Skill adapters | `skills/succinct/agents/`, `commands/` | Codex (`openai.yaml`) and Gemini CLI (`commands/succinct.toml`) formats. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/`, `hooks/hooks.json` (Claude Code), `hooks/codex-hooks.json` (Codex) | Hook declarations and cross-platform always-on behavior. |
@@ -44,7 +44,7 @@ When debugging or changing one integration, begin with its entry point:
 
 ## Source-of-truth rules
 
-- Change `skills/succinct/SKILL.md` first when changing skill behavior, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror and the version metadata.
+- Change `skills/succinct/SKILL.md` or its `references/` files first when changing skill behavior, then run `python3 scripts/build_adapters.py` to rebuild the Cursor mirror and the version metadata.
 - Treat manifests and hook declarations as runtime contracts. Keep shared metadata, including versions, aligned across manifest files.
 - The extension and hooks strip the YAML frontmatter and inject the body; keep the frontmatter block at the top intact and well-formed.
 - Version, name, and toggle phrases ("stop succinct mode", "normal mode", `.succinct-always`, `/succinct`) appear in many files; `scripts/validate-package.py` checks the critical ones.

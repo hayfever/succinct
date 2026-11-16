@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Rebuild every adapter file derived from the canonical skill.
 
-The canonical skill is skills/succinct/SKILL.md. package.json owns the package
-version. This script writes:
+The canonical skill is skills/succinct/SKILL.md plus its references/ folder.
+package.json owns the package version. This script writes:
 
-- .cursor/skills/succinct/SKILL.md, a copy of the canonical skill with a note
-  that marks it generated.
+- .cursor/skills/succinct/, a copy of the whole skill folder. SKILL.md carries
+  a note that marks it generated; references/ is copied byte for byte.
 - metadata.version in skills/succinct/SKILL.md.
 - the version field in every plugin and extension manifest.
 
@@ -17,6 +17,8 @@ Usage:
     python3 scripts/build_adapters.py --check
 
 --check writes nothing. It prints one unified diff per stale file and exits 1.
+A file removed from the canonical folder is reported as a deletion from the
+mirror.
 
 The JSON manifests cannot carry the generated note. JSON has no comments, and
 the harnesses parse these files with a strict parser.
@@ -34,8 +36,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-CANONICAL = "skills/succinct/SKILL.md"
-MIRROR = ".cursor/skills/succinct/SKILL.md"
+CANONICAL_DIR = "skills/succinct"
+MIRROR_DIR = ".cursor/skills/succinct"
+CANONICAL = f"{CANONICAL_DIR}/SKILL.md"
 PACKAGE = "package.json"
 
 # Manifests that carry the package version. The marketplace manifests have no
@@ -63,17 +66,17 @@ JSON_VERSION = re.compile(r'("version"\s*:\s*")([^"]*)(")')
 
 @dataclass(frozen=True)
 class Change:
-    """One stale derived file, with the bytes on disk and the bytes to write."""
+    """One stale derived file. ``new`` is None when the file must be removed."""
 
     relative: str
     old: str
-    new: str
+    new: str | None
 
     def diff(self) -> str:
         return "".join(
             difflib.unified_diff(
                 self.old.splitlines(keepends=True),
-                self.new.splitlines(keepends=True),
+                (self.new or "").splitlines(keepends=True),
                 fromfile=f"{self.relative} (on disk)",
                 tofile=f"{self.relative} (generated)",
             )
@@ -161,11 +164,26 @@ def mirror_text(canonical: str) -> str:
     return f"---\n{GENERATED_NOTE}\n" + canonical[len("---\n") :]
 
 
-def read_optional(path: Path, relative: str) -> str:
+def read_optional(path: Path, relative: str) -> str | None:
     """Read a generated copy that may not exist yet."""
     if not path.exists():
-        return ""
+        return None
     return read_text(path, relative)
+
+
+def canonical_files(root: Path) -> dict[str, str]:
+    """Return every file in the canonical skill folder, keyed by relative path."""
+    directory = root / CANONICAL_DIR
+    if not directory.is_dir():
+        raise BuildError(f"Cannot read {CANONICAL_DIR}: not a directory")
+    files: dict[str, str] = {}
+    for path in sorted(directory.rglob("*")):
+        if path.is_file():
+            relative = path.relative_to(directory).as_posix()
+            files[relative] = read_text(path, f"{CANONICAL_DIR}/{relative}")
+    if "SKILL.md" not in files:
+        raise BuildError(f"{CANONICAL} is missing from {CANONICAL_DIR}")
+    return files
 
 
 def plan(root: Path) -> list[Change]:
@@ -173,11 +191,27 @@ def plan(root: Path) -> list[Change]:
     version = package_version(root)
     canonical = read_text(root / CANONICAL, CANONICAL)
     next_canonical = set_skill_version(canonical, version, CANONICAL)
+    sources = canonical_files(root)
 
-    targets: list[tuple[str, str, str]] = [
-        (CANONICAL, canonical, next_canonical),
-        (MIRROR, read_optional(root / MIRROR, MIRROR), mirror_text(next_canonical)),
+    targets: list[tuple[str, str, str | None]] = [
+        (CANONICAL, canonical, next_canonical)
     ]
+    for relative, text in sources.items():
+        target = f"{MIRROR_DIR}/{relative}"
+        current = read_optional(root / target, target)
+        new = mirror_text(next_canonical) if relative == "SKILL.md" else text
+        targets.append((target, "" if current is None else current, new))
+
+    mirror_dir = root / MIRROR_DIR
+    if mirror_dir.is_dir():
+        for path in sorted(mirror_dir.rglob("*")):
+            if not path.is_file():
+                continue
+            relative = path.relative_to(mirror_dir).as_posix()
+            if relative not in sources:
+                target = f"{MIRROR_DIR}/{relative}"
+                targets.append((target, read_text(path, target), None))
+
     for relative in VERSIONED_MANIFESTS:
         current = read_text(root / relative, relative)
         targets.append(
@@ -228,6 +262,10 @@ def main(argv: list[str] | None = None) -> int:
 
     for change in changes:
         path = root / change.relative
+        if change.new is None:
+            path.unlink()
+            print(f"removed {change.relative}")
+            continue
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(change.new, encoding="utf-8", newline="\n")
         print(f"wrote {change.relative}")
