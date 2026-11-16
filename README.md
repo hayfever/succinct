@@ -92,21 +92,23 @@ Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the fo
 
 Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. No harness version is pinned in this repository, so every row says not yet verified. A row gets a version once CI pins one.
 
-Edit only `skills/succinct/SKILL.md`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
+Edit only `skills/succinct/SKILL.md` and its `references/`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
 
 ## The rules
 
-The [canonical skill](skills/succinct/SKILL.md) holds all of it: 311 lines, three parts.
+The [canonical skill](skills/succinct/SKILL.md) is a 164-line core in three parts. Two reference files hold the full detail.
 
 - Shape: ten rules that make an answer actable for a reader with ADHD, from the next action in line one to the five-item list cap. ([Part 1](skills/succinct/SKILL.md#part-1-shape-the-response))
-- Sound human: 25 patterns that mark text as machine-made, strongest first, from [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing). Keep every supported claim; never invent a fact. ([Part 2](skills/succinct/SKILL.md#part-2-sound-like-a-person))
-- Write plain: Simplified Technical English, the controlled standard behind aerospace maintenance docs. Active voice, imperative steps, steps of 20 words or fewer, one term per item. ([Part 3](skills/succinct/SKILL.md#part-3-write-plain-simplified-technical-english))
+- Sound human: 25 patterns that mark text as machine-made, strongest first, from [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing). The core carries the five strongest. The full catalog is in [references/patterns.md](skills/succinct/references/patterns.md). Keep every supported claim; never invent a fact. ([Part 2](skills/succinct/SKILL.md#part-2-sound-like-a-person))
+- Write plain: Simplified Technical English, the controlled standard behind aerospace maintenance docs. Active voice, imperative steps, steps of 20 words or fewer, one term per item. Replacement lists are in [references/plain-english.md](skills/succinct/references/plain-english.md). ([Part 3](skills/succinct/SKILL.md#part-3-write-plain-simplified-technical-english))
 
 ### What it costs
 
-`SKILL.md` is 311 lines, 3,895 words, and 5,592 tokens with the o200k tokenizer. That is about 2.8 percent of a 200,000-token context window, added once when the skill loads.
+The core `SKILL.md` is 164 lines, 1,359 words, and 2,055 tokens with the o200k tokenizer. That is about 1 percent of a 200,000-token context window, added once when the skill loads. The references load only when the model needs them: `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens.
 
-Every harness above loads that one file. The ASD standard is a free download; this skill summarizes its writing rules and does not reproduce the dictionary.
+Before the split, the single file was 5,589 tokens. The up-front load is 63 percent smaller.
+
+Every harness above loads the core file. The ASD standard is a free download; this skill summarizes its writing rules and does not reproduce the dictionary.
 
 ## Tune it
 

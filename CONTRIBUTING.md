@@ -6,8 +6,8 @@ Thanks for considering a contribution. This repository is small and opinionated:
 
 The skill:
 
-1. `skills/succinct/SKILL.md` is the single source of truth. Everything else mirrors, wraps, or validates it.
-2. Keep it at 400 lines or fewer. A skill the model skims beats a skill it ignores.
+1. `skills/succinct/SKILL.md` plus `skills/succinct/references/` are the single source of truth. Everything else mirrors, wraps, or validates them.
+2. Keep `SKILL.md` at 200 lines or fewer. Detail belongs in `skills/succinct/references/`. A skill the model skims beats a skill it ignores.
 3. Every sentence in the skill obeys the skill. No em dashes, no chatbot residue, steps of 20 words or fewer.
 
 The package:

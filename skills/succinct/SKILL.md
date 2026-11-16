@@ -159,6 +159,6 @@ If yes, send.
 
 # Sources
 
-- [ASD-STE100](https://www.asd-ste100.org) Issue 9, 2025-01-15 (ASD, Simplified Technical English Maintenance Group): Part 3 summarizes the writing rules. The standard itself is free to download from ASD; the controlled dictionary is not reproduced here.
-- [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) (WikiProject AI Cleanup): Part 2's tell inventory.
-- MIT attribution for the remaining upstream sources lives in THIRD_PARTY_NOTICES.md and the README credits.
+- ASD-STE100 Issue 9 summarizes Part 3; the standard is free and the dictionary is not reproduced.
+- Wikipedia: Signs of AI writing supplies Part 2's tells.
+- MIT attribution: `LICENSE`, `THIRD_PARTY_NOTICES.md`, README credits.
