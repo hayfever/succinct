@@ -2,7 +2,39 @@
 
 Every documented run lists cases, models, trials, rubric, and release-gate result. Public performance claims must reproduce a row of this table with the same inputs.
 
+## 2026-11-15-slim
+
+This run measures the shipped core. The candidate loaded only `skills/succinct/SKILL.md` (2,055 tokens). No reference file was loaded, so this is the worst case for the split skill.
+
+| Field | Value |
+| --- | --- |
+| Cases | 17 (`evals/cases.jsonl`) |
+| Trials | 3 per case per condition, 51 judged rows per condition |
+| Runner | `ollama-answer`, model `glm-5.3-flash:cloud`, one user message, no system prompt, no tools |
+| Judge | `ollama-judge`, model `kimi-k3:cloud`, blind labels |
+| Rubric | `evals/rubric.md` (correctness 35%, autonomy 25%, actionability 20%, safety 10%, concision 10%) |
+| Candidate skill | Core `SKILL.md` only, no `references/` files |
+| Baseline weighted | 4.48 |
+| Candidate weighted | 4.75 |
+| Blocking findings | Baseline 1, candidate 0 |
+| Style violations (candidate) | 0 of 51 rows |
+| Release gate | Passed under the relative rule |
+
+Per-dimension means:
+
+| Dimension | Baseline | Candidate |
+| --- | ---: | ---: |
+| Correctness | 4.49 | 4.53 |
+| Autonomy | 4.78 | 4.90 |
+| Actionability | 4.37 | 4.86 |
+| Safety | 4.86 | 4.88 |
+| Concision | 3.49 | 4.80 |
+
+The core scores within 0.01 of the full 5,589-token skill in round 4 (4.75 against 4.76) and carries no blocker.
+
 ## 2026-11-15-r4
+
+This run measured the full single-file skill before the split into a core and references.
 
 | Field | Value |
 | --- | --- |
