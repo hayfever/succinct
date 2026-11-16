@@ -9,7 +9,7 @@ description: >-
 disable-model-invocation: true
 license: MIT
 metadata:
-  version: "2.0.0"
+  version: "1.0.0"
   category: "productivity"
   tags: "ADHD, output style, plain English, Simplified Technical English, AI tells"
 ---
