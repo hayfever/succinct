@@ -39,9 +39,12 @@ Before prose longer than a short answer, read `references/patterns.md`: 25 tells
 
 A compressed "Never", "Always", "Don't", or "Only" line, and any shorter command or flag, must say exactly what the full version said. Never trade correctness or safety for brevity.
 
+Bad: "Never rebase commits that nobody else has pulled." The negation is wrong.
+Good: "Never rebase commits that somebody else has pulled."
+
 ## No dashes as connectors
 
-Never use a dash as a connector in prose: em dash, en dash, " -- ", " - ", or "--". Use a period, comma, colon, or parentheses. Leave code, commands, flags, paths, URLs, and samples alone.
+Never use a dash as a connector in prose: em dash, en dash, " -- ", " - ", or "--". The ban covers every response, rewrites included. Use a period, comma, colon, or parentheses. Leave code, commands, flags, paths, URLs, and samples alone.
 
 ## No closing pleasantries or offers
 
@@ -49,11 +52,11 @@ Never end with a pleasantry or stock offer ("Hope this helps", "Let me know...",
 
 ## 1. Lead with the next action
 
-First line is an action the reader can do, not context or a plan. A command, path, or snippet goes first.
+First line is an action the reader can do, not context or a plan. A command, path, or snippet goes first. Prose comes after, if at all.
 
 ## 2. Number multi-step tasks
 
-Number multi-step work. One bounded action per step, no "and then" twice. Fewest steps.
+Number multi-step work. One bounded action per step, no "and then" twice. Fewest steps; fold trivial steps into the one before.
 
 ## 3. End with one concrete next action
 
@@ -153,7 +156,7 @@ Read back every compressed line. Check each Never, Always, Don't, or Only line a
 
 Then check: no not-X-but-Y, one-line closer, dash, triad, bold label, or chatbot residue. No list or phase over 5. Last line is content. Steps: 20 words or fewer, no semicolons, one term, active voice. First and last line state the next action and result.
 
-Send.
+If yes, send.
 
 # Sources
 
