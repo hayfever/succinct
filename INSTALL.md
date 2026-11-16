@@ -90,7 +90,14 @@ claude plugin marketplace add hayfever/succinct
 claude plugin install succinct@succinct
 ```
 
-Type `/succinct`.
+Type `/succinct` to turn succinct output on for the current session. To save the choice for future sessions, add `on` or `off`:
+
+```text
+/succinct on
+/succinct off
+```
+
+`stop succinct mode` and `normal mode` turn the mode off for the current session only. They do not change the saved choice.
 
 ### Verify
 
@@ -127,15 +134,17 @@ If you use a custom Claude configuration directory, create the flag there instea
 touch "$CLAUDE_CONFIG_DIR/.succinct-always"
 ```
 
-Back to on-demand:
+Or run `/succinct on`, which saves `"enabled": true` in `~/.claude/succinct.json`. The stop phrases and the bare `/succinct` affect only the current session, so the flag turns the mode on again next session. Run `/succinct off` to save an off choice that outranks the flag.
+
+Back to on-demand, with no flag and no saved choice:
 
 ```bash
-rm ~/.claude/.succinct-always
+rm -f ~/.claude/.succinct-always ~/.claude/succinct.json
 ```
 
-The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. It tests for the flag, prints nothing, and exits 0 in about 30 ms. "stop succinct mode" still turns it off for the current session.
+The `SessionStart` hook only fires when the flag file or a saved on choice exists, so installing the plugin changes nothing by itself. Otherwise it prints nothing and exits 0 in about 30 ms. A `UserPromptExpansion` hook runs only when you type `/succinct`, and saves the choice when you add `on` or `off`.
 
-The hook needs no Node install. It runs `hooks/always-on.sh` with `sh` on macOS and Linux and in Git Bash on Windows. When Git Bash is missing, Claude Code passes the same command line to PowerShell, and `hooks/always-on.ps1` loads the ruleset instead.
+The hooks need no Node install. They run `hooks/always-on.sh` and `hooks/toggle.sh` with `sh` on macOS and Linux and in Git Bash on Windows. When Git Bash is missing, Claude Code passes the same command lines to PowerShell, and `hooks/always-on.ps1` and `hooks/toggle.ps1` do the work instead.
 
 Claude Code limits one hook's text to 10,000 characters. The core is 8,170 characters, so the hook delivers the whole core. The reference files stay on disk and load only on demand.
 
@@ -152,9 +161,16 @@ codex plugin marketplace add hayfever/succinct --ref main
 codex plugin add succinct@succinct
 ```
 
-Invoke the skill explicitly by typing `$succinct`. Codex will not activate it automatically.
+Invoke the skill explicitly by typing `$succinct`. Codex will not activate it automatically. To save the choice for future sessions, add `on` or `off`:
 
-The plugin ships a `SessionStart` hook. Codex asks you to review and trust plugin hooks before they run: type `/hooks`, read the hook, and trust it. Until you do, Codex skips the hook and prints a warning at startup.
+```text
+$succinct on
+$succinct off
+```
+
+`stop succinct mode` and `normal mode` turn the mode off for the current session only. They do not change the saved choice.
+
+The plugin ships a `SessionStart` hook and a `UserPromptSubmit` hook. Codex asks you to review and trust plugin hooks before they run: type `/hooks`, read the hooks, and trust them. Until you do, Codex skips the hooks and prints a warning at startup.
 
 ### Verify
 
@@ -186,13 +202,15 @@ mkdir -p ~/.claude
 touch ~/.claude/.succinct-always
 ```
 
-Back to on-demand:
+Or run `$succinct on`, which saves `"enabled": true` in `~/.codex/succinct.json` (`$CODEX_HOME/succinct.json` when `CODEX_HOME` is set). The stop phrases and the bare `$succinct` affect only the current session, so the flag turns the mode on again next session. Run `$succinct off` to save an off choice that outranks the flag. Codex keeps its own saved choice, so `/succinct off` in Claude Code does not change it.
+
+Back to on-demand, with no flag and no saved choice:
 
 ```bash
-rm ~/.claude/.succinct-always
+rm -f ~/.claude/.succinct-always ~/.codex/succinct.json
 ```
 
-Trust the hook in `/hooks` first. Without that trust, Codex skips it. When you use a custom Claude configuration directory, create the flag at `"$CLAUDE_CONFIG_DIR/.succinct-always"` instead.
+Trust both hooks in `/hooks` first. Without that trust, Codex skips them. Codex has no per-command hook event, so the `UserPromptSubmit` hook runs on every prompt and exits at once unless the prompt is `$succinct on` or `$succinct off`. When you use a custom Claude configuration directory, create the flag at `"$CLAUDE_CONFIG_DIR/.succinct-always"` instead.
 
 Do not want Codex to run plugin hooks at all? Add the [always-on snippet](#always-on-snippet) to `~/.codex/AGENTS.md` instead.
 
@@ -752,7 +770,7 @@ Paste the [always-on snippet](#always-on-snippet) into your agent's persistent r
 
 1. **Installed, not invoked.** In Claude Code, Qwen Code, and Codex, nothing happens until you invoke the skill explicitly. Claude Code and Qwen Code honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `skills/succinct/agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
 2. **You invoke it explicitly.** Type `/succinct` in Claude Code or Gemini CLI, or `/succinct:succinct` in Qwen Code, or `$succinct` in Codex. Rules stay on for that session. "stop succinct mode" or "normal mode" turns them off.
-3. **You touch `~/.claude/.succinct-always`** (Claude Code, Codex) or `~/.config/opencode/.succinct-always` (OpenCode) or `~/.pi/agent/.succinct-always` (Pi, OMP). A hook or extension loads the core ruleset from message one, every session.
+3. **You touch `~/.claude/.succinct-always`** (Claude Code, Codex) or `~/.config/opencode/.succinct-always` (OpenCode) or `~/.pi/agent/.succinct-always` (Pi, OMP). A hook or extension loads the core ruleset from message one, every session. In Claude Code, Codex, Pi, and OMP, `/succinct on` or `/succinct off` (`$succinct on` or `$succinct off` in Codex) saves a choice that outranks the flag.
 4. **You add the always-on snippet** (other harnesses). Keeps the core rules in your agent's persistent context.
 
 In Claude Code, Qwen Code, and Codex, no middle ground: if you did not turn it on, it is off.

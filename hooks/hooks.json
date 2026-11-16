@@ -1,5 +1,5 @@
 {
-  "description": "Load the succinct ruleset at session start when the user opted in with the .succinct-always flag.",
+  "description": "Load the succinct ruleset at session start when the user opted in with the .succinct-always flag or saved /succinct on, and save /succinct on or /succinct off for future sessions.",
   "hooks": {
     "SessionStart": [
       {
@@ -10,6 +10,19 @@
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.sh\"; powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command 'if (Test-Path -LiteralPath \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.ps1\" -PathType Leaf) { & \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.ps1\" }'; exit 0",
             "timeout": 30,
             "statusMessage": "Checking succinct always-on flag..."
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "^succinct(:succinct)?$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/toggle.sh\"; powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command 'if (Test-Path -LiteralPath \"${CLAUDE_PLUGIN_ROOT}/hooks/toggle.ps1\" -PathType Leaf) { & \"${CLAUDE_PLUGIN_ROOT}/hooks/toggle.ps1\" }'; exit 0",
+            "timeout": 30,
+            "statusMessage": "Saving the succinct choice..."
           }
         ]
       }
