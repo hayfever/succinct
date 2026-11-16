@@ -1,6 +1,6 @@
 {
   "name": "succinct",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "One output style: answer first, next action last (ADHD-friendly), strip AI tells from prose, write technical text in plain Simplified Technical English.",
   "license": "MIT",
   "homepage": "https://github.com/hayfever/succinct",

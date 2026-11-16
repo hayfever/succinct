@@ -104,7 +104,7 @@ The [canonical skill](skills/succinct/SKILL.md) is a 164-line core in three part
 
 ### What it costs
 
-The core `SKILL.md` is 164 lines, 1,359 words, and 2,055 tokens with the o200k tokenizer. That is about 1 percent of a 200,000-token context window, added once when the skill loads. The references load only when the model needs them: `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens.
+The core `SKILL.md` is 164 lines, 1,378 words, and 2,080 tokens with the o200k tokenizer. That is about 1 percent of a 200,000-token context window, added once when the skill loads. The references load only when the model needs them: `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens.
 
 Before the split, the single file was 5,589 tokens. The up-front load is 63 percent smaller.
 

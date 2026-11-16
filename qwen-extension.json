@@ -1,6 +1,6 @@
 {
   "name": "succinct",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Succinct output for Qwen Code: answer first, numbered steps, next action last, no AI tells, plain Simplified Technical English, and visible progress.",
   "skills": "skills"
 }
