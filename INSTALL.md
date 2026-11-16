@@ -122,7 +122,7 @@ The hook only fires when the flag file exists, so installing the plugin changes 
 
 The hook needs no Node install. It runs `hooks/always-on.sh` with `sh` on macOS and Linux and in Git Bash on Windows. When Git Bash is missing, Claude Code passes the same command line to PowerShell, and `hooks/always-on.ps1` loads the ruleset instead.
 
-Claude Code limits one hook's text to 10,000 characters. The core is 8,166 characters, so the hook delivers the whole core. The reference files stay on disk and load only on demand.
+Claude Code limits one hook's text to 10,000 characters. The core is 8,170 characters, so the hook delivers the whole core. The reference files stay on disk and load only on demand.
 
 </details>
 

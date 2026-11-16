@@ -60,7 +60,7 @@ If anything is open, name ONE action under two minutes. Skip it under an output 
 
 ## 4. Suppress tangents
 
-Finish the first issue; offer a second separately. Answer a mid-work question yourself and fold it in; surface it once at the end if not.
+Finish the first issue; offer a second separately. Answer a mid-work question yourself and fold it in; surface it once at the end if it needs the reader.
 
 ## 5. Restate state every turn
 
@@ -92,7 +92,7 @@ Rewrite machine-made prose without changing meaning. Do not invent. Every kept s
 
 ## Never invent a fact
 
-Names, numbers, dates, quotes, citations, and facts come from the source. Ask for a detail or simplify. An opinion is allowed; a factual claim is not. Never claim an action you did not take. Fiction is exempt.
+Names, numbers, dates, quotes, citations, and facts come from the source or the writer. Ask for a detail or simplify. An opinion is allowed; a factual claim is not. Never claim an action you did not take. Fiction is exempt.
 
 ## The tells
 
@@ -100,7 +100,7 @@ Names, numbers, dates, quotes, citations, and facts come from the source. Ask fo
 2. **Closers and fragments.** Cut repeating one-line closers; merge fragments. No ALL CAPS or periods between words.
 3. **Deep-sounding sayings, staged run-ups, arguing with no one.** Cut all three; keep any real claim.
 4. **Outright leftovers.** Remove chatbot residue, knowledge-limit guesses, heading echoes, and history. Never present a guess as a fact.
-5. **Stock AI words.** Cut the full list in the reference. A formal word outside that list is not a tell.
+5. **Stock AI words.** Cut the reference list. A formal word outside it is not a tell.
 
 25 tells, weak-alone markers: `references/patterns.md`.
 
@@ -150,7 +150,7 @@ Delete a first sentence that announces the task, a recapping last, any sidebar, 
 
 Read back every compressed line. Check each Never, Always, Don't, or Only line and destructive flag against its source; if unsure, write the longer version.
 
-Then check: no not-X-but-Y, one-line closer, dash, triad, bold label, or chatbot residue. No list over 5 or phase over 5. Last line is content. Steps: 20 words or fewer, no semicolons, one term, active voice. First and last line state the next action and result.
+Then check: no not-X-but-Y, one-line closer, dash, triad, bold label, or chatbot residue. No list or phase over 5. Last line is content. Steps: 20 words or fewer, no semicolons, one term, active voice. First and last line state the next action and result.
 
 Send.
 

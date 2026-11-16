@@ -98,7 +98,7 @@ The source of truth is the core [skills/succinct/SKILL.md](skills/succinct/SKILL
 
 ## What it costs
 
-The core is 1,994 o200k tokens: 161 lines, 1,315 words. It loads once at session start, through `/succinct`, a hook, or an extension, and it stays in context for the session. The references load only when the model needs them. `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens. Counts use `tiktoken` with the `o200k_base` encoding.
+The core is 1,993 o200k tokens: 161 lines, 1,315 words. It loads once at session start, through `/succinct`, a hook, or an extension, and it stays in context for the session. The references load only when the model needs them. `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens. Counts use `tiktoken` with the `o200k_base` encoding.
 
 Before the split the single file was 5,589 tokens, 311 lines, and 3,897 words. The up-front load is 64 percent smaller.
 
