@@ -19,7 +19,7 @@ body:
     id: evidence
     attributes:
       label: Evidence
-      description: "A real example of the problem text, or the agent documentation for the integration. The skill has a 400-line budget, so name what your proposal replaces, not only what it adds."
+      description: "A real example of the problem text, or the agent documentation for the integration. The skill has a 200-line core budget, so name what your proposal replaces, not only what it adds."
     validations:
       required: true
   - type: textarea

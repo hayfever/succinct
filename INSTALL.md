@@ -122,7 +122,7 @@ The hook only fires when the flag file exists, so installing the plugin changes 
 
 The hook needs no Node install. It runs `hooks/always-on.sh` with `sh` on macOS and Linux and in Git Bash on Windows. When Git Bash is missing, Claude Code passes the same command line to PowerShell, and `hooks/always-on.ps1` loads the ruleset instead.
 
-Claude Code limits one hook's text to 10,000 characters. The ruleset is larger than that, so Claude receives a preview and the path of a saved copy. Shorten `skills/succinct/SKILL.md` below 10,000 characters if you need the whole text in context.
+Claude Code limits one hook's text to 10,000 characters. The core is 8,166 characters, so the hook delivers the whole core. The reference files stay on disk and load only on demand.
 
 </details>
 
@@ -378,7 +378,7 @@ Add the [always-on snippet](#always-on-snippet) to `~/.kimi-code/AGENTS.md`.
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-OpenCode 2 loads this repository as a local plugin. The plugin in `.opencode/plugins/succinct/` registers the `/succinct` command and appends the ruleset to the system prompt when always-on is on. The `skills` entry adds the skill itself, so the `skill` tool can load it.
+OpenCode 2 loads this repository as a local plugin. The plugin in `.opencode/plugins/succinct/` registers the `/succinct` command and appends the core ruleset to the system prompt when always-on is on. The `skills` entry adds the skill itself, so the `skill` tool can load it.
 
 OpenCode 1 cannot load this plugin. Its plugin API is different, and OpenCode 2 does not run OpenCode 1 plugins.
 
@@ -433,7 +433,7 @@ Remove the `plugins` and `skills` entries from `opencode.json`.
 touch ~/.config/opencode/.succinct-always
 ```
 
-While the flag exists, the plugin appends the full ruleset to the system prompt of every model request. `stop succinct mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
+While the flag exists, the plugin appends the core ruleset to the system prompt of every model request. `stop succinct mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
 
 ```bash
 rm ~/.config/opencode/.succinct-always
@@ -726,7 +726,7 @@ Paste the [always-on snippet](#always-on-snippet) into your agent's persistent r
 
 1. **Installed, not invoked.** In Claude Code, Qwen Code, and Codex, nothing happens until you invoke the skill explicitly. Claude Code and Qwen Code honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `skills/succinct/agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
 2. **You invoke it explicitly.** Type `/succinct` in Claude Code or Gemini CLI, or `/succinct:succinct` in Qwen Code, or `$succinct` in Codex. Rules stay on for that session. "stop succinct mode" or "normal mode" turns them off.
-3. **You touch `~/.claude/.succinct-always`** (Claude Code, Codex) or `~/.config/opencode/.succinct-always` (OpenCode) or `~/.pi/agent/.succinct-always` (Pi, OMP). A hook or extension loads the full ruleset from message one, every session.
+3. **You touch `~/.claude/.succinct-always`** (Claude Code, Codex) or `~/.config/opencode/.succinct-always` (OpenCode) or `~/.pi/agent/.succinct-always` (Pi, OMP). A hook or extension loads the core ruleset from message one, every session.
 4. **You add the always-on snippet** (other harnesses). Keeps the core rules in your agent's persistent context.
 
 In Claude Code, Qwen Code, and Codex, no middle ground: if you did not turn it on, it is off.

@@ -1,5 +1,5 @@
-# SessionStart hook fallback for Windows PowerShell. Injects the full
-# succinct ruleset when the user has opted in by creating
+# SessionStart hook fallback for Windows PowerShell. Injects the succinct
+# core ruleset when the user has opted in by creating
 # $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude).
 # Never blocks session start: any failure exits 0.
 #

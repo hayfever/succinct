@@ -78,6 +78,16 @@ class PackageContractTest(unittest.TestCase):
         )
         self.assertIn("{{args}}", toml)
 
+    def test_skill_points_at_its_reference_files(self):
+        skill = (ROOT / "skills" / "succinct" / "SKILL.md").read_text(encoding="utf8")
+        for relative in (
+            "skills/succinct/references/patterns.md",
+            "skills/succinct/references/plain-english.md",
+        ):
+            self.assertTrue((ROOT / relative).is_file(), relative)
+        self.assertIn("references/patterns.md", skill)
+        self.assertIn("references/plain-english.md", skill)
+
     def test_all_runtime_files_reference_the_canonical_skill(self):
         markers = {
             "extensions/succinct.ts": '"SKILL.md",',
@@ -173,6 +183,26 @@ class PackageGateTest(unittest.TestCase):
 
         self.assertNotEqual(0, result.returncode)
         self.assertIn(".cursor/skills/succinct/SKILL.md", result.stdout + result.stderr)
+        self.assertIn("out of date", result.stdout + result.stderr)
+
+    def test_validator_rejects_stale_mirror_reference(self):
+        path = (
+            self.root
+            / ".cursor"
+            / "skills"
+            / "succinct"
+            / "references"
+            / "patterns.md"
+        )
+        path.write_text("# Patterns\n\nDrift.\n", encoding="utf8")
+
+        result = self.run_validator()
+
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn(
+            ".cursor/skills/succinct/references/patterns.md",
+            result.stdout + result.stderr,
+        )
         self.assertIn("out of date", result.stdout + result.stderr)
 
 

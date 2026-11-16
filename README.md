@@ -90,11 +90,17 @@ Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the fo
 
 **Shape (10 rules).** Lead with the next action. Number multi-step tasks. End with one concrete next action. Suppress tangents. Restate state every turn. Specific time estimates. Make wins visible. Matter-of-fact errors. Cap lists at 5 items. No preamble, no recap, no closers.
 
-**Sound human (25 tells).** Cut the machine habits, strongest first: not-X-but-Y contrasts, one-line closers, sayings that sound deep, staged run-ups, arguing with no one, forced triads, repeated openings, dashes everywhere, stacked qualifiers, hyphenated pairs, passive voice, stock AI words ("delve", "pivotal", "robust"), inflated significance, vague connections, shallow -ing riders, sales language, borrowed authority, avoiding "is/are/has", bold decoration, decorative headings, curly quotes, chatbot residue, knowledge-limit guesses, heading echoes, and writing about the previous version.
+**Sound human (25 tells).** The core carries the five strongest tells: not-X-but-Y contrasts, one-line closers, deep-sounding sayings, staged run-ups, and arguing with no one. It also cuts chatbot residue, knowledge-limit guesses, heading echoes, history of the previous version, and stock AI words. The full catalog, with examples and weak-alone markers, is in [references/patterns.md](skills/succinct/references/patterns.md).
 
-**Write plain (STE).** One word, one meaning ("ensure" becomes "make sure", "perform" becomes "do", "shall" becomes "must"). No phrasal verbs. Verbs act; nouns sit. Active voice; imperative steps. 20 words per step, 25 per description. No semicolons. Keep articles, subjects, and "that". No contractions. Conditions first, then the command. One technical term per item. Multi-word nouns of three words or fewer.
+**Write plain (STE).** The core summarizes the rules: one word, one meaning ("ensure" becomes "make sure", "perform" becomes "do", "shall" becomes "must"). No phrasal verbs. Verbs act; nouns sit. Active voice; imperative steps. 20 words per step, 25 per description. No semicolons. Keep articles, subjects, and "that". No contractions. Conditions first, then the command. One technical term per item. Multi-word nouns of three words or fewer. Full detail and replacement lists are in [references/plain-english.md](skills/succinct/references/plain-english.md).
 
-The source of truth is [skills/succinct/SKILL.md](skills/succinct/SKILL.md). Every harness above loads that one file.
+The source of truth is the core [skills/succinct/SKILL.md](skills/succinct/SKILL.md) plus its two reference files. Every harness above loads the core file. The references load only on demand.
+
+## What it costs
+
+The core is 1,994 o200k tokens: 161 lines, 1,315 words. It loads once at session start, through `/succinct`, a hook, or an extension, and it stays in context for the session. The references load only when the model needs them. `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens. Counts use `tiktoken` with the `o200k_base` encoding.
+
+Before the split the single file was 5,589 tokens, 311 lines, and 3,897 words. The up-front load is 64 percent smaller.
 
 ## Always-on
 

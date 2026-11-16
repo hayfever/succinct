@@ -67,7 +67,11 @@ VERSIONED_MANIFESTS = (
 
 REQUIRED_FILES = (
     "skills/succinct/SKILL.md",
+    "skills/succinct/references/patterns.md",
+    "skills/succinct/references/plain-english.md",
     ".cursor/skills/succinct/SKILL.md",
+    ".cursor/skills/succinct/references/patterns.md",
+    ".cursor/skills/succinct/references/plain-english.md",
     "skills/succinct/agents/openai.yaml",
     "commands/succinct.toml",
     "GEMINI.md",
@@ -173,8 +177,8 @@ skill_version = require_match(
     "Add metadata.version to SKILL.md as a three-part version",
 ).group(1)
 
-if len(SKILL.splitlines()) > 400:
-    raise SystemExit("Keep skills/succinct/SKILL.md at 400 lines or fewer")
+if len(SKILL.splitlines()) > 200:
+    raise SystemExit("Keep skills/succinct/SKILL.md at 200 lines or fewer")
 
 # Only one skill, and its folder name must match the frontmatter name.
 skill_files = {path.relative_to(ROOT) for path in ROOT.rglob("SKILL.md")}
@@ -267,19 +271,42 @@ if tomllib is not None:
     except tomllib.TOMLDecodeError as error:
         raise SystemExit(f"Fix the TOML in commands/succinct.toml: {error}")
 
-# Rule numbering: Part 1 has rules 1 to 10, Part 2 has 25 tells, in order.
+# Rule numbering: Part 1 has rules 1 to 10 in the core. The core keeps the
+# five strongest tells; the reference keeps all 25. The reference also keeps
+# Part 3's 15 numbered rules.
 shape_rules = [
     int(number) for number in re.findall(r"(?m)^## ([0-9]+)\. ", SKILL)
 ]
 if shape_rules != list(range(1, 11)):
     raise SystemExit(f"Number the ten shape rules 1 to 10 in order: {shape_rules}")
 
-tells_section = SKILL.split("## The tells")[1].split("## When not to act")[0]
+core_tells_section = SKILL.split("## The tells")[1].split("## When not to act")[0]
+core_tells = [
+    int(number)
+    for number in re.findall(r"(?m)^([0-9]+)\. \*\*", core_tells_section)
+]
+if core_tells != list(range(1, 6)):
+    raise SystemExit(f"Number the five core tells 1 to 5 in order: {core_tells}")
+
+PATTERNS = read(ROOT / "skills/succinct/references/patterns.md")
+tells_section = PATTERNS.split("## The tells")[1].split("## When not to act")[0]
 tells = [
     int(number) for number in re.findall(r"(?m)^([0-9]+)\. \*\*", tells_section)
 ]
 if tells != list(range(1, 26)):
-    raise SystemExit(f"Number the tells 1 to 25 without gaps: {tells}")
+    raise SystemExit(f"Number the 25 tells 1 to 25 without gaps: {tells}")
+
+PLAIN = read(ROOT / "skills/succinct/references/plain-english.md")
+plain_section = PLAIN.split("# Part 3")[1].split("## Quoted text")[0]
+plain_rules = [
+    int(number) for number in re.findall(r"(?m)^([0-9]+)\. ", plain_section)
+]
+if plain_rules != list(range(1, 16)):
+    raise SystemExit(f"Number the 15 plain rules 1 to 15 in order: {plain_rules}")
+
+for marker in ("references/patterns.md", "references/plain-english.md"):
+    if marker not in SKILL:
+        raise SystemExit(f"SKILL.md must point at {marker}")
 
 # Runtime entry points must point at the canonical skill and use succinct phrases.
 for relative, marker in (

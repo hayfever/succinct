@@ -10,6 +10,8 @@ All notable changes to succinct are documented here. The format follows [Keep a 
 
 ### Changed
 
+- The skill is now a 1,994-token core plus two reference files. `skills/succinct/references/patterns.md` keeps the full 25-tell catalog and `plain-english.md` keeps the STE detail. The core points to both and stands alone when they are not reachable. The Cursor mirror now copies the whole skill folder, and `scripts/build_adapters.py --check` catches reference drift.
+- The core `skills/succinct/SKILL.md` is limited to 200 lines. `scripts/validate-package.py` checks the core rule numbering, the 25 tells, and the 15 STE rules in the references.
 - Pi and OMP: the bare `/succinct` toggle and the stop phrases (`stop succinct mode`, `normal mode`) apply to the current session only. Only `/succinct on` and `/succinct off` save the choice for future sessions. This reverses the 1.1.0 behaviour, where every toggle wrote the choice to the agent config.
 - The Pi/OMP extension writes `succinct.json` through a temporary file and a rename, so a concurrent session never reads a partial file. An unreadable file is reported once, left as it is, and the toggle stays session-only.
 - OpenCode: the plugin moved from `.opencode/plugins/succinct.mjs` to `.opencode/plugins/succinct/index.js`. `opencode.json` uses the `plugins` and `skills` keys.

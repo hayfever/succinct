@@ -139,6 +139,9 @@ class AlwaysOnHookTest(unittest.TestCase):
         )
         self.assertIn(".succinct-always", result.stdout)
         self.assertIn("## 1. Lead with the next action", result.stdout)
+        self.assertIn("references/patterns.md", result.stdout)
+        self.assertIn("references/plain-english.md", result.stdout)
+        self.assertIn("The core stands alone", result.stdout)
         # The YAML frontmatter is stripped, so the injected text starts with the
         # banner and the body, not with the skill's metadata block.
         self.assertNotIn("description: >-", result.stdout.split("\n\n", 1)[1][:500])
