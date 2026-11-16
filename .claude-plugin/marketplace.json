@@ -1,14 +1,14 @@
 {
   "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
   "name": "succinct",
-  "description": "Action-first, human, plain output for Claude Code and OMP. ADHD-friendly shape, no AI tells, Simplified Technical English.",
+  "description": "Answer-first, human, plain output for Claude Code and OMP. ADHD-friendly shape, no AI tells, Simplified Technical English.",
   "owner": {
     "name": "Hayden Luckenbach"
   },
   "plugins": [
     {
       "name": "succinct",
-      "description": "Action-first output shaping: ADHD-friendly structure, de-AI-ed prose, plain technical English.",
+      "description": "Answer-first output shaping: ADHD-friendly structure, de-AI-ed prose, plain technical English.",
       "source": "./",
       "category": "productivity"
     }

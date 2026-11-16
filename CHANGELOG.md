@@ -2,6 +2,12 @@
 
 All notable changes to succinct are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org).
 
+## [1.0.1] - 2026-11-16
+
+### Fixed
+
+- Rule 1 said to lead with the next action, which contradicted rule 3 (end with one concrete next action). Rule 1 is now "Lead with the answer": the first line is the answer or result. The next action goes last. The pre-send check, the slash commands, the always-on snippet, the manifest descriptions, and the eval rubric now say the same.
+
 ## [1.0.0] - 2026-11-15
 
 First release of succinct: one output style for coding agents. It leads with the next action, strips AI writing tells, and writes technical text in plain Simplified Technical English.

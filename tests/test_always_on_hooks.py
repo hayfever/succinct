@@ -138,7 +138,7 @@ class AlwaysOnHookTest(unittest.TestCase):
             result.stdout[:200],
         )
         self.assertIn(".succinct-always", result.stdout)
-        self.assertIn("## 1. Lead with the next action", result.stdout)
+        self.assertIn("## 1. Lead with the answer", result.stdout)
         self.assertIn("references/patterns.md", result.stdout)
         self.assertIn("references/plain-english.md", result.stdout)
         self.assertIn("The core stands alone", result.stdout)
@@ -224,7 +224,7 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("SUCCINCT MODE ACTIVE (always-on).", result.stdout)
-        self.assertIn("## 1. Lead with the next action", result.stdout)
+        self.assertIn("## 1. Lead with the answer", result.stdout)
 
     def test_session_start_command_is_silent_without_opt_in_flag(self):
         result = self.run_session_start_command(path_without("node"))
@@ -271,7 +271,7 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("SUCCINCT MODE ACTIVE (always-on).", result.stdout)
-        self.assertIn("## 1. Lead with the next action", result.stdout)
+        self.assertIn("## 1. Lead with the answer", result.stdout)
 
     def test_codex_powershell_command_skips_the_sh_check(self):
         # Codex runs the PowerShell hook on its own, so a POSIX shell on PATH

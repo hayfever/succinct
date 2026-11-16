@@ -1,12 +1,12 @@
 {
   "name": "succinct",
-  "version": "1.0.0",
-  "description": "One output style: lead with the next action (ADHD-friendly), strip AI tells from prose, write technical text in plain Simplified Technical English.",
+  "version": "1.0.1",
+  "description": "One output style: answer first, next action last (ADHD-friendly), strip AI tells from prose, write technical text in plain Simplified Technical English.",
   "license": "MIT",
   "homepage": "https://github.com/hayfever/succinct",
   "skills": "./skills/",
   "interface": {
     "displayName": "Succinct",
-    "shortDescription": "Action-first, human, plain output for Kimi Code CLI"
+    "shortDescription": "Answer-first, human, plain output for Kimi Code CLI"
   }
 }

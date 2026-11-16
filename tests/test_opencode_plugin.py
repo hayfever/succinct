@@ -86,7 +86,7 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertTrue(part["text"].startswith("SUCCINCT MODE ACTIVE (always-on)."), part["text"][:80])
         self.assertIn(str(self.config_dir / "opencode" / ".succinct-always"), part["text"])
         self.assertNotIn("name: succinct", part["text"])
-        self.assertIn("Lead with the action.", part["text"])
+        self.assertIn("Answer first, next action last.", part["text"])
 
     def test_strips_frontmatter_with_trailing_whitespace(self):
         self.write_skill("---   \nname: fixture\n--- \t\nFixture body.\n")
