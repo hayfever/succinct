@@ -1,7 +1,7 @@
 {
   "name": "succinct",
   "version": "1.0.0",
-  "description": "Succinct output for Codex: action first, numbered steps, no AI tells, plain Simplified Technical English, and visible progress.",
+  "description": "Succinct output for Codex: answer first, numbered steps, next action last, no AI tells, plain Simplified Technical English, and visible progress.",
   "author": {
     "name": "Hayden Luckenbach",
     "url": "https://github.com/hayfever"
@@ -22,8 +22,8 @@
   "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "Succinct",
-    "shortDescription": "Action-first, human, plain output",
-    "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible. Strip AI writing tells from all prose and write technical text in plain Simplified Technical English.",
+    "shortDescription": "Answer-first, human, plain output",
+    "longDescription": "Shape Codex responses for an ADHD reader by leading with the answer, ending on one next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible. Strip AI writing tells from all prose and write technical text in plain Simplified Technical English.",
     "developerName": "Hayden Luckenbach",
     "category": "Productivity",
     "capabilities": [
@@ -32,7 +32,7 @@
     "websiteURL": "https://github.com/hayfever/succinct",
     "defaultPrompt": [
       "Use succinct for this task.",
-      "Make this answer action-first and easy to execute.",
+      "Put the answer first and the next action last.",
       "Rewrite this text without AI tells, in plain English."
     ],
     "brandColor": "#2563EB"

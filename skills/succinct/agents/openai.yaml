@@ -1,7 +1,7 @@
 interface:
   display_name: "Succinct"
-  short_description: "Action-first, human, plain output"
-  default_prompt: "Use $succinct to make this response action-first and easy to execute."
+  short_description: "Answer-first, human, plain output"
+  default_prompt: "Use $succinct to put the answer first and the next action last."
 
 policy:
   allow_implicit_invocation: false
