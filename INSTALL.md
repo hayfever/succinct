@@ -4,6 +4,19 @@ The canonical skill is `skills/succinct/SKILL.md`. Every agent that reads agent 
 
 This repository lives at `https://github.com/hayfever/succinct`. If you forked it, swap `hayfever/succinct` for your own `owner/repo` in every command below. Local copies work everywhere: the "without the CLI" fallback in each section is a folder copy, and several marketplaces accept a local path (Claude Code: the path must point at the repo root).
 
+## Contents
+
+| Section | Section |
+|---|---|
+| [Always-on snippet](#always-on-snippet) | [OpenCode](#opencode) |
+| [Antigravity](#antigravity) | [Pi](#pi) |
+| [Claude Code](#claude-code) | [OMP](#omp) |
+| [Codex](#codex) | [Qwen Code](#qwen-code) |
+| [Gemini CLI](#gemini-cli) | [Zed](#zed) |
+| [GitHub Copilot](#github-copilot) | [Cursor, Amp, and any other agent-skills harness](#agent-skills-harnesses) |
+| [Hermes](#hermes) | [How activation works](#how-activation-works) |
+| [Kimi Code](#kimi-code) | [Troubleshooting](#troubleshooting) |
+
 ## Always-on snippet
 
 Reusable in every agent's persistent rules file. One copy; each agent section below points here.
@@ -29,6 +42,7 @@ Write plain: active voice, imperative steps, steps of 20 words or fewer, no semi
 Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
 ```
 
+<a id="antigravity"></a>
 <details>
 <summary><strong>Antigravity (<code>agy</code>)</strong></summary>
 
@@ -65,6 +79,7 @@ Add the [always-on snippet](#always-on-snippet) to `~/.gemini/GEMINI.md`.
 
 </details>
 
+<a id="claude-code"></a>
 <details>
 <summary><strong>Claude Code</strong></summary>
 
@@ -126,6 +141,7 @@ Claude Code limits one hook's text to 10,000 characters. The core is 8,170 chara
 
 </details>
 
+<a id="codex"></a>
 <details>
 <summary><strong>Codex</strong></summary>
 
@@ -182,6 +198,7 @@ Do not want Codex to run plugin hooks at all? Add the [always-on snippet](#alway
 
 </details>
 
+<a id="gemini-cli"></a>
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
@@ -234,6 +251,7 @@ Add the [always-on snippet](#always-on-snippet) to `~/.gemini/GEMINI.md`.
 
 </details>
 
+<a id="github-copilot"></a>
 <details>
 <summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
 
@@ -289,6 +307,7 @@ Add the [always-on snippet](#always-on-snippet) to `.github/copilot-instructions
 
 </details>
 
+<a id="hermes"></a>
 <details>
 <summary><strong>Hermes</strong></summary>
 
@@ -334,6 +353,7 @@ Add the [always-on snippet](#always-on-snippet) to the `AGENTS.md` in your worki
 
 </details>
 
+<a id="kimi-code"></a>
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
@@ -375,6 +395,7 @@ Add the [always-on snippet](#always-on-snippet) to `~/.kimi-code/AGENTS.md`.
 
 </details>
 
+<a id="opencode"></a>
 <details>
 <summary><strong>OpenCode</strong></summary>
 
@@ -441,6 +462,7 @@ rm ~/.config/opencode/.succinct-always
 
 </details>
 
+<a id="pi"></a>
 <details>
 <summary><strong>Pi</strong></summary>
 
@@ -540,6 +562,7 @@ Plain Pi renders extension statuses on their own footer line below the stats row
 
 </details>
 
+<a id="omp"></a>
 <details>
 <summary><strong>Oh My Pi (OMP)</strong></summary>
 
@@ -592,6 +615,7 @@ Or set `"alwaysOn": true` in `~/.omp/agent/succinct.json`. The stop phrases and 
 
 </details>
 
+<a id="qwen-code"></a>
 <details>
 <summary><strong>Qwen Code</strong></summary>
 
@@ -631,6 +655,7 @@ Add the [always-on snippet](#always-on-snippet) to `~/.qwen/QWEN.md`.
 
 </details>
 
+<a id="zed"></a>
 <details>
 <summary><strong>Zed</strong></summary>
 
@@ -671,6 +696,7 @@ Add the [always-on snippet](#always-on-snippet) to your personal `~/.config/zed/
 
 </details>
 
+<a id="agent-skills-harnesses"></a>
 <details>
 <summary><strong>Cursor, Amp, and any other agent-skills harness</strong></summary>
 

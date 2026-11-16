@@ -1,10 +1,12 @@
-[![Validate](https://github.com/hayfever/succinct/actions/workflows/validate.yml/badge.svg)](https://github.com/hayfever/succinct/actions/workflows/validate.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/hayfever/succinct?sort=semver)](https://github.com/hayfever/succinct/releases/latest)
+<p align="center"><img src="docs/succinct-banner.webp" alt="succinct: lead with the next action, sound human, write plain" width="100%"></p>
 
-# succinct
+<p align="center">
+  <a href="https://github.com/hayfever/succinct/actions/workflows/validate.yml"><img src="https://github.com/hayfever/succinct/actions/workflows/validate.yml/badge.svg" alt="Validate"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/hayfever/succinct/releases/latest"><img src="https://img.shields.io/github/v/release/hayfever/succinct?sort=semver" alt="Release"></a>
+</p>
 
-One output style for coding agents: lead with the next action, sound like a person, write plain English.
+An output style for coding agents, built for readers with ADHD: lead with the next action, sound like a person, write plain English.
 
 ## Before
 
@@ -40,75 +42,79 @@ claude plugin install succinct@succinct
 Codex:
 
 ```bash
-codex plugin marketplace add hayfever/succinct
+codex plugin marketplace add hayfever/succinct --ref main
 codex plugin add succinct@succinct
 ```
 
-Any agent, through the skills CLI:
+Every harness, with the command to type after install:
 
-```bash
-npx skills add hayfever/succinct
-```
+| Harness | Install | Type | Always-on | INSTALL |
+|---|---|---|---|---|
+| Claude Code | see block above | `/succinct` | flag file, `SessionStart` hook | [Claude Code](INSTALL.md#claude-code) |
+| Codex | see block above | `$succinct` | flag file, `SessionStart` hook | [Codex](INSTALL.md#codex) |
+| Gemini CLI | `gemini extensions install https://github.com/hayfever/succinct` | `/succinct` | snippet | [Gemini CLI](INSTALL.md#gemini-cli) |
+| Kimi Code | `/plugins install https://github.com/hayfever/succinct` | `/skill:succinct:succinct` | snippet | [Kimi Code](INSTALL.md#kimi-code) |
+| Qwen Code | `qwen extensions install hayfever/succinct` | `/succinct:succinct` | snippet | [Qwen Code](INSTALL.md#qwen-code) |
+| OpenCode 2 | see INSTALL | `/succinct` | flag file | [OpenCode](INSTALL.md#opencode) |
+| Pi | `pi install https://github.com/hayfever/succinct` | `/succinct` | flag file, `succinct.json` | [Pi](INSTALL.md#pi) |
+| OMP | see INSTALL | `/succinct` | flag file, `succinct.json` | [OMP](INSTALL.md#omp) |
+| Cursor | `npx skills add hayfever/succinct -a cursor -y` | `/succinct` | snippet, user rules | [Cursor and Amp](INSTALL.md#agent-skills-harnesses) |
+| GitHub Copilot | `npx skills add hayfever/succinct -a github-copilot` | `/succinct` | snippet | [GitHub Copilot](INSTALL.md#github-copilot) |
+| Zed | see INSTALL, Skills manager URL | `/succinct` | snippet | [Zed](INSTALL.md#zed) |
+| Antigravity | `agy plugin install https://github.com/hayfever/succinct` | none documented | snippet | [Antigravity](INSTALL.md#antigravity) |
+| Hermes | `hermes skills install hayfever/succinct/skills/succinct` | `/succinct` | snippet | [Hermes](INSTALL.md#hermes) |
+| Amp | `npx skills add hayfever/succinct` | `/succinct` | snippet | [Cursor and Amp](INSTALL.md#agent-skills-harnesses) |
+| Any skills CLI agent | `npx skills add hayfever/succinct` | `/succinct` | snippet | [Any skills CLI agent](INSTALL.md#agent-skills-harnesses) |
 
-Gemini CLI, Kimi Code, Qwen Code, OpenCode, Pi, OMP, Cursor, GitHub Copilot, Zed, Antigravity, and Amp have their own routes. See [INSTALL.md](INSTALL.md).
-
-## Supported harnesses
-
-| Harness | Loads | Last verified |
-| --- | --- | --- |
-| Claude Code | `.claude-plugin/plugin.json` | not yet verified |
-| Codex | `.codex-plugin/plugin.json` | not yet verified |
-| Gemini CLI | `gemini-extension.json` | not yet verified |
-| Kimi Code | `kimi.plugin.json` | not yet verified |
-| Qwen Code | `qwen-extension.json` | not yet verified |
-| OpenCode | `opencode.json` | not yet verified |
-| Pi | `package.json` | not yet verified |
-| OMP | `package.json` | not yet verified |
-| Cursor | `.cursor/skills/succinct/SKILL.md` | not yet verified |
-| GitHub Copilot | `skills/succinct/SKILL.md` | not yet verified |
-| Zed | `skills/succinct/SKILL.md` | not yet verified |
-| Amp | `skills/succinct/SKILL.md` | not yet verified |
-| Antigravity | `plugin.json` | not yet verified |
-| Skills CLI | `skills/succinct/SKILL.md` | not yet verified |
-
-Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. No harness version is pinned in this repository, so every row says not yet verified. A row gets a version once CI pins one.
-
-Edit only `skills/succinct/SKILL.md`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
-
-## Activate
-
-Type the command for your harness:
-
-- `/succinct` in Claude Code, Gemini CLI, OpenCode, Pi, and OMP
-- `$succinct` in Codex
-- `/succinct:succinct` in Qwen Code (extension skills carry the extension name)
-- `/skill:succinct:succinct` in Kimi Code
+Always-on: "snippet" means the rules go in the agent's persistent rules file (`CLAUDE.md`, `AGENTS.md`, Cursor user rules, and so on). One copy lives in [INSTALL.md](INSTALL.md#always-on-snippet). "Flag file" is the one-line version: a `SessionStart` hook or extension loads the full ruleset at session start. Each section in INSTALL.md shows the exact path.
 
 Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
 
+## Supported harnesses
+
+| Harness | Loads | Status |
+| --- | --- | --- |
+| Claude Code | `.claude-plugin/plugin.json` | manifest checked in CI |
+| Codex | `.codex-plugin/plugin.json` | loads in CI |
+| Gemini CLI | `gemini-extension.json` | loads in CI |
+| Kimi Code | `kimi.plugin.json` | install documented |
+| Qwen Code | `qwen-extension.json` | install documented |
+| OpenCode | `opencode.json` | loads in CI |
+| Pi | `package.json` | loads in CI |
+| OMP | `package.json` | loads in CI |
+| Cursor | `.cursor/skills/succinct/SKILL.md` | install documented |
+| GitHub Copilot | `skills/succinct/SKILL.md` | install documented |
+| Zed | `skills/succinct/SKILL.md` | install documented |
+| Amp | `skills/succinct/SKILL.md` | install documented |
+| Antigravity | `plugin.json` | install documented |
+| Hermes | `skills/succinct/SKILL.md` | install documented |
+| Skills CLI | `skills/succinct/SKILL.md` | install documented |
+
+Every plugin row resolves to `skills/succinct/SKILL.md`, the canonical ruleset. "Loads in CI" means a job in `.github/workflows/validate.yml` installs the latest harness CLI and loads this checkout with no model request. For Claude Code, CI runs `claude plugin validate . --strict` on the manifests. "Install documented" means the route in [INSTALL.md](INSTALL.md) is written out, but CI does not run that harness.
+
+Edit only `skills/succinct/SKILL.md` and its `references/`. Run `python3 scripts/build_adapters.py` to rebuild the generated files.
+
 ## The rules
 
-**Shape (10 rules).** Lead with the next action. Number multi-step tasks. End with one concrete next action. Suppress tangents. Restate state every turn. Specific time estimates. Make wins visible. Matter-of-fact errors. Cap lists at 5 items. No preamble, no recap, no closers.
+The [canonical skill](skills/succinct/SKILL.md) is a 164-line core in three parts. Two reference files hold the full detail.
 
-**Sound human (25 tells).** The core carries the five strongest tells: not-X-but-Y contrasts, one-line closers, deep-sounding sayings, staged run-ups, and arguing with no one. It also cuts chatbot residue, knowledge-limit guesses, heading echoes, history of the previous version, and stock AI words. The full catalog, with examples and weak-alone markers, is in [references/patterns.md](skills/succinct/references/patterns.md).
+- Shape: ten rules that make an answer actable for a reader with ADHD, from the next action in line one to the five-item list cap. ([Part 1](skills/succinct/SKILL.md#part-1-shape-the-response))
+- Sound human: 25 patterns that mark text as machine-made, strongest first, from [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing). The core carries the five strongest. The full catalog is in [references/patterns.md](skills/succinct/references/patterns.md). Keep every supported claim; never invent a fact. ([Part 2](skills/succinct/SKILL.md#part-2-sound-like-a-person))
+- Write plain: Simplified Technical English, the controlled standard behind aerospace maintenance docs. Active voice, imperative steps, steps of 20 words or fewer, one term per item. Replacement lists are in [references/plain-english.md](skills/succinct/references/plain-english.md). ([Part 3](skills/succinct/SKILL.md#part-3-write-plain-simplified-technical-english))
 
-**Write plain (STE).** The core summarizes the rules: one word, one meaning ("ensure" becomes "make sure", "perform" becomes "do", "shall" becomes "must"). No phrasal verbs. Verbs act; nouns sit. Active voice; imperative steps. 20 words per step, 25 per description. No semicolons. Keep articles, subjects, and "that". No contractions. Conditions first, then the command. One technical term per item. Multi-word nouns of three words or fewer. Full detail and replacement lists are in [references/plain-english.md](skills/succinct/references/plain-english.md).
+### What it costs
 
-The source of truth is the core [skills/succinct/SKILL.md](skills/succinct/SKILL.md) plus its two reference files. Every harness above loads the core file. The references load only on demand.
+The core `SKILL.md` is 164 lines, 1,359 words, and 2,055 tokens with the o200k tokenizer. That is about 1 percent of a 200,000-token context window, added once when the skill loads. The references load only when the model needs them: `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens.
 
-## What it costs
+Before the split, the single file was 5,589 tokens. The up-front load is 63 percent smaller.
 
-The core is 2,055 o200k tokens: 164 lines, 1,359 words. It loads once at session start, through `/succinct`, a hook, or an extension, and it stays in context for the session. The references load only when the model needs them. `patterns.md` is 2,046 tokens and `plain-english.md` is 1,141 tokens. Counts use `tiktoken` with the `o200k_base` encoding.
-
-Before the split the single file was 5,589 tokens, 311 lines, and 3,897 words. The up-front load is 63 percent smaller.
-
-## Always-on
-
-Every agent has a persistent-rules route. Paste the always-on snippet from [INSTALL.md](INSTALL.md#always-on-snippet) into your agent's rules file (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`, Cursor user rules, and so on). Claude Code, Codex, OpenCode, and Pi/OMP also support flag-file always-on; see each agent's section.
+Every harness above loads the core file. The ASD standard is a free download; this skill summarizes its writing rules and does not reproduce the dictionary.
 
 ## Tune it
 
-Fork, edit `skills/succinct/SKILL.md`, then swap your copy in:
+Fork the repo, edit `skills/succinct/SKILL.md`, then reinstall from your fork. Every harness in the table installs a fork the same way: swap `hayfever/succinct` for `owner/repo`.
+
+Claude Code, as an example:
 
 ```bash
 claude plugin uninstall succinct            # drop the upstream copy first:
@@ -117,11 +123,11 @@ claude plugin marketplace add <your-username>/succinct
 claude plugin install succinct@succinct
 ```
 
-Restart Claude Code, then re-invoke `/succinct`.
+Restart the harness, then invoke the skill again.
 
 ## Results
 
-Paired eval on 17 cases, 3 trials per case, judged blind: baseline weighted 4.46, candidate weighted 4.76. The candidate carries one blocking finding, a wrong PKCE test vector, and the baseline carries two. Numbers, per-dimension means, and gate rule: [evals/RESULTS.md](evals/RESULTS.md).
+Paired eval of the shipped core on 17 cases, 3 trials per case, judged blind: baseline weighted 4.48, candidate weighted 4.75. The candidate carries no blocking finding and the baseline carries one. The candidate loaded only the core `SKILL.md`, with no reference file. Numbers, per-dimension means, earlier rounds, and the gate rule: [evals/RESULTS.md](evals/RESULTS.md).
 
 ## Credits
 
