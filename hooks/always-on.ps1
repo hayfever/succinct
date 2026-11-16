@@ -1,6 +1,9 @@
 # SessionStart hook fallback for Windows PowerShell. Injects the succinct
 # core ruleset when the user has opted in by creating
-# $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude).
+# $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude). A choice saved with
+# "/succinct on" or "/succinct off" (toggle.ps1) outranks the flag: it lives
+# in succinct.json in the same directory, or in $CODEX_HOME (default
+# ~/.codex) when Codex passes -Codex.
 # Never blocks session start: any failure exits 0.
 #
 # hooks/hooks.json runs always-on.sh first. Claude Code passes the command line
@@ -10,7 +13,8 @@
 # hooks/codex-hooks.json, where no sh branch ran, so it passes -SkipShellCheck.
 
 param(
-  [switch]$SkipShellCheck
+  [switch]$SkipShellCheck,
+  [switch]$Codex
 )
 
 try {
@@ -24,8 +28,32 @@ try {
     Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
   }
   $flagPath = Join-Path $claudeDir ".succinct-always"
+  if ($Codex) {
+    $codexDir = if ($env:CODEX_HOME) {
+      $env:CODEX_HOME
+    } else {
+      Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex"
+    }
+    $statePath = Join-Path $codexDir "succinct.json"
+    $offCommand = '$succinct off'
+  } else {
+    $statePath = Join-Path $claudeDir "succinct.json"
+    $offCommand = '/succinct off'
+  }
 
-  if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
+  # The saved choice wins. Without one, fire only when the user has opted in
+  # with the flag.
+  $saved = ""
+  if (Test-Path -LiteralPath $statePath -PathType Leaf) {
+    $compact = [System.IO.File]::ReadAllText($statePath) -replace '\s', ''
+    if ($compact -match '"enabled":(true|false)') {
+      $saved = $Matches[1]
+    }
+  }
+  if ($saved -eq "false") {
+    exit 0
+  }
+  if ($saved -ne "true" -and -not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
     exit 0
   }
 
@@ -56,8 +84,8 @@ try {
   }
 
   $banner = 'SUCCINCT MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
-    '"stop succinct mode" turns it off for this session; delete '
-  $text = $banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n"
+    '"stop succinct mode" turns it off for this session; "'
+  $text = $banner + $offCommand + '" turns it off for future sessions.' + "`n`n" + $body + "`n"
 
   # Write UTF-8 bytes to the raw stdout stream so a redirected pipe keeps the
   # text intact instead of re-encoding it through the console code page.

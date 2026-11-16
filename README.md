@@ -50,8 +50,8 @@ Every harness, with the command to type after install:
 
 | Harness | Install | Type | Always-on | INSTALL |
 |---|---|---|---|---|
-| Claude Code | see block above | `/succinct` | flag file, `SessionStart` hook | [Claude Code](INSTALL.md#claude-code) |
-| Codex | see block above | `$succinct` | flag file, `SessionStart` hook | [Codex](INSTALL.md#codex) |
+| Claude Code | see block above | `/succinct` | flag file, `succinct.json` | [Claude Code](INSTALL.md#claude-code) |
+| Codex | see block above | `$succinct` | flag file, `succinct.json` | [Codex](INSTALL.md#codex) |
 | Gemini CLI | `gemini extensions install https://github.com/hayfever/succinct` | `/succinct` | snippet | [Gemini CLI](INSTALL.md#gemini-cli) |
 | Kimi Code | `/plugins install https://github.com/hayfever/succinct` | `/skill:succinct:succinct` | snippet | [Kimi Code](INSTALL.md#kimi-code) |
 | Qwen Code | `qwen extensions install hayfever/succinct` | `/succinct:succinct` | snippet | [Qwen Code](INSTALL.md#qwen-code) |
@@ -68,7 +68,7 @@ Every harness, with the command to type after install:
 
 Always-on: "snippet" means the rules go in the agent's persistent rules file (`CLAUDE.md`, `AGENTS.md`, Cursor user rules, and so on). One copy lives in [INSTALL.md](INSTALL.md#always-on-snippet). "Flag file" is the one-line version: a `SessionStart` hook or extension loads the full ruleset at session start. Each section in INSTALL.md shows the exact path.
 
-Rules stay on until "stop succinct mode" or "normal mode". In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
+Rules stay on until "stop succinct mode" or "normal mode". In Claude Code, Codex, Pi, and OMP, `/succinct on` or `/succinct off` (`$succinct on` or `$succinct off` in Codex) saves the choice in `succinct.json` for future sessions, and it outranks the flag file. The stop phrases and a bare `/succinct` change only the current session. In Pi and OMP, the footer shows `● SUCCINCT ON` while the mode is active, and `pi --succinct` starts with the mode on.
 
 ## Supported harnesses
 

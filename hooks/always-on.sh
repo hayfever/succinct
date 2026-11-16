@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 # SessionStart hook: injects the succinct core ruleset when the user has
 # opted in by creating $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude).
+# A choice saved with "/succinct on" or "/succinct off" (toggle.sh) outranks
+# the flag: it lives in succinct.json in the same directory, or in
+# $CODEX_HOME (default ~/.codex) when Codex passes --codex.
 # Never blocks session start: any failure exits 0.
 #
 # hooks/hooks.json runs this script first with sh, which is on every macOS and
@@ -16,9 +19,26 @@
 
 claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 flag_path="$claude_dir/.succinct-always"
+if [ "${1:-}" = "--codex" ]; then
+  state_path="${CODEX_HOME:-$HOME/.codex}/succinct.json"
+  off_command='$succinct off'
+else
+  state_path="$claude_dir/succinct.json"
+  off_command='/succinct off'
+fi
 
-# Only fire when the user has opted in.
-[ -f "$flag_path" ] || exit 0
+# The saved choice wins. Without one, fire only when the user has opted in
+# with the flag.
+saved=""
+if [ -f "$state_path" ]; then
+  saved=$(tr -d ' \t\r\n' < "$state_path" 2>/dev/null |
+    sed -E -n 's/.*"enabled":(true|false).*/\1/p')
+fi
+case "$saved" in
+  false) exit 0 ;;
+  true) ;;
+  *) [ -f "$flag_path" ] || exit 0 ;;
+esac
 
 # $0 is the path substituted into hooks.json by the harness, so resolve
 # SKILL.md relative to it instead of trusting an exported environment variable.
@@ -41,5 +61,5 @@ body=$(awk '
   !skipping { print }
 ' "$skill_path" "$skill_path") || exit 0
 
-printf 'SUCCINCT MODE ACTIVE (always-on). The ruleset below applies to every response. "stop succinct mode" turns it off for this session; delete %s to turn always-on off for good.\n\n%s\n' \
-  "$flag_path" "$body"
+printf 'SUCCINCT MODE ACTIVE (always-on). The ruleset below applies to every response. "stop succinct mode" turns it off for this session; "%s" turns it off for future sessions.\n\n%s\n' \
+  "$off_command" "$body"

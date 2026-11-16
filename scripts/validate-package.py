@@ -79,6 +79,8 @@ REQUIRED_FILES = (
     "extensions/context-compat.ts",
     "hooks/always-on.sh",
     "hooks/always-on.ps1",
+    "hooks/toggle.sh",
+    "hooks/toggle.ps1",
     "hooks/hooks.json",
     "hooks/codex-hooks.json",
     ".opencode/command/succinct.md",
@@ -247,7 +249,12 @@ for relative in (".claude-plugin/marketplace.json", ".agents/plugins/marketplace
 
 # Hook commands name the scripts that do the work. Read the decoded command
 # strings so JSON escaping does not hide the path.
-HOOK_SCRIPTS = ("hooks/always-on.sh", "hooks/always-on.ps1")
+HOOK_SCRIPTS = (
+    "hooks/always-on.sh",
+    "hooks/always-on.ps1",
+    "hooks/toggle.sh",
+    "hooks/toggle.ps1",
+)
 for relative in ("hooks/hooks.json", "hooks/codex-hooks.json"):
     data = json.loads(read(ROOT / relative))
     commands: list[str] = []
