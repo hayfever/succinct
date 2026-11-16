@@ -1,5 +1,5 @@
 {
-  "description": "Load the succinct ruleset at session start when the user opted in with the .succinct-always flag or saved /succinct on, and save /succinct on or /succinct off for future sessions.",
+  "description": "Load the succinct ruleset at session start while the .succinct-always flag exists. /succinct on creates the flag and /succinct off deletes it.",
   "hooks": {
     "SessionStart": [
       {

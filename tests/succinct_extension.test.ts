@@ -199,14 +199,14 @@ async function startAgent(
   return agent;
 }
 
-function writeConfig(config: unknown): void {
-  writeFileSync(join(agentDir, "succinct.json"), JSON.stringify(config), "utf8");
+const FLAG = () => join(agentDir, ".succinct-always");
+
+function optIn(): void {
+  writeFileSync(FLAG(), "", "utf8");
 }
 
-function readConfigFile(): Record<string, unknown> {
-  return JSON.parse(
-    readFileSync(join(agentDir, "succinct.json"), "utf8"),
-  ) as Record<string, unknown>;
+function flagExists(): boolean {
+  return existsSync(FLAG());
 }
 
 function rulesCount(agent: FakeAgent): number {
@@ -226,34 +226,25 @@ function statusOn(agent: FakeAgent): boolean {
 }
 
 describe("startup", () => {
-  test("starts off on demand", async () => {
+  test("starts off without the flag file", async () => {
     const agent = await startAgent();
 
     expect(rulesCount(agent)).toBe(0);
     expect(disabledCount(agent)).toBe(0);
     expect(statusOn(agent)).toBe(false);
-    expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
+    expect(flagExists()).toBe(false);
   });
 
-  test("--succinct starts enabled without saving a preference", async () => {
+  test("--succinct starts enabled without creating the flag", async () => {
     const agent = await startAgent({ flag: true });
 
     expect(rulesCount(agent)).toBe(1);
     expect(statusOn(agent)).toBe(true);
-    expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
-  });
-
-  test("alwaysOn starts enabled and hideStatus hides the status", async () => {
-    writeConfig({ alwaysOn: true, hideStatus: true });
-
-    const agent = await startAgent();
-
-    expect(rulesCount(agent)).toBe(1);
-    expect(statusOn(agent)).toBe(false);
+    expect(flagExists()).toBe(false);
   });
 
   test(".succinct-always starts enabled", async () => {
-    writeFileSync(join(agentDir, ".succinct-always"), "", "utf8");
+    optIn();
 
     const agent = await startAgent();
 
@@ -261,55 +252,66 @@ describe("startup", () => {
     expect(statusOn(agent)).toBe(true);
   });
 
-  test("a saved off choice outranks alwaysOn and the flag file", async () => {
-    writeConfig({ enabled: false, alwaysOn: true });
-    writeFileSync(join(agentDir, ".succinct-always"), "", "utf8");
+  test("a succinct.json file has no effect", async () => {
+    writeFileSync(
+      join(agentDir, "succinct.json"),
+      JSON.stringify({ enabled: true, alwaysOn: true }),
+      "utf8",
+    );
 
     const agent = await startAgent();
 
     expect(rulesCount(agent)).toBe(0);
-    expect(statusOn(agent)).toBe(false);
-  });
-
-  test("--succinct outranks a saved off choice for that run", async () => {
-    writeConfig({ enabled: false });
-
-    const agent = await startAgent({ flag: true });
-
-    expect(rulesCount(agent)).toBe(1);
-    expect(readConfigFile()).toEqual({ enabled: false });
+    expect(agent.notifications).toHaveLength(0);
   });
 });
 
 describe("toggles", () => {
-  test("bare /succinct toggles this session only", async () => {
+  test("bare /succinct turns the mode on for this session only", async () => {
     const agent = await startAgent();
 
     await agent.runCommand("");
 
     expect(rulesCount(agent)).toBe(1);
     expect(statusOn(agent)).toBe(true);
-    expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
+    expect(flagExists()).toBe(false);
     expect(agent.notifications.at(-1)?.text).toContain("this session only");
 
     await agent.runCommand("");
 
-    expect(disabledCount(agent)).toBe(1);
-    expect(statusOn(agent)).toBe(false);
-    expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
+    expect(rulesCount(agent)).toBe(1);
+    expect(statusOn(agent)).toBe(true);
+
+    const nextSession = await startAgent();
+    expect(rulesCount(nextSession)).toBe(0);
   });
 
-  test("/succinct off saves the choice and keeps other settings", async () => {
-    writeConfig({ hideStatus: true, alwaysOn: false });
+  test("/succinct on creates the flag and the next session starts on", async () => {
+    const agent = await startAgent();
+
+    await agent.runCommand("on");
+
+    expect(flagExists()).toBe(true);
+    expect(readFileSync(FLAG(), "utf8")).toBe("");
+    expect(rulesCount(agent)).toBe(1);
+    expect(agent.notifications.at(-1)?.text).toContain(
+      "saved for future sessions",
+    );
+
+    const nextSession = await startAgent();
+    expect(rulesCount(nextSession)).toBe(1);
+    expect(statusOn(nextSession)).toBe(true);
+  });
+
+  test("/succinct off deletes the flag and the next session starts off", async () => {
+    optIn();
 
     const agent = await startAgent();
     await agent.runCommand("off");
 
-    expect(readConfigFile()).toEqual({
-      hideStatus: true,
-      alwaysOn: false,
-      enabled: false,
-    });
+    expect(flagExists()).toBe(false);
+    expect(statusOn(agent)).toBe(false);
+    expect(disabledCount(agent)).toBe(1);
     expect(agent.notifications.at(-1)?.text).toContain(
       "saved for future sessions",
     );
@@ -318,30 +320,36 @@ describe("toggles", () => {
     expect(rulesCount(nextSession)).toBe(0);
   });
 
-  test("/succinct on saves the choice for the next session", async () => {
-    writeConfig({ enabled: false });
-
+  test("/succinct off without a flag is not an error", async () => {
     const agent = await startAgent();
-    expect(rulesCount(agent)).toBe(0);
 
-    await agent.runCommand("on");
+    await agent.runCommand("off");
 
-    expect(readConfigFile()).toEqual({ enabled: true });
-    expect(rulesCount(agent)).toBe(1);
-
-    const nextSession = await startAgent();
-    expect(rulesCount(nextSession)).toBe(1);
-    expect(statusOn(nextSession)).toBe(true);
+    expect(flagExists()).toBe(false);
+    expect(agent.notifications.at(-1)).toEqual({
+      text: "Succinct mode disabled (saved for future sessions)",
+      type: "info",
+    });
   });
 
-  test("/succinct stop ends this session without saving", async () => {
-    const agent = await startAgent({ flag: true });
+  test("/succinct on creates a missing agent directory", async () => {
+    rmSync(agentDir, { recursive: true, force: true });
+
+    const agent = await startAgent();
+    await agent.runCommand("on");
+
+    expect(flagExists()).toBe(true);
+  });
+
+  test("/succinct stop ends this session and keeps the flag", async () => {
+    optIn();
+    const agent = await startAgent();
 
     await agent.runCommand("stop");
 
     expect(statusOn(agent)).toBe(false);
     expect(disabledCount(agent)).toBe(1);
-    expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
+    expect(flagExists()).toBe(true);
   });
 
   test("/succinct with an unknown argument shows usage", async () => {
@@ -356,28 +364,29 @@ describe("toggles", () => {
     expect(agent.entries).toHaveLength(0);
   });
 
-  test("the save leaves no temporary file behind", async () => {
+  test("the flag is the only file written", async () => {
     const agent = await startAgent();
 
     await agent.runCommand("on");
 
-    expect(readdirSync(agentDir)).toEqual(["succinct.json"]);
+    expect(readdirSync(agentDir)).toEqual([".succinct-always"]);
   });
 });
 
 describe("stop phrases", () => {
   for (const phrase of ["stop succinct mode", "normal mode"]) {
     test(`"${phrase}" ends the session only`, async () => {
-      const agent = await startAgent({ flag: true });
+      optIn();
+      const agent = await startAgent();
 
       const result = await agent.fireInput(phrase);
 
       expect(result).toEqual({ action: "handled" });
       expect(statusOn(agent)).toBe(false);
       expect(disabledCount(agent)).toBe(1);
-      expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
+      expect(flagExists()).toBe(true);
 
-      const nextSession = await startAgent({ flag: true });
+      const nextSession = await startAgent();
       expect(rulesCount(nextSession)).toBe(1);
     });
   }
@@ -406,7 +415,7 @@ describe("stop phrases", () => {
     });
     expect(rulesCount(agent)).toBe(1);
     expect(statusOn(agent)).toBe(true);
-    expect(existsSync(join(agentDir, "succinct.json"))).toBe(false);
+    expect(flagExists()).toBe(false);
   });
 });
 
@@ -415,7 +424,7 @@ describe("session state and compaction", () => {
     const agent = await startAgent({ flag: true });
     expect(rulesCount(agent)).toBe(1);
 
-    await agent.runCommand("");
+    await agent.fireInput("stop succinct mode");
     await agent.fire("session_start");
 
     expect(rulesCount(agent)).toBe(1);
@@ -455,41 +464,5 @@ describe("session state and compaction", () => {
 
     expect(rulesCount(agent)).toBe(2);
     expect(disabledCount(agent)).toBe(1);
-  });
-});
-
-describe("unusable config", () => {
-  test("warns once, uses defaults, and leaves the file untouched", async () => {
-    const corrupt = "{ this is not json";
-    writeFileSync(join(agentDir, "succinct.json"), corrupt, "utf8");
-
-    const agent = await startAgent();
-
-    expect(rulesCount(agent)).toBe(0);
-    expect(agent.notifications).toHaveLength(1);
-    expect(agent.notifications[0]?.type).toBe("warning");
-    expect(agent.notifications[0]?.text).toContain("Cannot parse");
-
-    await agent.fire("session_tree");
-    expect(agent.notifications).toHaveLength(1);
-
-    await agent.runCommand("off");
-    expect(
-      readFileSync(join(agentDir, "succinct.json"), "utf8"),
-    ).toBe(corrupt);
-    expect(agent.notifications.at(-1)?.text).toContain(
-      "this session only",
-    );
-    expect(statusOn(agent)).toBe(false);
-  });
-
-  test("a JSON array is not a valid config", async () => {
-    writeConfig([1, 2, 3]);
-
-    const agent = await startAgent();
-
-    expect(agent.notifications).toHaveLength(1);
-    expect(agent.notifications[0]?.text).toContain("JSON object");
-    expect(rulesCount(agent)).toBe(0);
   });
 });

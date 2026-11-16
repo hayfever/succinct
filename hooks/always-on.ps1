@@ -1,9 +1,8 @@
 # SessionStart hook fallback for Windows PowerShell. Injects the succinct
-# core ruleset when the user has opted in by creating
-# $CLAUDE_CONFIG_DIR/.succinct-always (default ~/.claude). A choice saved with
-# "/succinct on" or "/succinct off" (toggle.ps1) outranks the flag: it lives
-# in succinct.json in the same directory, or in $CODEX_HOME (default
-# ~/.codex) when Codex passes -Codex.
+# core ruleset when the flag file $CLAUDE_CONFIG_DIR/.succinct-always (default
+# ~/.claude) exists. Codex passes -Codex, which reads
+# $CODEX_HOME/.succinct-always (default ~/.codex) instead. "/succinct on"
+# creates the flag and "/succinct off" deletes it (toggle.ps1).
 # Never blocks session start: any failure exits 0.
 #
 # hooks/hooks.json runs always-on.sh first. Claude Code passes the command line
@@ -22,38 +21,18 @@ try {
     exit 0
   }
 
-  $claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
-    $env:CLAUDE_CONFIG_DIR
-  } else {
-    Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
-  }
-  $flagPath = Join-Path $claudeDir ".succinct-always"
+  $userProfile = [Environment]::GetFolderPath("UserProfile")
   if ($Codex) {
-    $codexDir = if ($env:CODEX_HOME) {
-      $env:CODEX_HOME
-    } else {
-      Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex"
-    }
-    $statePath = Join-Path $codexDir "succinct.json"
+    $flagDir = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $userProfile ".codex" }
     $offCommand = '$succinct off'
   } else {
-    $statePath = Join-Path $claudeDir "succinct.json"
+    $flagDir = if ($env:CLAUDE_CONFIG_DIR) { $env:CLAUDE_CONFIG_DIR } else { Join-Path $userProfile ".claude" }
     $offCommand = '/succinct off'
   }
+  $flagPath = Join-Path $flagDir ".succinct-always"
 
-  # The saved choice wins. Without one, fire only when the user has opted in
-  # with the flag.
-  $saved = ""
-  if (Test-Path -LiteralPath $statePath -PathType Leaf) {
-    $compact = [System.IO.File]::ReadAllText($statePath) -replace '\s', ''
-    if ($compact -match '"enabled":(true|false)') {
-      $saved = $Matches[1]
-    }
-  }
-  if ($saved -eq "false") {
-    exit 0
-  }
-  if ($saved -ne "true" -and -not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
+  # Only fire when the flag exists.
+  if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
     exit 0
   }
 

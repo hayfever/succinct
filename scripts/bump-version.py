@@ -4,8 +4,8 @@
 Usage: python3 scripts/bump-version.py <new-version> [--from <old-version>]
 
 Sets version in package.json, then runs scripts/build_adapters.py to write
-metadata.version in skills/succinct/SKILL.md, the version in every plugin and
-extension manifest, and the Cursor mirror. Then scans the repository for the
+metadata.version in skills/succinct/SKILL.md and the version in every plugin
+manifest. Then scans the repository for the
 old version and fails if one remains, so a hard-coded version in a doc or badge
 cannot go stale. Reminds you about CHANGELOG.md, which stays hand-written.
 """

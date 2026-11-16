@@ -18,14 +18,9 @@ body:
         - codex plugin marketplace add
         - omp plugin marketplace add
         - pi install
-        - agy plugin install
-        - qwen extensions install
-        - gemini extensions install / command
+        - OpenCode plugin entry
         - npx skills add
-        - hermes skills install
-        - Kimi /plugins
-        - zed skill from URL
-        - folder copy
+        - always-on snippet in a rules file
     validations:
       required: true
   - type: input

@@ -1,8 +1,8 @@
 import {
   existsSync,
+  mkdirSync,
   readFileSync,
-  renameSync,
-  unlinkSync,
+  rmSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
@@ -25,7 +25,7 @@ const SKILL_PATH = join(
   "succinct",
   "SKILL.md",
 );
-const CONFIG_FILE = "succinct.json";
+const FLAG_FILE = ".succinct-always";
 const STATE_ENTRY_TYPE = "succinct-state";
 const RULES_MESSAGE_TYPE = "succinct-rules";
 const DISABLED_MESSAGE_TYPE = "succinct-disabled";
@@ -36,7 +36,7 @@ const STOP_PHRASES: Record<string, true> = {
   "normal mode": true,
 };
 const RULES_HEADER =
-  'SUCCINCT MODE ACTIVE. The ruleset below applies to every response until turned off. "stop succinct mode" and "normal mode" turn it off for this session only. Run /succinct on or /succinct off to save the choice for future sessions.';
+  'SUCCINCT MODE ACTIVE. The ruleset below applies to every response until turned off. "stop succinct mode" and "normal mode" turn it off for this session only. /succinct off turns it off for future sessions.';
 const DISABLED_NOTICE =
   "SUCCINCT MODE OFF. Ignore the succinct ruleset injected earlier in this conversation and return to your default response style.";
 
@@ -44,118 +44,32 @@ type SuccinctModeState = {
   enabled: boolean;
 };
 
-type SuccinctConfig = {
-  alwaysOn?: boolean;
-  hideStatus?: boolean;
-  /**
-   * Saved toggle state. Only an explicit /succinct on or /succinct off writes
-   * it, so it carries to future sessions and outranks the legacy always-on
-   * defaults. Session-only toggles never touch it.
-   */
-  enabled?: boolean;
-};
-
-type ConfigLoad =
-  | { ok: true; config: SuccinctConfig }
-  | { ok: false; config: SuccinctConfig; error: string };
-
-type PersistResult = { saved: boolean; error?: string };
-
-function configPath(): string {
-  return join(getAgentDir(), CONFIG_FILE);
+/**
+ * The flag file is the whole saved state: it exists while the mode is on for
+ * future sessions. /succinct on creates it and /succinct off deletes it.
+ */
+function flagPath(): string {
+  return join(getAgentDir(), FLAG_FILE);
 }
 
 function reason(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-/**
- * Read the preference file. A missing file is not an error; an unreadable or
- * invalid file returns an error so the caller can warn instead of silently
- * dropping the other settings.
- */
-function loadConfig(): ConfigLoad {
-  const path = configPath();
-
-  if (!existsSync(path)) {
-    return { ok: true, config: {} };
-  }
-
-  let raw: string;
-  try {
-    raw = readFileSync(path, "utf8");
-  } catch (error) {
-    return {
-      ok: false,
-      config: {},
-      error: `Cannot read ${path} (${reason(error)})`,
-    };
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (error) {
-    return {
-      ok: false,
-      config: {},
-      error: `Cannot parse ${path} as JSON (${reason(error)})`,
-    };
-  }
-
-  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
-    return {
-      ok: false,
-      config: {},
-      error: `${path} must contain a JSON object`,
-    };
-  }
-
-  return { ok: true, config: parsed as SuccinctConfig };
-}
-
-/**
- * Replace the preference file in one step: write a temporary file next to it
- * and rename it. A concurrent session sees either the old file or the new
- * one, never a partial write.
- */
-function writeConfig(config: SuccinctConfig): void {
-  const path = configPath();
-  const tempPath = `${path}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
-
-  writeFileSync(tempPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+/** Create or delete the flag file. Returns an error message on failure. */
+function saveFlag(on: boolean): string | undefined {
+  const path = flagPath();
 
   try {
-    renameSync(tempPath, path);
-  } catch (error) {
-    try {
-      unlinkSync(tempPath);
-    } catch {
-      // Keep the original error: the rename failure is the useful one.
+    if (on) {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, "", "utf8");
+    } else {
+      rmSync(path, { force: true });
     }
-    throw error;
-  }
-}
-
-/**
- * Save the toggle choice. A file that cannot be read is never overwritten:
- * the user keeps their settings, and the toggle stays session-only.
- */
-function persistEnabled(nextEnabled: boolean): PersistResult {
-  const loaded = loadConfig();
-
-  if (!loaded.ok) {
-    return { saved: false, error: loaded.error };
-  }
-
-  try {
-    writeConfig({ ...loaded.config, enabled: nextEnabled });
-    return { saved: true };
+    return undefined;
   } catch (error) {
-    return {
-      saved: false,
-      error: `Cannot write ${configPath()} (${reason(error)})`,
-    };
+    return `Cannot ${on ? "create" : "delete"} ${path} (${reason(error)})`;
   }
 }
 
@@ -187,7 +101,7 @@ function loadRules(): string {
   return rules;
 }
 
-function getSavedState(ctx: ExtensionContext): boolean | undefined {
+function getSessionState(ctx: ExtensionContext): boolean | undefined {
   let savedState: boolean | undefined;
 
   for (const entry of ctx.sessionManager.getBranch()) {
@@ -221,28 +135,10 @@ function rulesAreInContext(ctx: ExtensionContext): boolean {
 
 export default function succinctExtension(pi: ExtensionAPI) {
   const rules = loadRules();
-  const alwaysOnFlag = join(getAgentDir(), ".succinct-always");
   let enabled = false;
-  let hideStatus = false;
-  let configWarningShown = false;
-
-  /** Read the config, warning once per session when the file is unusable. */
-  const readConfig = (ctx: ExtensionContext): ConfigLoad => {
-    const loaded = loadConfig();
-
-    if (!loaded.ok && !configWarningShown) {
-      configWarningShown = true;
-      ctx.ui.notify(
-        `${loaded.error}. Succinct uses defaults and leaves the file untouched.`,
-        "warning",
-      );
-    }
-
-    return loaded;
-  };
 
   const updateStatus = (ctx: ExtensionContext): void => {
-    if (!enabled || hideStatus) {
+    if (!enabled) {
       ctx.ui.setStatus(STATUS_KEY, undefined);
       return;
     }
@@ -284,48 +180,34 @@ export default function succinctExtension(pi: ExtensionAPI) {
   };
 
   const restoreState = (ctx: ExtensionContext): void => {
-    const savedState = getSavedState(ctx);
-    const cliFlag = pi.getFlag("succinct") === true;
-    const { config } = readConfig(ctx);
-    const persisted = config.enabled;
-    const enabledByDefault = config.alwaysOn === true || existsSync(alwaysOnFlag);
-
-    hideStatus = config.hideStatus === true;
-
-    // A session's own history wins, then the persisted toggle, then the
-    // launch-time defaults. --succinct keeps force-on semantics for that run.
-    const defaultForSession = cliFlag
-      ? true
-      : typeof persisted === "boolean"
-        ? persisted
-        : enabledByDefault;
-    enabled = savedState ?? defaultForSession;
+    // A session's own history wins, so a reload or resume keeps its state.
+    // A new session starts from the flag file; --succinct forces it on for
+    // that run.
+    const startOn = pi.getFlag("succinct") === true || existsSync(flagPath());
+    enabled = getSessionState(ctx) ?? startOn;
     updateStatus(ctx);
     syncContext(ctx);
   };
 
   /**
-   * Change the mode. Only an explicit /succinct on or /succinct off saves the
-   * choice for future sessions; every other toggle lasts for this session.
+   * Change the mode. With save set, also create or delete the flag file so
+   * future sessions start the same way.
    */
   const setEnabled = (
     nextEnabled: boolean,
     ctx: ExtensionContext,
-    persist: boolean,
+    save: boolean,
   ): void => {
     enabled = nextEnabled;
     pi.appendEntry(STATE_ENTRY_TYPE, { enabled } satisfies SuccinctModeState);
 
     let saved = false;
-    if (persist) {
-      const result = persistEnabled(nextEnabled);
-      saved = result.saved;
+    if (save) {
+      const error = saveFlag(nextEnabled);
+      saved = error === undefined;
 
-      if (!result.saved) {
-        ctx.ui.notify(
-          `${result.error}. The choice applies to this session only.`,
-          "warning",
-        );
+      if (error !== undefined) {
+        ctx.ui.notify(`${error}. The choice applies to this session only.`, "warning");
       }
     }
 
@@ -346,12 +228,12 @@ export default function succinctExtension(pi: ExtensionAPI) {
   });
 
   pi.registerCommand("succinct", {
-    description: "Toggle for this session; 'on' or 'off' saves the choice",
+    description: "Turn on for this session; 'on' or 'off' also sets future sessions",
     handler: async (args, ctx) => {
       const argument = args.trim().toLowerCase();
 
       if (argument === "") {
-        setEnabled(!enabled, ctx, false);
+        setEnabled(true, ctx, false);
         return;
       }
 

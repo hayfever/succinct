@@ -48,21 +48,12 @@ class AlwaysOnHookTest(unittest.TestCase):
         # CODEX_HOME does not exist yet, so the toggle hook must create it.
         self.codex_home = Path(self.temp_dir.name) / "codex home"
 
-    def opt_in(self):
-        (self.config_dir / ".succinct-always").touch()
+    def flag(self, codex=False):
+        return (self.codex_home if codex else self.config_dir) / ".succinct-always"
 
-    def save(self, enabled, directory=None):
-        (directory or self.config_dir).mkdir(parents=True, exist_ok=True)
-        state = "true" if enabled else "false"
-        ((directory or self.config_dir) / "succinct.json").write_text(
-            f'{{"enabled": {state}}}\n', encoding="utf8"
-        )
-
-    def saved(self, directory=None):
-        path = (directory or self.config_dir) / "succinct.json"
-        if not path.exists():
-            return None
-        return json.loads(path.read_text(encoding="utf8"))["enabled"]
+    def opt_in(self, codex=False):
+        self.flag(codex).parent.mkdir(parents=True, exist_ok=True)
+        self.flag(codex).touch()
 
     def shell(self):
         return shutil.which("sh")
@@ -314,7 +305,7 @@ class AlwaysOnHookTest(unittest.TestCase):
             self.assertNotIn("node", text)
 
     def test_codex_sh_command_injects_the_ruleset(self):
-        self.opt_in()
+        self.opt_in(codex=True)
 
         result = self.run_session_start_command(
             path_without("node"), command=CODEX_SESSION_START["command"]
@@ -329,9 +320,9 @@ class AlwaysOnHookTest(unittest.TestCase):
         # does not mean the ruleset was already injected.
         if shutil.which("sh") is None:
             self.skipTest("no sh on PATH, so the plain deferral test covers this")
-        self.opt_in()
+        self.opt_in(codex=True)
 
-        result = self.run_powershell(extra_args=("-SkipShellCheck",))
+        result = self.run_powershell(extra_args=("-SkipShellCheck", "-Codex"))
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("", result.stderr)
@@ -358,86 +349,74 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertIn("${CLAUDE_PLUGIN_ROOT}", handler["command"])
         self.assertTrue(handler["command"].strip().endswith("exit 0"))
 
-    # Saved choice: "/succinct on" and "/succinct off" write succinct.json,
-    # which outranks the .succinct-always flag at the next session start.
+    # The flag file is the whole saved state: "/succinct on" creates it,
+    # "/succinct off" deletes it, and every session starts from it.
 
-    def test_saved_off_outranks_the_flag(self):
-        self.opt_in()
-        self.save(False)
+    def test_succinct_on_creates_the_flag_and_the_next_session_starts_on(self):
+        toggle = self.toggle("/succinct on")
 
-        result = self.run_sh()
-
-        self.assertEqual(0, result.returncode, result.stderr)
-        self.assertEqual("", result.stdout)
-        self.assertEqual("", result.stderr)
-
-    def test_saved_on_injects_without_the_flag(self):
-        self.save(True)
-
-        result = self.run_sh()
-
-        self.assertEqual(0, result.returncode, result.stderr)
-        self.assertIn("SUCCINCT MODE ACTIVE (always-on).", result.stdout)
-        self.assertIn("## 1. Lead with the answer", result.stdout)
-
-    def test_unreadable_saved_state_falls_back_to_the_flag(self):
-        (self.config_dir / "succinct.json").write_text("not json", encoding="utf8")
-
-        self.assertEqual("", self.run_sh().stdout)
-        self.opt_in()
+        self.assertEqual(0, toggle.returncode, toggle.stderr)
+        self.assertEqual("", toggle.stderr)
+        self.assertTrue(self.flag().is_file())
+        self.assertIn("The user ran /succinct on.", toggle.stdout)
         self.assertIn("SUCCINCT MODE ACTIVE (always-on).", self.run_sh().stdout)
 
-    def test_succinct_off_saves_off_and_the_next_session_starts_off(self):
+    def test_succinct_on_keeps_an_existing_flag(self):
+        self.opt_in()
+
+        self.toggle("/Succinct:succinct  ON \n")
+
+        self.assertTrue(self.flag().is_file())
+
+    def test_succinct_off_deletes_the_flag_and_the_next_session_starts_off(self):
         self.opt_in()
 
         toggle = self.toggle("/succinct off")
 
         self.assertEqual(0, toggle.returncode, toggle.stderr)
         self.assertEqual("", toggle.stderr)
-        self.assertIs(False, self.saved())
+        self.assertFalse(self.flag().exists())
         self.assertIn("The user ran /succinct off.", toggle.stdout)
         self.assertIn("Stop applying the succinct ruleset", toggle.stdout)
         self.assertEqual("", self.run_sh().stdout)
 
-    def test_succinct_on_saves_on_and_the_next_session_starts_on(self):
-        toggle = self.toggle("/succinct on")
+    def test_succinct_off_without_a_flag_is_not_an_error(self):
+        toggle = self.toggle("/succinct off")
 
         self.assertEqual(0, toggle.returncode, toggle.stderr)
-        self.assertIs(True, self.saved())
-        self.assertIn("The user ran /succinct on.", toggle.stdout)
-        self.assertIn("SUCCINCT MODE ACTIVE (always-on).", self.run_sh().stdout)
+        self.assertIn("The user ran /succinct off.", toggle.stdout)
+        self.assertFalse(self.flag().exists())
 
-    def test_succinct_on_replaces_a_saved_off(self):
-        self.save(False)
+    def test_toggle_writes_only_the_flag(self):
+        self.toggle("/succinct on")
 
-        self.toggle("/Succinct:succinct  ON \n")
+        self.assertEqual([".succinct-always"], sorted(p.name for p in self.config_dir.iterdir()))
 
-        self.assertIs(True, self.saved())
+    def test_session_only_prompts_leave_the_flag_alone(self):
+        for opted_in in (False, True):
+            if opted_in:
+                self.opt_in()
+            for prompt in (
+                "/succinct",
+                "$succinct",
+                "stop succinct mode",
+                "normal mode",
+                "/succinct on the README, please",
+                "please run /succinct off",
+                "",
+            ):
+                with self.subTest(prompt=prompt, opted_in=opted_in):
+                    result = self.toggle(prompt)
 
-    def test_session_only_toggles_save_nothing(self):
-        for prompt in (
-            "/succinct",
-            "$succinct",
-            "stop succinct mode",
-            "normal mode",
-            "/succinct on the README, please",
-            "please run /succinct off",
-            "",
-        ):
-            with self.subTest(prompt=prompt):
-                result = self.toggle(prompt)
+                    self.assertEqual(0, result.returncode, result.stderr)
+                    self.assertEqual("", result.stdout)
+                    self.assertEqual("", result.stderr)
+                    self.assertEqual(opted_in, self.flag().exists())
 
-                self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual("", result.stdout)
-                self.assertEqual("", result.stderr)
-                self.assertIsNone(self.saved())
-
-    def test_session_only_toggles_keep_the_flag_default(self):
+    def test_stop_phrase_keeps_the_next_session_on(self):
         self.opt_in()
-        for prompt in ("/succinct", "stop succinct mode", "normal mode"):
-            self.toggle(prompt)
+        self.toggle("stop succinct mode")
 
-        self.assertIsNone(self.saved())
         self.assertIn("SUCCINCT MODE ACTIVE (always-on).", self.run_sh().stdout)
 
     def test_toggle_ignores_input_that_is_not_json(self):
@@ -450,37 +429,31 @@ class AlwaysOnHookTest(unittest.TestCase):
             capture_output=True,
             text=True,
             env=self.hook_env(),
-            input="/succinct off",
+            input="/succinct on",
         )
 
         self.assertEqual(0, result.returncode)
         self.assertEqual("", result.stdout)
-        self.assertIsNone(self.saved())
+        self.assertFalse(self.flag().exists())
 
-    def test_codex_toggle_saves_in_codex_home(self):
-        toggle = self.toggle("$succinct off", codex=True)
+    def test_codex_toggle_uses_codex_home(self):
+        toggle = self.toggle("$succinct on", codex=True)
 
         self.assertEqual(0, toggle.returncode, toggle.stderr)
-        self.assertIn("The user ran $succinct off.", toggle.stdout)
-        self.assertIs(False, self.saved(self.codex_home))
-        # Claude Code keeps its own choice.
-        self.assertIsNone(self.saved())
+        self.assertIn("The user ran $succinct on.", toggle.stdout)
+        self.assertTrue(self.flag(codex=True).is_file())
+        # Claude Code keeps its own flag.
+        self.assertFalse(self.flag().exists())
 
-    def test_codex_saved_off_outranks_the_shared_flag(self):
+        self.toggle("$succinct off", codex=True)
+        self.assertFalse(self.flag(codex=True).exists())
+
+    def test_codex_session_start_reads_codex_home(self):
         self.opt_in()
-        self.save(False, self.codex_home)
+        self.assertEqual("", self.run_sh(extra_args=("--codex",)).stdout)
 
-        codex = self.run_sh(extra_args=("--codex",))
-        claude = self.run_sh()
-
-        self.assertEqual("", codex.stdout)
-        self.assertIn("SUCCINCT MODE ACTIVE (always-on).", claude.stdout)
-
-    def test_codex_saved_on_injects_without_the_flag(self):
-        self.save(True, self.codex_home)
-
+        self.opt_in(codex=True)
         result = self.run_sh(extra_args=("--codex",))
-
         self.assertIn("SUCCINCT MODE ACTIVE (always-on).", result.stdout)
         self.assertIn('"$succinct off" turns it off for future sessions', result.stdout)
 
@@ -492,26 +465,32 @@ class AlwaysOnHookTest(unittest.TestCase):
         for name in ("deploy", "succinct-extra", "other:succinct"):
             self.assertFalse(matcher.search(name), name)
 
-    def test_claude_expansion_command_saves_the_choice(self):
-        stdin = json.dumps(
-            {
-                "session_id": "test-session",
-                "hook_event_name": "UserPromptExpansion",
-                "expansion_type": "slash_command",
-                "command_name": "succinct",
-                "command_args": "off",
-                "command_source": "plugin",
-                "prompt": "/succinct off",
-            }
-        )
+    def test_claude_expansion_command_toggles_the_flag(self):
+        def expansion(args):
+            return json.dumps(
+                {
+                    "session_id": "test-session",
+                    "hook_event_name": "UserPromptExpansion",
+                    "expansion_type": "slash_command",
+                    "command_name": "succinct",
+                    "command_args": args,
+                    "command_source": "plugin",
+                    "prompt": f"/succinct {args}",
+                }
+            )
 
-        result = self.run_session_start_command(
-            path_without("node"), command=CLAUDE_TOGGLE_COMMAND, stdin=stdin
+        on = self.run_session_start_command(
+            path_without("node"), command=CLAUDE_TOGGLE_COMMAND, stdin=expansion("on")
         )
+        self.assertEqual(0, on.returncode, on.stderr)
+        self.assertIn("The user ran /succinct on.", on.stdout)
+        self.assertTrue(self.flag().is_file())
 
-        self.assertEqual(0, result.returncode, result.stderr)
-        self.assertIn("The user ran /succinct off.", result.stdout)
-        self.assertIs(False, self.saved())
+        off = self.run_session_start_command(
+            path_without("node"), command=CLAUDE_TOGGLE_COMMAND, stdin=expansion("off")
+        )
+        self.assertEqual(0, off.returncode, off.stderr)
+        self.assertFalse(self.flag().exists())
 
     def test_codex_prompt_hook_declares_sh_and_windows_commands(self):
         self.assertNotIn("matcher", CODEX_HOOKS["hooks"]["UserPromptSubmit"][0])
@@ -526,7 +505,7 @@ class AlwaysOnHookTest(unittest.TestCase):
         for text in (command, windows):
             self.assertNotIn("node", text)
 
-    def test_codex_prompt_command_saves_the_choice(self):
+    def test_codex_prompt_command_creates_the_flag(self):
         result = self.run_session_start_command(
             path_without("node"),
             command=CODEX_PROMPT_SUBMIT["command"],
@@ -534,19 +513,28 @@ class AlwaysOnHookTest(unittest.TestCase):
         )
 
         self.assertEqual(0, result.returncode, result.stderr)
-        self.assertIs(True, self.saved(self.codex_home))
+        self.assertTrue(self.flag(codex=True).is_file())
 
     def test_powershell_toggle_matches_the_sh_toggle(self):
         without_sh = path_without("sh")
         if shutil.which("sh", path=without_sh) is not None:
             self.skipTest("cannot hide sh from PATH on this machine")
 
-        for prompt, codex in (("/succinct off", False), ("$succinct on", True)):
+        for prompt, codex in (
+            ("/succinct on", False),
+            ("/succinct off", False),
+            ("$succinct on", True),
+            ("$succinct off", True),
+        ):
             with self.subTest(prompt=prompt):
+                before = self.flag(codex).exists()
                 sh_result = self.toggle(prompt, codex=codex)
-                state_dir = self.codex_home if codex else self.config_dir
-                sh_saved = self.saved(state_dir)
-                (state_dir / "succinct.json").unlink()
+                sh_flag = self.flag(codex).exists()
+                # Put the flag back the way it was so PowerShell does the same work.
+                if before:
+                    self.opt_in(codex)
+                else:
+                    self.flag(codex).unlink(missing_ok=True)
                 ps_result = self.run_powershell(
                     self.hook_env(without_sh),
                     script="toggle.ps1",
@@ -559,10 +547,11 @@ class AlwaysOnHookTest(unittest.TestCase):
                 self.assertEqual(
                     self.normalize(sh_result.stdout), self.normalize(ps_result.stdout)
                 )
-                self.assertEqual(sh_saved, self.saved(state_dir))
+                self.assertEqual(sh_flag, self.flag(codex).exists())
 
-    def test_powershell_toggle_saves_nothing_for_session_only_toggles(self):
+    def test_powershell_toggle_leaves_the_flag_alone_for_session_only_prompts(self):
         without_sh = path_without("sh")
+        self.opt_in()
         for prompt in ("/succinct", "stop succinct mode", "normal mode"):
             with self.subTest(prompt=prompt):
                 result = self.run_powershell(
@@ -571,32 +560,26 @@ class AlwaysOnHookTest(unittest.TestCase):
 
                 self.assertEqual(0, result.returncode, result.stderr)
                 self.assertEqual("", result.stdout)
-                self.assertIsNone(self.saved())
+                self.assertTrue(self.flag().is_file())
 
-    def test_powershell_saved_state_matches_the_sh_hook(self):
+    def test_powershell_codex_flag_matches_the_sh_hook(self):
         without_sh = path_without("sh")
         if shutil.which("sh", path=without_sh) is not None:
             self.skipTest("cannot hide sh from PATH on this machine")
         skill_path = self.plugin_root / "skills" / "succinct" / "SKILL.md"
         skill_path.write_text("---\nname: fixture\n---\nFixture body.\n")
 
-        for flag, saved, codex in (
-            (True, False, False),
-            (False, True, False),
-            (True, False, True),
-            (False, True, True),
-        ):
-            with self.subTest(flag=flag, saved=saved, codex=codex):
-                flag_path = self.config_dir / ".succinct-always"
-                flag_path.unlink(missing_ok=True)
-                if flag:
-                    self.opt_in()
-                self.save(saved, self.codex_home if codex else self.config_dir)
+        for codex_flag in (False, True):
+            with self.subTest(codex_flag=codex_flag):
+                self.opt_in()
+                if codex_flag:
+                    self.opt_in(codex=True)
+                else:
+                    self.flag(codex=True).unlink(missing_ok=True)
 
-                sh_result = self.run_sh(extra_args=("--codex",) if codex else ())
+                sh_result = self.run_sh(extra_args=("--codex",))
                 ps_result = self.run_powershell(
-                    self.hook_env(without_sh),
-                    extra_args=("-SkipShellCheck", "-Codex") if codex else (),
+                    self.hook_env(without_sh), extra_args=("-SkipShellCheck", "-Codex")
                 )
 
                 self.assertEqual(0, ps_result.returncode, ps_result.stderr)
@@ -604,8 +587,7 @@ class AlwaysOnHookTest(unittest.TestCase):
                 self.assertEqual(
                     self.normalize(sh_result.stdout), self.normalize(ps_result.stdout)
                 )
-                self.assertEqual(saved, bool(sh_result.stdout))
-
+                self.assertEqual(codex_flag, bool(sh_result.stdout))
 
 if __name__ == "__main__":
     unittest.main()

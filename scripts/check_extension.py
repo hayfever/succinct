@@ -20,7 +20,7 @@ from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parents[1]
 RPC_TIMEOUT_SECONDS = 30
-SHARED_MANIFEST_FIELDS = ("name", "version", "description", "license", "homepage")
+SHARED_MANIFEST_FIELDS = ("name", "version", "license", "homepage")
 
 # omp picks a default model while it starts, even in RPC mode with no prompt,
 # and exits when the agent dir has no catalog. The isolated agent dir therefore
@@ -41,11 +41,13 @@ OMP_MODEL_CATALOG = """providers:
 
 def validate_package_manifest() -> None:
     package = json.loads((ROOT / "package.json").read_text(encoding="utf8"))
-    kimi = json.loads((ROOT / "kimi.plugin.json").read_text(encoding="utf8"))
+    codex = json.loads(
+        (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf8")
+    )
 
     for field in SHARED_MANIFEST_FIELDS:
-        assert package.get(field) == kimi.get(field), (
-            f"package.json and kimi.plugin.json disagree on {field}"
+        assert package.get(field) == codex.get(field), (
+            f"package.json and .codex-plugin/plugin.json disagree on {field}"
         )
 
     assert package.get("pi") == {
@@ -193,14 +195,6 @@ def status_texts(events: list[dict[str, Any]]) -> list[str | None]:
         if event.get("type") == "extension_ui_request"
         and event.get("method") == "setStatus"
         and event.get("statusKey") == "succinct"
-    ]
-
-def notification_texts(events: list[dict[str, Any]]) -> list[str | None]:
-    return [
-        event.get("message")
-        for event in events
-        if event.get("type") == "extension_ui_request"
-        and event.get("method") == "notify"
     ]
 
 def message_count(entries_response: dict[str, Any], custom_type: str) -> int:
@@ -353,19 +347,19 @@ export default function (pi: ExtensionAPI) {
                 "Rules were injected twice for one active session"
             )
 
-            toggled_off, toggle_off_events = client.request(
-                "toggle-off",
-                {"type": "prompt", "message": "/succinct"},
-            )
-            assert toggled_off["success"] is True
-            assert None in status_texts(toggle_off_events)
+            flag = Path(agent_dir, ".succinct-always")
 
-            entries, _ = client.request("entries-toggled-off", {"type": "get_entries"})
+            stopped, stop_events = client.request(
+                "stop-phrase",
+                {"type": "prompt", "message": "normal mode"},
+            )
+            assert stopped["success"] is True
+            assert None in status_texts(stop_events)
+
+            entries, _ = client.request("entries-stopped", {"type": "get_entries"})
             assert latest_enabled(entries) is False
             assert message_count(entries, "succinct-disabled") == 1
-            assert not Path(agent_dir, "succinct.json").exists(), (
-                "The bare toggle wrote the preference file"
-            )
+            assert not flag.exists(), "The stop phrase created the flag file"
 
             reloaded, reload_events = client.request(
                 "reload-disabled",
@@ -378,28 +372,26 @@ export default function (pi: ExtensionAPI) {
             assert message_count(entries, "succinct-rules") == 1
             assert message_count(entries, "succinct-disabled") == 1
 
-            toggled_on, toggle_on_events = client.request(
-                "toggle-on",
+            bare, bare_events = client.request(
+                "bare-on",
                 {"type": "prompt", "message": "/succinct"},
             )
-            assert toggled_on["success"] is True
-            assert any("SUCCINCT ON" in (text or "") for text in status_texts(toggle_on_events))
+            assert bare["success"] is True
+            assert any("SUCCINCT ON" in (text or "") for text in status_texts(bare_events))
 
-            entries, _ = client.request("entries-toggled-on", {"type": "get_entries"})
+            entries, _ = client.request("entries-bare-on", {"type": "get_entries"})
             assert latest_enabled(entries) is True
             assert message_count(entries, "succinct-rules") == 2
-            assert not Path(agent_dir, "succinct.json").exists(), (
-                "The bare toggle wrote the preference file"
-            )
+            assert not flag.exists(), "The bare /succinct created the flag file"
 
             explicit_off, _ = client.request(
                 "explicit-off",
                 {"type": "prompt", "message": "/succinct off"},
             )
             assert explicit_off["success"] is True
-            assert json.loads(
-                Path(agent_dir, "succinct.json").read_text(encoding="utf8")
-            ) == {"enabled": False}
+            entries, _ = client.request("entries-off", {"type": "get_entries"})
+            assert latest_enabled(entries) is False
+            assert not flag.exists()
 
             skill, skill_events = client.request(
                 "skill-alias",
@@ -412,15 +404,17 @@ export default function (pi: ExtensionAPI) {
             assert latest_enabled(entries) is True
             assert message_count(entries, "succinct-rules") == 3
 
-            stopped, stop_events = client.request(
-                "stop-phrase",
-                {"type": "prompt", "message": "normal mode"},
+            explicit_on, _ = client.request(
+                "explicit-on",
+                {"type": "prompt", "message": "/succinct on"},
             )
-            assert stopped["success"] is True
-            assert None in status_texts(stop_events)
+            assert explicit_on["success"] is True
+            assert flag.is_file(), "/succinct on did not create the flag file"
 
-            entries, _ = client.request("entries-stopped", {"type": "get_entries"})
+            client.request("stop-again", {"type": "prompt", "message": "normal mode"})
+            entries, _ = client.request("entries-stopped-again", {"type": "get_entries"})
             assert latest_enabled(entries) is False
+            assert flag.is_file(), "The stop phrase deleted the flag file"
 
             passthrough_probe_flag.touch()
             passthrough, _ = client.request(
@@ -439,128 +433,39 @@ export default function (pi: ExtensionAPI) {
         finally:
             client.close()
 
-        # Only /succinct on and /succinct off write the preference file. The
-        # bare toggles and the stop phrase above changed this session only and
-        # left the explicit OFF choice in place.
-        persisted_config = json.loads(
-            Path(agent_dir, "succinct.json").read_text(encoding="utf8")
-        )
-        assert persisted_config == {"enabled": False}
-
-        persisted_off = RpcClient(executable, env, "--no-session", *extension_args)
+        # /succinct on left the flag in place, so a new session with no CLI
+        # flag starts on. /succinct off there deletes it again.
+        flagged = RpcClient(executable, env, "--no-session", *extension_args)
         try:
-            _, persisted_off_events = persisted_off.request(
-                "persisted-off", {"type": "get_state"},
+            _, flagged_events = flagged.request("flag-on", {"type": "get_state"})
+            assert any(
+                "SUCCINCT ON" in (text or "")
+                for text in status_texts(flagged_events)
             )
+            entries, _ = flagged.request("entries-flag-on", {"type": "get_entries"})
+            assert message_count(entries, "succinct-rules") == 1
+
+            flagged.request(
+                "flag-off", {"type": "prompt", "message": "/succinct off"},
+            )
+            assert not flag.exists(), "/succinct off did not delete the flag file"
+        finally:
+            flagged.close()
+
+        # Without the flag, a new session starts off.
+        unflagged = RpcClient(executable, env, "--no-session", *extension_args)
+        try:
+            _, unflagged_events = unflagged.request("flag-absent", {"type": "get_state"})
             assert not any(
                 "SUCCINCT ON" in (text or "")
-                for text in status_texts(persisted_off_events)
+                for text in status_texts(unflagged_events)
             )
-            entries, _ = persisted_off.request(
-                "entries-persisted-off", {"type": "get_entries"},
+            entries, _ = unflagged.request(
+                "entries-flag-absent", {"type": "get_entries"},
             )
             assert message_count(entries, "succinct-rules") == 0
         finally:
-            persisted_off.close()
-
-        # The legacy always-on flag still forces ON once the persisted
-        # preference is cleared.
-        Path(agent_dir, "succinct.json").unlink(missing_ok=True)
-        Path(agent_dir, ".succinct-always").touch()
-        always_on = RpcClient(
-            executable,
-            env,
-            "--no-session",
-            *extension_args,
-        )
-        try:
-            _, always_on_events = always_on.request(
-                "always-on",
-                {"type": "get_state"},
-            )
-            assert any(
-                "SUCCINCT ON" in (text or "")
-                for text in status_texts(always_on_events)
-            )
-        finally:
-            always_on.close()
-
-        # The persisted ON choice restores in a fresh session with no flags.
-        Path(agent_dir, ".succinct-always").unlink(missing_ok=True)
-        Path(agent_dir, "succinct.json").write_text(
-            json.dumps({"enabled": True}), encoding="utf8",
-        )
-        persisted_on = RpcClient(executable, env, "--no-session", *extension_args)
-        try:
-            _, persisted_on_events = persisted_on.request(
-                "persisted-on", {"type": "get_state"},
-            )
-            assert any(
-                "SUCCINCT ON" in (text or "")
-                for text in status_texts(persisted_on_events)
-            )
-            entries, _ = persisted_on.request(
-                "entries-persisted-on", {"type": "get_entries"},
-            )
-            assert message_count(entries, "succinct-rules") == 1
-        finally:
-            persisted_on.close()
-
-        # An explicit save keeps the other settings, and hideStatus still
-        # applies on the next start.
-        Path(agent_dir, "succinct.json").write_text(
-            json.dumps({"hideStatus": True}), encoding="utf8",
-        )
-        saved = RpcClient(executable, env, "--no-session", *extension_args)
-        try:
-            _, saved_events = saved.request(
-                "save-on",
-                {"type": "prompt", "message": "/succinct on"},
-            )
-            assert not any(
-                "SUCCINCT ON" in (text or "")
-                for text in status_texts(saved_events)
-            )
-            assert json.loads(
-                Path(agent_dir, "succinct.json").read_text(encoding="utf8")
-            ) == {"hideStatus": True, "enabled": True}
-            entries, _ = saved.request("entries-saved-on", {"type": "get_entries"})
-            assert message_count(entries, "succinct-rules") == 1
-        finally:
-            saved.close()
-
-        # A broken preference file is reported once and never overwritten.
-        Path(agent_dir, ".succinct-always").unlink(missing_ok=True)
-        corrupt = "{ this is not json"
-        Path(agent_dir, "succinct.json").write_text(corrupt, encoding="utf8")
-        broken = RpcClient(executable, env, "--no-session", *extension_args)
-        try:
-            _, broken_events = broken.request(
-                "corrupt-start", {"type": "get_state"},
-            )
-            warnings = [
-                text
-                for text in notification_texts(broken_events)
-                if "Cannot parse" in (text or "")
-            ]
-            assert len(warnings) == 1, f"expected one warning, got {warnings}"
-            entries, _ = broken.request("entries-corrupt", {"type": "get_entries"})
-            assert message_count(entries, "succinct-rules") == 0
-
-            broken.request(
-                "corrupt-off",
-                {"type": "prompt", "message": "/succinct off"},
-            )
-            assert (
-                Path(agent_dir, "succinct.json").read_text(encoding="utf8")
-                == corrupt
-            ), "A broken preference file was overwritten"
-            entries, _ = broken.request(
-                "entries-corrupt-off", {"type": "get_entries"},
-            )
-            assert latest_enabled(entries) is False
-        finally:
-            broken.close()
+            unflagged.close()
 
     print(f"{args.runtime} extension smoke test passed")
 

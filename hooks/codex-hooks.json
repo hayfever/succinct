@@ -1,5 +1,5 @@
 {
-  "description": "Load the succinct ruleset at session start when the user opted in with the .succinct-always flag or saved $succinct on, and save $succinct on or $succinct off for future sessions. Codex uses this file instead of hooks/hooks.json: Codex reads the plugin path from the PLUGIN_ROOT environment variable rather than substituting it into the command text, and its default Windows shell is cmd.exe.",
+  "description": "Load the succinct ruleset at session start while $CODEX_HOME/.succinct-always exists. $succinct on creates the flag and $succinct off deletes it. Codex uses this file instead of hooks/hooks.json: Codex reads the plugin path from the PLUGIN_ROOT environment variable rather than substituting it into the command text, and its default Windows shell is cmd.exe.",
   "hooks": {
     "SessionStart": [
       {
